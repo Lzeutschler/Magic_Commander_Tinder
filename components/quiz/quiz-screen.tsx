@@ -1,8 +1,8 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 
+import { CircleNotchIcon } from "@/components/icons";
 import { artCropUrl } from "@/lib/cards/image";
 import { QUESTIONS, TRACK_QUESTION } from "@/lib/quiz/questions";
 import type { Track } from "@/lib/quiz/types";
@@ -22,7 +22,7 @@ export function QuizScreen() {
   if (!hydrated) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <Loader2 className="size-8 animate-spin text-gold" />
+        <CircleNotchIcon className="size-8 animate-spin text-ember" />
       </div>
     );
   }

@@ -19,9 +19,11 @@ import {
   HeartIcon as HeartBase,
   InfoIcon as InfoBase,
   KeyboardIcon as KeyboardBase,
+  ListChecksIcon as ListChecksBase,
   ListIcon as ListBase,
   MagnifyingGlassIcon as MagnifyingGlassBase,
   MinusIcon as MinusBase,
+  NotePencilIcon as NotePencilBase,
   PlayIcon as PlayBase,
   PlusIcon as PlusBase,
   ShuffleIcon as ShuffleBase,
@@ -68,9 +70,11 @@ export const HandIcon = bold(HandBase, "HandIcon");
 export const HeartIcon = bold(HeartBase, "HeartIcon");
 export const InfoIcon = bold(InfoBase, "InfoIcon");
 export const KeyboardIcon = bold(KeyboardBase, "KeyboardIcon");
+export const ListChecksIcon = bold(ListChecksBase, "ListChecksIcon");
 export const ListIcon = bold(ListBase, "ListIcon");
 export const MagnifyingGlassIcon = bold(MagnifyingGlassBase, "MagnifyingGlassIcon");
 export const MinusIcon = bold(MinusBase, "MinusIcon");
+export const NotePencilIcon = bold(NotePencilBase, "NotePencilIcon");
 export const PlayIcon = bold(PlayBase, "PlayIcon");
 export const PlusIcon = bold(PlusBase, "PlusIcon");
 export const ShuffleIcon = bold(ShuffleBase, "ShuffleIcon");

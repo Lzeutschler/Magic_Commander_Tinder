@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowLeft, Loader2, Sparkles, Star, X } from "lucide-react";
 import { useState } from "react";
 
 import { CommanderSetup } from "@/components/build/commander-setup";
 import { CardImage } from "@/components/card/card-image";
+import { ArrowLeftIcon, CircleNotchIcon, SparkleIcon, StarIcon, XIcon } from "@/components/icons";
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import type { ScoredCommander, Track } from "@/lib/quiz/types";
 import { cn } from "@/lib/utils";
@@ -27,26 +28,23 @@ export function Shortlist({ track }: { track: Track }) {
   if (isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <Loader2 className="size-8 animate-spin text-gold" />
+        <CircleNotchIcon className="size-8 animate-spin text-ember" />
       </div>
     );
   }
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-8">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold sm:text-4xl">
-            <span className="text-gold-gradient">Your shortlist</span>
-          </h1>
-          <p className="max-w-2xl text-muted-foreground">
-            Choose your commander, set a power level and start swiping cards for its 99.
-          </p>
-        </div>
-        <Button variant="outline" onClick={keepSwiping}>
-          <ArrowLeft /> Keep swiping
-        </Button>
-      </header>
+      <PageHeader
+        eyebrow="Find your commander"
+        title="Your shortlist"
+        description="Choose your commander, set a power level and start swiping cards for its 99."
+        actions={
+          <Button variant="outline" onClick={keepSwiping}>
+            <ArrowLeftIcon /> Keep swiping
+          </Button>
+        }
+      />
 
       {selected ? (
         <CommanderSetup
@@ -56,19 +54,19 @@ export function Shortlist({ track }: { track: Track }) {
           closeLabel="Remove from shortlist"
         >
           <ul className="space-y-1.5 text-sm">
-            <li className="text-xs font-semibold tracking-widest text-gold uppercase">
+            <li className="eyebrow text-ember">
               {matchPercent(selected.score, topScore)}% match
             </li>
             {selected.reasons.map((reason) => (
               <li key={reason.text} className="flex gap-2">
-                <Sparkles className="mt-0.5 size-3.5 shrink-0 text-gold" />
+                <SparkleIcon className="mt-0.5 size-3.5 shrink-0 text-ember" />
                 {reason.text}
               </li>
             ))}
           </ul>
         </CommanderSetup>
       ) : (
-        <div className="panel flex flex-col items-center gap-4 p-10 text-center text-muted-foreground">
+        <div className="panel-inset flex flex-col items-center gap-4 p-10 text-center text-muted-foreground">
           Your shortlist is empty. Swipe right on commanders you like.
           <Button onClick={keepSwiping}>Back to swiping</Button>
         </div>
@@ -76,8 +74,8 @@ export function Shortlist({ track }: { track: Track }) {
 
       {entries.length > 1 && (
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold">Or choose another</h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+          <h2 className="text-2xl font-bold">Or choose another</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {entries.map(({ decision, scored }) => {
               const { commander } = scored;
               const active = commander.id === selected?.commander.id;
@@ -92,24 +90,24 @@ export function Shortlist({ track }: { track: Track }) {
                     aria-pressed={active}
                     aria-label={commander.name}
                     className={cn(
-                      "block w-full rounded-[5%] ring-2 ring-transparent transition hover:-translate-y-1",
-                      active && "ring-gold",
+                      "block w-full rounded-[5%] ring-3 ring-transparent ring-offset-2 ring-offset-background transition hover:-translate-y-1",
+                      active && "ring-ember",
                     )}
                   >
                     <CardImage card={commander} size="normal" />
                   </button>
-                  <div className="mt-1.5 flex items-center justify-between gap-1 text-xs text-muted-foreground">
+                  <div className="mt-1 flex items-center justify-between gap-1 text-xs text-muted-foreground tabular-nums">
                     <span className="flex items-center gap-1">
-                      {decision === "maybe" && <Star className="size-3 text-maybe" />}
+                      {decision === "maybe" && <StarIcon className="size-3.5 text-maybe" />}
                       {matchPercent(scored.score, topScore)}% match
                     </span>
                     <button
                       type="button"
                       onClick={() => remove(commander.id)}
-                      className="rounded p-0.5 hover:bg-white/10 hover:text-foreground"
+                      className="-mr-2 grid size-10 place-items-center rounded-md hover:bg-accent hover:text-foreground"
                       aria-label={`Remove ${commander.name} from shortlist`}
                     >
-                      <X className="size-3.5" />
+                      <XIcon className="size-4" />
                     </button>
                   </div>
                 </div>

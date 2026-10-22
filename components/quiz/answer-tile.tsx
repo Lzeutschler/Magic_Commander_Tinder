@@ -1,8 +1,7 @@
 "use client";
 
-import { Check, Shuffle } from "lucide-react";
-
 import { ManaSymbol } from "@/components/card/mana";
+import { CheckIcon, ShuffleIcon } from "@/components/icons";
 import { artCropUrl } from "@/lib/cards/image";
 import type { AnswerOption } from "@/lib/quiz/types";
 import { cn } from "@/lib/utils";
@@ -29,8 +28,8 @@ export function AnswerTile({
       aria-pressed={selected}
       onClick={onClick}
       className={cn(
-        "group relative isolate flex overflow-hidden rounded-xl border-2 border-white/10 bg-card text-left shadow-lg shadow-black/30 transition outline-none",
-        "hover:-translate-y-0.5 hover:border-white/30 focus-visible:border-gold/70",
+        "group relative isolate flex overflow-hidden rounded-xl border-2 border-border bg-card text-left shadow-md transition",
+        "hover:-translate-y-0.5 hover:border-input",
         {
           large: "aspect-[4/3] sm:aspect-[16/10]",
           normal: "aspect-[4/3]",
@@ -38,7 +37,7 @@ export function AnswerTile({
           tall: "aspect-[4/3] lg:aspect-[3/4]",
           dense: "aspect-[5/4]",
         }[variant],
-        selected && "border-gold shadow-[0_0_28px] shadow-gold/25 hover:border-gold",
+        selected && "border-ember shadow-[inset_0_0_0_1px_var(--ember),0_2px_0_0_oklch(0_0_0/50%)] hover:border-ember",
       )}
     >
       {option.art ? (
@@ -51,27 +50,27 @@ export function AnswerTile({
           className="absolute inset-0 -z-10 size-full object-cover transition duration-500 group-hover:scale-105"
         />
       ) : (
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-white/[0.08] to-transparent">
-          <Shuffle className={cn("absolute top-3 left-3 text-muted-foreground/70", dense ? "size-5" : "size-7")} />
+        <div className="absolute inset-0 -z-10 bg-[repeating-linear-gradient(60deg,oklch(0.72_0.165_48/7%)_0_1px,transparent_1px_10px)]">
+          <ShuffleIcon className={cn("absolute top-3 left-3 text-muted-foreground/70", dense ? "size-5" : "size-7")} />
         </div>
       )}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/90 via-black/35 to-black/0" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink via-ink/45 to-ink/0" />
 
       {option.symbol && (
         <ManaSymbol symbol={option.symbol} className={cn("absolute top-2.5 left-2.5 drop-shadow-lg", dense ? "size-6" : "size-8")} />
       )}
       {selected && (
-        <span className="absolute top-2 right-2 grid size-6 place-items-center rounded-full bg-gold text-black shadow-md">
-          <Check className="size-4" strokeWidth={3} />
+        <span className="absolute top-2 right-2 grid size-7 place-items-center rounded-sm bg-ember text-ink shadow-md">
+          <CheckIcon className="size-4" />
         </span>
       )}
 
       <span className={cn("mt-auto flex flex-col gap-0.5", dense ? "p-2" : "p-3 sm:p-4")}>
-        <span className={cn("font-heading leading-tight font-bold text-white drop-shadow", dense ? "text-xs sm:text-sm" : large ? "text-lg sm:text-2xl" : "text-sm sm:text-base")}>
+        <span className={cn("font-heading leading-tight font-bold text-foreground drop-shadow-[0_1px_1px_oklch(0_0_0/80%)]", dense ? "text-sm sm:text-base" : large ? "text-xl sm:text-3xl" : "text-base sm:text-lg")}>
           {option.label}
         </span>
         {option.description && !dense && (
-          <span className={cn("line-clamp-2 text-white/75", large ? "text-sm sm:text-base" : "text-xs")}>{option.description}</span>
+          <span className={cn("line-clamp-2 text-foreground/80", large ? "text-sm sm:text-base" : "text-xs sm:text-sm")}>{option.description}</span>
         )}
       </span>
     </button>
