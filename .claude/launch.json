@@ -6,6 +6,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["dev"],
       "port": 3000
+    },
+    {
+      "name": "dev-3002",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev", "--port", "3002"],
+      "port": 3002
     }
   ]
 }
