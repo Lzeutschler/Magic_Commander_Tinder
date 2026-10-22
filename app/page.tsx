@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 import { DeckList } from "@/components/deck/deck-list";
+import { BrewScene } from "@/components/home/brew-scene";
 import { ArrowRightIcon, ManaGlyph, type ManaGlyphName } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { SITE } from "@/lib/site";
 
 /** Each feature is drawn like a card: a name bar with its symbol, a rules box and a type line with the action. */
@@ -31,17 +31,11 @@ const FEATURES: { title: string; text: string; href: string; glyph: ManaGlyphNam
   },
 ];
 
-/** Three fanned placeholder cards, one per card type, drawn in the app's own frame. */
-const FAN: { glyph: ManaGlyphName; label: string; art: string; rotate: string }[] = [
-  { glyph: "land", label: "Land", art: "from-[oklch(0.55_0.1_150)] to-[oklch(0.32_0.06_160)]", rotate: "-rotate-12 translate-x-10 translate-y-6" },
-  { glyph: "instant", label: "Instant", art: "from-[oklch(0.6_0.11_240)] to-[oklch(0.33_0.07_255)]", rotate: "rotate-0 z-10" },
-  { glyph: "creature", label: "Creature", art: "from-[oklch(0.66_0.16_40)] to-[oklch(0.38_0.1_30)]", rotate: "rotate-12 -translate-x-10 translate-y-6" },
-];
-
 export default function HomePage() {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-16 px-4 py-12 sm:py-16">
-      <section className="grid items-center gap-10 md:grid-cols-[1.2fr_1fr]">
+      {/* Clipped sideways: the swiped-right cards fly out of the scene. */}
+      <section className="grid items-center gap-10 overflow-x-clip md:grid-cols-[1.2fr_1fr]">
         <div className="space-y-6">
           <h1 className="text-5xl leading-[0.95] font-extrabold sm:text-7xl">{SITE.tagline}</h1>
           <p className="max-w-xl text-lg text-muted-foreground">
@@ -57,31 +51,8 @@ export default function HomePage() {
             </Button>
           </div>
         </div>
-        <div className="hidden justify-center py-6 md:flex" aria-hidden="true">
-          {FAN.map(({ glyph, label, art, rotate }) => (
-            <div
-              key={glyph}
-              className={cn(
-                "card-aspect -mx-6 w-44 shrink-0 rounded-[4.75%] border-[6px] border-ink bg-[#2a313d] p-1.5 shadow-xl lg:w-52",
-                rotate,
-              )}
-            >
-              <div className="flex h-full flex-col gap-1.5 rounded-[3%] bg-[#d9dde6] p-1.5 text-ink">
-                <div className="h-4 rounded-xs bg-[#eef1f6] shadow-[inset_0_-1px_0_oklch(0_0_0/20%)]" />
-                <div className={cn("grid flex-[1.1] place-items-center rounded-xs bg-gradient-to-b text-white/85", art)}>
-                  <ManaGlyph name={glyph} className="text-5xl drop-shadow-[0_2px_0_oklch(0_0_0/40%)]" />
-                </div>
-                <div className="ui-label rounded-xs bg-[#eef1f6] px-1.5 py-0.5 text-[0.625rem] text-ink/80">
-                  {label}
-                </div>
-                <div className="flex-1 space-y-1 rounded-xs bg-[#eef1f6] p-1.5">
-                  <div className="h-1 w-11/12 rounded-full bg-ink/20" />
-                  <div className="h-1 w-3/4 rounded-full bg-ink/20" />
-                  <div className="h-1 w-5/6 rounded-full bg-ink/20" />
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="flex justify-center md:justify-end">
+          <BrewScene className="text-[7px] min-[400px]:text-[8px] sm:text-[9px] lg:text-[11px]" />
         </div>
       </section>
 
