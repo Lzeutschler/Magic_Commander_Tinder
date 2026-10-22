@@ -31,6 +31,37 @@ test("build, export and goldfish a deck", async ({ page }) => {
   await expect(page.getByTestId("turn")).toHaveText("1");
 });
 
+// Deck settings: set a budget before starting, then change the land count while swiping.
+test("adjust deck settings before and while swiping", async ({ page }) => {
+  await page.goto("/build");
+  await page.getByPlaceholder("Search commanders or creature types…").fill("krenko mob");
+  await page.getByRole("button", { name: "Krenko, Mob Boss" }).click();
+  await page.getByRole("button", { name: "Advanced settings" }).click();
+  const budget = page.getByRole("group", { name: "Budget per card" });
+  await budget.getByRole("button", { name: "$5", exact: true }).click();
+  await expect(budget.getByRole("button", { name: "$5", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Start swiping" }).click();
+
+  await expect(page.getByText("cards picked")).toBeVisible({ timeout: 30_000 });
+  const landsCounter = page.getByText(/^Lands 0\/\d+$/);
+  const lands = Number((await landsCounter.textContent())!.split("/")[1]);
+
+  await page.getByRole("button", { name: "Deck settings" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog.getByRole("group", { name: "Budget per card" }).getByRole("button", { name: "$5", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await dialog.getByRole("button", { name: "More lands" }).click();
+  await expect(landsCounter).toHaveText(`Lands 0/${lands + 1}`);
+
+  await dialog.getByRole("button", { name: "Reset to recommendation" }).click();
+  await expect(landsCounter).toHaveText(`Lands 0/${lands}`);
+  await page.keyboard.press("Escape");
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByTestId("picked-count")).toHaveText("1/99");
+});
+
 // Quiz: advanced track → commander swipe → shortlist → deckbuilding swipe.
 test("find a commander with the quiz and start a deck", async ({ page }) => {
   await page.goto("/quiz");

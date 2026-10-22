@@ -30,6 +30,7 @@ import {
   ShuffleIcon as ShuffleBase,
   SidebarSimpleIcon as SidebarSimpleBase,
   SkipForwardIcon as SkipForwardBase,
+  SlidersHorizontalIcon as SlidersHorizontalBase,
   SparkleIcon as SparkleBase,
   StackIcon as StackBase,
   StarIcon as StarBase,
@@ -82,6 +83,7 @@ export const PlusIcon = bold(PlusBase, "PlusIcon");
 export const ShuffleIcon = bold(ShuffleBase, "ShuffleIcon");
 export const SidebarSimpleIcon = bold(SidebarSimpleBase, "SidebarSimpleIcon");
 export const SkipForwardIcon = bold(SkipForwardBase, "SkipForwardIcon");
+export const SlidersHorizontalIcon = bold(SlidersHorizontalBase, "SlidersHorizontalIcon");
 export const SparkleIcon = bold(SparkleBase, "SparkleIcon");
 export const StackIcon = bold(StackBase, "StackIcon");
 export const StarIcon = bold(StarBase, "StarIcon");

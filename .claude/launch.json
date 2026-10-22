@@ -38,6 +38,16 @@
         "3003"
       ],
       "port": 3003
+    },
+    {
+      "name": "dev-3003",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "dev",
+        "--port",
+        "3003"
+      ],
+      "port": 3003
     }
   ]
 }

@@ -3,8 +3,12 @@
 A web app for Magic: The Gathering Commander players:
 
 1. **Deckbuilding Tinder** (live): pick a commander and a bracket, then swipe through cards that fit.
-   The deck keeps its mana curve, ramp, draw, interaction and board wipes in balance and respects the
-   bracket's Game Changer, mass land denial and extra-turn limits. Finish with basics, edit, import and export.
+   The deck keeps its mana curve, ramp, draw, interaction, board wipes, protection and finishers in balance,
+   with targets tuned to what EDHREC decks of that commander play, and respects the bracket's Game Changer,
+   mass land denial, extra-turn and two-card combo limits (combos via Commander Spellbook). Deck settings
+   (land count, role targets, curve, synergy vs. staples, budget per card, Game Changers) can be changed
+   before and while swiping. Finish with basics, edit, import and export. See
+   [docs/deckbuilding-review.md](docs/deckbuilding-review.md) for the reasoning behind the numbers.
 2. **Goldfish** (live): an MTG Arena-style sandbox to test a deck. Drag cards between zones, click to
    play or tap, right-click for counters, tokens, flip and zone moves. London mulligan (first one free),
    scry/surveil/mill/search, commander tax, undo, keyboard shortcuts (D, U, N, S, M, ⌘Z) and an

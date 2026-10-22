@@ -9,11 +9,17 @@ import { frontFaceName } from "@/lib/cards/names";
 import {
   decide,
   finish,
+  refreshSession,
   skipToLands,
+  startSession,
   undo,
   type SwipeDecision,
   type SwipeSession,
 } from "@/lib/deckbuilder/session";
+import { DEFAULT_PREFERENCES, type DeckSettings, type SwipePreferences } from "@/lib/deckbuilder/settings";
+import type { DeckTemplate } from "@/lib/deckbuilder/template";
+import type { CandidatePool } from "@/lib/deckbuilder/types";
+import { DECK_STORE_VERSION, migrateDeckStore } from "@/lib/decks/migrate";
 import type { Bracket } from "@/lib/edhrec/types";
 import type { Deck } from "@/lib/decks/types";
 
@@ -21,11 +27,27 @@ interface DeckStore {
   decks: Record<string, Deck>;
   /** In-progress swipe sessions, keyed by deck id. */
   sessions: Record<string, SwipeSession>;
+  /** Oracle ids of cards swiped left, per commander oracle id, for "hide cards I passed before". */
+  passedByCommander: Record<string, string[]>;
+  /** Preferences of the deck changed last; new decks start with them. */
+  lastPreferences: SwipePreferences;
 
-  createDeck(input: { commander: Card; bracket: Bracket; theme: string | null; name?: string; entries?: Deck["entries"]; maybe?: Card[] }): string;
+  createDeck(input: {
+    commander: Card;
+    bracket: Bracket;
+    theme: string | null;
+    name?: string;
+    entries?: Deck["entries"];
+    maybe?: Card[];
+    settings?: DeckSettings;
+    recommendation?: DeckTemplate;
+  }): string;
   updateDeck(id: string, update: (deck: Deck) => Deck): void;
   deleteDeck(id: string): void;
-  setSession(deckId: string, session: SwipeSession | null): void;
+  /** Starts swiping `deckId` with a freshly loaded candidate pool. */
+  startSession(deckId: string, pool: CandidatePool, seed: number): void;
+  /** Changes a deck's swipe settings; the running session picks them up with the next card. */
+  updateSettings(deckId: string, settings: DeckSettings): void;
   swipe(deckId: string, cardId: string, decision: SwipeDecision): void;
   undoSwipe(deckId: string): void;
   skipToLands(deckId: string): void;
@@ -38,8 +60,10 @@ export const useDeckStore = create<DeckStore>()(
     (set, get) => ({
       decks: {},
       sessions: {},
+      passedByCommander: {},
+      lastPreferences: DEFAULT_PREFERENCES,
 
-      createDeck({ commander, bracket, theme, name, entries = [], maybe = [] }) {
+      createDeck({ commander, bracket, theme, name, entries = [], maybe = [], settings, recommendation }) {
         const id = crypto.randomUUID();
         const now = Date.now();
         const deck: Deck = {
@@ -50,10 +74,15 @@ export const useDeckStore = create<DeckStore>()(
           theme,
           entries,
           maybe,
+          settings: settings ?? { overrides: {}, preferences: get().lastPreferences },
+          recommendation,
           createdAt: now,
           updatedAt: now,
         };
-        set((s) => ({ decks: { ...s.decks, [id]: deck } }));
+        set((s) => ({
+          decks: { ...s.decks, [id]: deck },
+          lastPreferences: settings ? settings.preferences : s.lastPreferences,
+        }));
         return id;
       },
 
@@ -71,11 +100,28 @@ export const useDeckStore = create<DeckStore>()(
         });
       },
 
-      setSession(deckId, session) {
-        set((s) => {
-          const { [deckId]: _old, ...sessions } = s.sessions;
-          return { sessions: session ? { ...sessions, [deckId]: session } : sessions };
-        });
+      startSession(deckId, pool, seed) {
+        const { decks, passedByCommander } = get();
+        const deck = decks[deckId];
+        if (!deck) return;
+        const next = startSession(deck, pool, seed, passedByCommander[deck.commander.oracleId] ?? []);
+        set((s) => ({
+          decks: { ...s.decks, [deckId]: next.deck },
+          sessions: { ...s.sessions, [deckId]: next.session },
+        }));
+      },
+
+      updateSettings(deckId, settings) {
+        const { decks, sessions } = get();
+        const deck = decks[deckId];
+        if (!deck) return;
+        const nextDeck = { ...deck, settings, updatedAt: Date.now() };
+        const session = sessions[deckId];
+        set((s) => ({
+          decks: { ...s.decks, [deckId]: nextDeck },
+          sessions: session ? { ...s.sessions, [deckId]: refreshSession(session, nextDeck) } : s.sessions,
+          lastPreferences: settings.preferences,
+        }));
       },
 
       swipe(deckId, cardId, decision) {
@@ -88,16 +134,25 @@ export const useDeckStore = create<DeckStore>()(
         set((s) => ({
           decks: { ...s.decks, [deckId]: next.deck },
           sessions: { ...s.sessions, [deckId]: next.session },
+          passedByCommander:
+            decision === "pass" ? togglePassed(s.passedByCommander, deck.commander.oracleId, card.oracleId, true) : s.passedByCommander,
         }));
       },
 
       undoSwipe(deckId) {
         const { decks, sessions } = get();
-        if (!decks[deckId] || !sessions[deckId]) return;
-        const next = undo(sessions[deckId], decks[deckId]);
+        const deck = decks[deckId];
+        const session = sessions[deckId];
+        if (!deck || !session) return;
+        const last = session.history.at(-1);
+        const lastCard = last?.decision === "pass" ? session.pool.find((c) => c.id === last.cardId) : undefined;
+        const next = undo(session, deck);
         set((s) => ({
           decks: { ...s.decks, [deckId]: next.deck },
           sessions: { ...s.sessions, [deckId]: next.session },
+          passedByCommander: lastCard
+            ? togglePassed(s.passedByCommander, deck.commander.oracleId, lastCard.oracleId, false)
+            : s.passedByCommander,
         }));
       },
 
@@ -119,11 +174,25 @@ export const useDeckStore = create<DeckStore>()(
     }),
     {
       name: "commander-tinder",
-      version: 1,
+      version: DECK_STORE_VERSION,
       storage: createJSONStorage(() => localStorage),
+      migrate: (persisted, version) => migrateDeckStore(persisted, version) as DeckStore,
     },
   ),
 );
+
+/** Most cards remembered as passed per commander; older passes drop out first. */
+const MAX_PASSED = 500;
+
+function togglePassed(
+  passed: Record<string, string[]>,
+  commanderId: string,
+  cardId: string,
+  add: boolean,
+): Record<string, string[]> {
+  const rest = (passed[commanderId] ?? []).filter((id) => id !== cardId);
+  return { ...passed, [commanderId]: add ? [...rest, cardId].slice(-MAX_PASSED) : rest };
+}
 
 /** False during SSR and until the persisted decks have been read from localStorage. */
 export function useDecksHydrated(): boolean {

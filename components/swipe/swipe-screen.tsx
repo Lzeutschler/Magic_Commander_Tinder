@@ -14,6 +14,7 @@ import {
   ArrowUUpLeftIcon,
   CardsIcon,
   CircleNotchIcon,
+  SlidersHorizontalIcon,
   SparkleIcon,
 } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
@@ -24,12 +25,13 @@ import { fetchCandidatePool } from "@/lib/data/client";
 import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
 import { explainCandidate } from "@/lib/deckbuilder/score";
 import {
-  createSession,
   nextCandidate,
   rankCandidates,
+  scoreContext,
   type SwipeDecision,
   type SwipeSession,
 } from "@/lib/deckbuilder/session";
+import { deckTemplate } from "@/lib/deckbuilder/settings";
 import type { Candidate } from "@/lib/deckbuilder/types";
 import { deckStats } from "@/lib/decks/stats";
 import { DECK_SIZE, type Deck } from "@/lib/decks/types";
@@ -38,6 +40,7 @@ import { ROLE_LABELS } from "@/lib/tagging/roles";
 import { cn } from "@/lib/utils";
 import { useDeckStore, useDecksHydrated } from "@/stores/decks";
 
+import { DeckSettingsDialog } from "./deck-settings-dialog";
 import { DeckCounter, MiniCurve, RoleMeters } from "./deck-progress";
 import { SwipeButtons, SwipeStack, useSwipeKeys } from "./swipe-controls";
 
@@ -45,7 +48,7 @@ export function SwipeScreen({ deckId }: { deckId: string }) {
   const hydrated = useDecksHydrated();
   const deck = useDeckStore((s) => s.decks[deckId]);
   const session = useDeckStore((s) => s.sessions[deckId]);
-  const setSession = useDeckStore((s) => s.setSession);
+  const startSession = useDeckStore((s) => s.startSession);
 
   const pool = useQuery({
     queryKey: ["candidates", deck?.commander.name, deck?.bracket, deck?.theme],
@@ -59,8 +62,8 @@ export function SwipeScreen({ deckId }: { deckId: string }) {
   useEffect(() => {
     if (started.current || !deck || session || !pool.data) return;
     started.current = true;
-    setSession(deck.id, createSession(deck, pool.data, randomSeed()));
-  }, [deck, session, pool.data, setSession]);
+    startSession(deck.id, pool.data, randomSeed());
+  }, [deck, session, pool.data, startSession]);
 
   if (!hydrated) return <FullScreenMessage loading>Loading your decks…</FullScreenMessage>;
   if (!deck) {
@@ -98,10 +101,11 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
   const [lastDecision, setLastDecision] = useState<SwipeDecision | null>(null);
 
   const stats = useMemo(() => deckStats(deck), [deck]);
+  const template = useMemo(() => deckTemplate(deck), [deck]);
   const current = useMemo(() => nextCandidate(session, deck), [session, deck]);
   const reasons = useMemo(
-    () => (current ? explainCandidate(current, stats, session.template, frontFaceName(deck.commander.name)) : []),
-    [current, stats, session.template, deck.commander.name],
+    () => (current ? explainCandidate(current, scoreContext(session, deck), frontFaceName(deck.commander.name)) : []),
+    [current, session, deck],
   );
 
   // Warm the image cache for the cards most likely to come next.
@@ -158,13 +162,14 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
             </div>
           </div>
         </div>
-        <DeckCounter deck={deck} stats={stats} template={session.template} />
-        <RoleMeters stats={stats} template={session.template} />
+        <DeckCounter deck={deck} stats={stats} template={template} />
+        <RoleMeters stats={stats} template={template} />
         <div>
           <div className="eyebrow mb-1.5 text-muted-foreground">Mana curve <span className="normal-case tracking-normal font-normal">(dashed = target)</span></div>
-          <MiniCurve stats={stats} template={session.template} />
+          <MiniCurve stats={stats} template={template} />
         </div>
         <div className="flex flex-col gap-2">
+          <DeckSettingsDialog deck={deck} />
           {session.phase === "spells" && (
             <Button variant="outline" onClick={() => skipToLands(deck.id)}>
               Skip to lands
@@ -183,11 +188,21 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
 
       {/* Swipe stack */}
       <section className="order-1 flex flex-col items-center gap-5 select-none lg:order-2">
-        <div className="eyebrow flex items-center gap-2 text-muted-foreground">
-          <CardsIcon className="size-4" />
-          {session.phase === "spells" && "Spells & permanents"}
-          {session.phase === "lands" && "Nonbasic lands"}
-          {session.phase === "done" && "Deck complete"}
+        <div className="flex w-full max-w-md items-center justify-between gap-2">
+          <div className="eyebrow flex items-center gap-2 text-muted-foreground">
+            <CardsIcon className="size-4" />
+            {session.phase === "spells" && "Spells & permanents"}
+            {session.phase === "lands" && "Nonbasic lands"}
+            {session.phase === "done" && "Deck complete"}
+          </div>
+          <DeckSettingsDialog
+            deck={deck}
+            trigger={
+              <Button variant="ghost" size="sm" className="lg:hidden">
+                <SlidersHorizontalIcon /> Settings
+              </Button>
+            }
+          />
         </div>
 
         {session.phase === "done" || !current ? (

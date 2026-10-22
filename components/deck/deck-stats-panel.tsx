@@ -5,21 +5,37 @@ import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recha
 import { ManaSymbol } from "@/components/card/mana";
 import { CheckCircleIcon, WarningIcon } from "@/components/icons";
 import { RoleMeters } from "@/components/swipe/deck-progress";
-import { CURVE_LABELS } from "@/lib/cards/mana";
+import { CURVE_LABELS, isLand } from "@/lib/cards/mana";
+import { useDeckCombos } from "@/lib/data/client";
 import { BRACKET_INFO, deckBracketIssues } from "@/lib/deckbuilder/brackets";
-import { deckTemplate } from "@/lib/deckbuilder/template";
+import { comboBreaksBracket, combosInDeck } from "@/lib/deckbuilder/combos";
+import { deckTemplate } from "@/lib/deckbuilder/settings";
+import { karstenLands } from "@/lib/deckbuilder/template";
 import { CARD_TYPES, deckStats, expandEntries } from "@/lib/decks/stats";
 import { DECK_SIZE, type Deck } from "@/lib/decks/types";
 import { cn } from "@/lib/utils";
 
+/** Below this many nonland cards, Karsten's land estimate says little about the finished deck. */
+const MIN_NONLANDS_FOR_KARSTEN = 40;
+
 export function DeckStatsPanel({ deck }: { deck: Deck }) {
   const stats = deckStats(deck);
-  const template = deckTemplate(deck.bracket, deck.commander.colorIdentity, null);
-  const issues = deckBracketIssues(expandEntries(deck.entries), deck.bracket);
+  const template = deckTemplate(deck);
+  const cards = expandEntries(deck.entries);
+  const combosQuery = useDeckCombos(
+    deck.commander.name,
+    cards.filter((c) => !isLand(c) || !c.typeLine.startsWith("Basic")).map((c) => c.name),
+  );
+  const combos = combosInDeck(combosQuery.data?.combos ?? [], new Set([deck.commander.name, ...cards.map((c) => c.name)]));
+  const issues = deckBracketIssues(cards, deck.bracket, { commander: deck.commander.name, combos });
   const missing = DECK_SIZE - stats.total;
+  const karsten = Math.round(karstenLands(stats.averageManaValue, stats.cheapRampDraw));
   const curveData = stats.curve.map((count, i) => ({ label: CURVE_LABELS[i], count }));
   const colors = deck.commander.colorIdentity;
   const totalPips = colors.reduce((sum, c) => sum + stats.pips[c], 0);
+  // A quarter of the lands plus the color's share of the pips, as when basics are added.
+  const sourceTarget = (color: Deck["commander"]["colorIdentity"][number]) =>
+    totalPips && stats.pips[color] ? Math.round(stats.lands * (0.25 + (0.75 * stats.pips[color]) / totalPips)) : 0;
 
   return (
     <div className="space-y-4">
@@ -37,10 +53,23 @@ export function DeckStatsPanel({ deck }: { deck: Deck }) {
         <StatusLine ok={issues.length === 0}>
           {issues.length === 0 ? `Fits bracket ${deck.bracket} (${BRACKET_INFO[deck.bracket].name})` : issues.join(" · ")}
         </StatusLine>
+        {stats.nonlands >= MIN_NONLANDS_FOR_KARSTEN && (
+          <StatusLine ok={Math.abs(stats.lands - karsten) <= 1}>
+            {Math.abs(stats.lands - karsten) <= 1
+              ? `${stats.lands} lands suit this curve`
+              : `Frank Karsten's formula suggests about ${karsten} lands for this curve and ${stats.cheapRampDraw} cheap ramp/draw spells`}
+          </StatusLine>
+        )}
         <div className="grid grid-cols-3 gap-2 pt-1 text-center text-xs">
           <Metric label="avg. mana value" value={stats.averageManaValue.toFixed(2)} />
-          <Metric label="lands" value={String(stats.lands)} />
+          <Metric label={`lands (target ${template.lands})`} value={String(stats.lands)} />
           <Metric label="est. price" value={`$${Math.round(stats.priceUsd)}`} />
+          <Metric
+            label={template.maxTutors === null ? "tutors" : `tutors (max. ${template.maxTutors})`}
+            value={String(stats.tutors)}
+          />
+          <Metric label="interaction ≤2 mana" value={String(stats.cheapInteraction)} />
+          <Metric label="ramp & draw ≤2 mana" value={String(stats.cheapRampDraw)} />
         </div>
       </section>
 
@@ -67,6 +96,26 @@ export function DeckStatsPanel({ deck }: { deck: Deck }) {
         <RoleMeters stats={stats} template={template} />
       </section>
 
+      <section className="panel space-y-2 p-4">
+        <h3 className="eyebrow text-muted-foreground">Combos</h3>
+        {combosQuery.isError ? (
+          <p className="text-xs text-muted-foreground">Commander Spellbook is unavailable right now.</p>
+        ) : combosQuery.isPending ? (
+          <p className="text-xs text-muted-foreground">Checking Commander Spellbook…</p>
+        ) : combos.length === 0 ? (
+          <p className="text-xs text-muted-foreground">No combos from Commander Spellbook in this deck.</p>
+        ) : (
+          <ul className="space-y-2 text-sm">
+            {combos.map((combo) => (
+              <li key={combo.id} className={cn(comboBreaksBracket(combo, deck.bracket) && "text-ember")}>
+                <div className="font-semibold">{combo.cards.join(" + ")}</div>
+                <div className="text-xs text-muted-foreground">{combo.results.join(" · ")}</div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       {colors.length > 0 && (
         <section className="panel space-y-2 p-4">
           <h3 className="eyebrow text-muted-foreground">Colors: pips vs. land sources</h3>
@@ -80,7 +129,12 @@ export function DeckStatsPanel({ deck }: { deck: Deck }) {
                   <td className="py-1.5 text-muted-foreground">
                     {totalPips ? Math.round((stats.pips[color] / totalPips) * 100) : 0}% of pips
                   </td>
-                  <td className="py-1.5 text-right tabular-nums">{stats.sources[color]} sources</td>
+                  <td
+                    className={cn("py-1.5 text-right tabular-nums", stats.sources[color] < sourceTarget(color) && "text-ember")}
+                    title={`Aim for about ${sourceTarget(color)} sources`}
+                  >
+                    {stats.sources[color]} sources
+                  </td>
                 </tr>
               ))}
             </tbody>

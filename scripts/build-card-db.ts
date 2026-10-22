@@ -55,7 +55,7 @@ const OUTPUTS = [
 ];
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 /** Bump when the output format changes so stale local data is rebuilt. */
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 const SCRYFALL_HEADERS = { "User-Agent": "CommanderTinder/0.1", Accept: "application/json" };
 /** EDHREC color identity page slugs, e.g. json.edhrec.com/pages/commanders/orzhov.json. */
 const EDHREC_IDENTITIES = [
@@ -246,11 +246,13 @@ function buildRoleIndex(tags: ScryfallTag[]): Map<string, Set<Role>> {
 
   const index = new Map<string, Set<Role>>();
   for (const role of ROLES) {
-    const { include, exclude = [] } = ROLE_TAGS[role];
+    const { include, exclude = [], veto = [] } = ROLE_TAGS[role];
     const excluded = descendants(exclude);
+    const vetoed = new Set([...descendants(veto)].flatMap((id) => byId.get(id)!.taggings.map((t) => t.oracle_id)));
     for (const tagId of descendants(include)) {
       if (excluded.has(tagId)) continue;
       for (const { oracle_id } of byId.get(tagId)!.taggings) {
+        if (vetoed.has(oracle_id)) continue;
         let roles = index.get(oracle_id);
         if (!roles) index.set(oracle_id, (roles = new Set()));
         roles.add(role);

@@ -6,8 +6,10 @@ import { seededRandom } from "@/lib/random";
 
 import { fillBasics } from "./basics";
 import { bracketViolation } from "./brackets";
-import { scoreCandidate } from "./score";
-import { deckTemplate, type DeckTemplate } from "./template";
+import { combosCompletedBy, type Combo } from "./combos";
+import { scoreCandidate, type ScoreContext } from "./score";
+import { deckTemplate } from "./settings";
+import { profilePool, recommendTemplate } from "./template";
 import type { Candidate, CandidatePool } from "./types";
 
 export type SwipeDecision = "pick" | "pass" | "maybe";
@@ -23,53 +25,92 @@ export interface SwipeSession {
   deckId: string;
   pool: Candidate[];
   basicLands: Card[];
-  template: DeckTemplate;
   source: CandidatePool["source"];
   deckCount: number;
   phase: SwipePhase;
   history: SwipeHistoryEntry[];
   seed: number;
+  /** Commander Spellbook combos within the pool; null when Spellbook could not be reached. */
+  combos: Combo[] | null;
+  /** Oracle ids of cards swiped left for this commander before this session started. */
+  previouslyPassed: string[];
+  /** Set by "Skip to lands": no more spells, even when spell slots are still open. */
+  skippedSpells?: boolean;
 }
 
 /** The next card is drawn at random from this many best-scored options so swiping feels fresh. */
 const TOP_CHOICES = 5;
 
-/** Starts swiping for `deck`; a deck that already has cards resumes in the matching phase. */
-export function createSession(deck: Deck, pool: CandidatePool, seed: number): SwipeSession {
+/**
+ * Starts swiping for `deck` and stores the template recommended for its commander on the deck.
+ * A deck that already has cards resumes in the matching phase.
+ */
+export function startSession(
+  deck: Deck,
+  pool: CandidatePool,
+  seed: number,
+  previouslyPassed: string[] = [],
+): { session: SwipeSession; deck: Deck } {
+  const nextDeck: Deck = {
+    ...deck,
+    recommendation: recommendTemplate(deck.bracket, deck.commander.colorIdentity, profilePool(pool)),
+  };
   const session: SwipeSession = {
     deckId: deck.id,
     pool: pool.candidates,
     basicLands: pool.basicLands,
-    template: deckTemplate(deck.bracket, deck.commander.colorIdentity, pool.averageLands),
     source: pool.source,
     deckCount: pool.deckCount,
     phase: "spells",
     history: [],
     seed,
+    combos: pool.combos,
+    previouslyPassed,
   };
-  return { ...session, phase: nextPhase(session, deck) };
+  return { session: { ...session, phase: currentPhase(session, nextDeck) }, deck: nextDeck };
 }
 
-/** Candidates still on offer in the current phase that keep the deck within its bracket. */
-function openCandidates(session: SwipeSession, deck: Deck): Candidate[] {
-  if (session.phase === "done") return [];
+/** Candidates still on offer that keep the deck within its bracket and the deck's settings. */
+function openCandidates(session: SwipeSession, deck: Deck, lands: boolean): Candidate[] {
+  const { preferences } = deck.settings;
+  const template = deckTemplate(deck);
   const seen = new Set(session.history.map((h) => h.cardId));
+  const hidden = new Set(preferences.hidePassed ? session.previouslyPassed : []);
   const deckCards = expandEntries(deck.entries);
   const inDeck = new Set(deckCards.map((c) => c.id));
-  const wantLands = session.phase === "lands";
+  const tutorsFull = template.maxTutors !== null && deckCards.filter((c) => !isLand(c) && c.roles.includes("tutor")).length >= template.maxTutors;
+  const context = { commander: deck.commander.name, combos: session.combos };
   return session.pool.filter(
     (c) =>
+      isLand(c) === lands &&
       !seen.has(c.id) &&
       !inDeck.has(c.id) &&
-      isLand(c) === wantLands &&
-      bracketViolation(c, deckCards, deck.bracket) === null,
+      !hidden.has(c.oracleId) &&
+      !(tutorsFull && c.roles.includes("tutor")) &&
+      !(preferences.maxPriceUsd !== null && c.priceUsd !== null && c.priceUsd > preferences.maxPriceUsd) &&
+      !(preferences.gameChangers === "avoid" && c.gameChanger) &&
+      bracketViolation(c, deckCards, deck.bracket, context) === null,
   );
 }
 
+/** Everything the scorer needs to know about the deck right now. */
+export function scoreContext(session: SwipeSession, deck: Deck): ScoreContext {
+  const have = new Set([deck.commander.name, ...deck.entries.map((e) => e.card.name)]);
+  const combos = deck.bracket >= 4 ? (session.combos ?? []) : [];
+  return {
+    stats: deckStats(deck),
+    template: deckTemplate(deck),
+    preferences: deck.settings.preferences,
+    identity: deck.commander.colorIdentity,
+    combosCompleted: (card) => (combos.length ? combosCompletedBy(card.name, combos, have) : []),
+  };
+}
+
 export function rankCandidates(session: SwipeSession, deck: Deck): { candidate: Candidate; score: number }[] {
-  const stats = deckStats(deck);
-  return openCandidates(session, deck)
-    .map((candidate) => ({ candidate, score: scoreCandidate(candidate, stats, session.template) }))
+  if (session.phase === "done") return [];
+  const ctx = scoreContext(session, deck);
+  return openCandidates(session, deck, session.phase === "lands")
+    .map((candidate) => ({ candidate, score: scoreCandidate(candidate, ctx) }))
     .sort((a, b) => b.score - a.score);
 }
 
@@ -89,17 +130,25 @@ export function nextCandidate(session: SwipeSession, deck: Deck): Candidate | nu
   return top[0].candidate;
 }
 
-function nextPhase(session: SwipeSession, deck: Deck): SwipePhase {
+/**
+ * Spells until the spell slots are full, then nonbasic lands up to their target, then done. Derived
+ * from the deck each time, so changed settings move the swipe to the right phase straight away.
+ */
+function currentPhase(session: SwipeSession, deck: Deck): SwipePhase {
   const stats = deckStats(deck);
-  let phase = session.phase;
-  if (phase === "spells" && (stats.nonlands >= DECK_SIZE - session.template.lands || !openCandidates(session, deck).length)) {
-    phase = "lands";
+  const template = deckTemplate(deck);
+  if (stats.total >= DECK_SIZE) return "done";
+  if (!session.skippedSpells && stats.nonlands < DECK_SIZE - template.lands && openCandidates(session, deck, false).length) {
+    return "spells";
   }
-  if (phase === "lands") {
-    const atTarget = stats.lands >= session.template.nonbasicLands || stats.total >= DECK_SIZE;
-    if (atTarget || !openCandidates({ ...session, phase }, deck).length) phase = "done";
-  }
-  return phase;
+  if (stats.lands < template.nonbasicLands && openCandidates(session, deck, true).length) return "lands";
+  return "done";
+}
+
+/** Re-evaluates the phase after the deck's settings changed. */
+export function refreshSession(session: SwipeSession, deck: Deck): SwipeSession {
+  const phase = currentPhase(session, deck);
+  return phase === session.phase ? session : { ...session, phase };
 }
 
 export function decide(
@@ -118,26 +167,29 @@ export function decide(
     ...session,
     history: [...session.history, { cardId: card.id, decision, phase: session.phase }],
   };
-  return { session: { ...nextSession, phase: nextPhase(nextSession, nextDeck) }, deck: nextDeck };
+  return { session: { ...nextSession, phase: currentPhase(nextSession, nextDeck) }, deck: nextDeck };
 }
 
 export function undo(session: SwipeSession, deck: Deck): { session: SwipeSession; deck: Deck } {
   const last = session.history.at(-1);
   if (!last) return { session, deck };
-  return {
-    session: { ...session, history: session.history.slice(0, -1), phase: last.phase },
-    deck: {
-      ...deck,
-      entries: last.decision === "pick" ? deck.entries.filter((e) => e.card.id !== last.cardId) : deck.entries,
-      maybe: last.decision === "maybe" ? deck.maybe.filter((c) => c.id !== last.cardId) : deck.maybe,
-      updatedAt: Date.now(),
-    },
+  const nextDeck: Deck = {
+    ...deck,
+    entries: last.decision === "pick" ? deck.entries.filter((e) => e.card.id !== last.cardId) : deck.entries,
+    maybe: last.decision === "maybe" ? deck.maybe.filter((c) => c.id !== last.cardId) : deck.maybe,
+    updatedAt: Date.now(),
   };
+  const nextSession: SwipeSession = {
+    ...session,
+    history: session.history.slice(0, -1),
+    skippedSpells: last.phase === "spells" ? false : session.skippedSpells,
+  };
+  return { session: { ...nextSession, phase: currentPhase(nextSession, nextDeck) }, deck: nextDeck };
 }
 
 export function skipToLands(session: SwipeSession, deck: Deck): SwipeSession {
-  const skipped = { ...session, phase: "lands" as const };
-  return { ...skipped, phase: nextPhase(skipped, deck) };
+  const skipped = { ...session, skippedSpells: true };
+  return { ...skipped, phase: currentPhase(skipped, deck) };
 }
 
 /** Completes the deck with basic lands. */

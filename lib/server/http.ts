@@ -7,6 +7,9 @@ export const CDN_CACHE_HEADERS = {
   "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
 };
 
+/** For responses that are missing optional data and should be retried soon. */
+export const SHORT_CACHE_HEADERS = { "Cache-Control": "public, max-age=60, s-maxage=300" };
+
 export function parseBracket(value: string | null): Bracket {
   const n = Number(value);
   return n >= 1 && n <= 5 ? (n as Bracket) : 3;

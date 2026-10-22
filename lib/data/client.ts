@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import type { Card, CommanderSummary } from "@/lib/cards/types";
+import type { Combo } from "@/lib/deckbuilder/combos";
 import type { CandidatePool, CommanderInsights } from "@/lib/deckbuilder/types";
 import type { Bracket } from "@/lib/edhrec/types";
 
@@ -55,5 +56,22 @@ export function resolveCardNames(names: string[]) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ names }),
+  });
+}
+
+/** Commander Spellbook combos in a deck, checked on the server. */
+export function useDeckCombos(commander: string, cards: string[]) {
+  const sorted = [...new Set(cards)].sort();
+  return useQuery({
+    queryKey: ["combos", commander, sorted],
+    queryFn: () =>
+      getJson<{ combos: Combo[] }>("/api/combos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ commander, cards: sorted }),
+      }),
+    enabled: sorted.length > 0,
+    staleTime: Infinity,
+    placeholderData: (previous) => previous,
   });
 }
