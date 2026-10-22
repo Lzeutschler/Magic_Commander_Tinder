@@ -12,6 +12,7 @@ export type Role =
   | "tutor"
   | "protection"
   | "recursion"
+  | "wincon"
   | "mld"
   | "extraturn";
 

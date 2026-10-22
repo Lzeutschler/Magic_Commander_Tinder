@@ -1,4 +1,5 @@
 import type { Card, Color, CommanderSummary, Role } from "@/lib/cards/types";
+import { DEFAULT_SETTINGS } from "@/lib/deckbuilder/settings";
 import type { Candidate } from "@/lib/deckbuilder/types";
 import type { Deck } from "@/lib/decks/types";
 
@@ -51,6 +52,7 @@ export function emptyDeck(commander: Card, bracket: Deck["bracket"] = 3): Deck {
     theme: null,
     entries: [],
     maybe: [],
+    settings: DEFAULT_SETTINGS,
     createdAt: 0,
     updatedAt: 0,
   };

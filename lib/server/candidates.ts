@@ -10,6 +10,7 @@ import { THEMES, detectThemes, stripReminderText } from "@/lib/tagging/themes";
 import { detectTribes } from "@/lib/tagging/tribes";
 
 import { findCard, getCardDb, type CardDb } from "./card-db";
+import { findCombos } from "./combos";
 
 /** Below this many decks a bracket page is too noisy; use the all-brackets page instead. */
 const MIN_BRACKET_SAMPLE = 40;
@@ -17,7 +18,7 @@ const MIN_BRACKET_SAMPLE = 40;
 const MIN_POOL = 180;
 const FALLBACK_POOL = 400;
 const STAPLES_PER_ROLE = 25;
-const STAPLE_ROLES: Role[] = ["ramp", "draw", "removal", "boardwipe"];
+const STAPLE_ROLES: Role[] = ["ramp", "draw", "removal", "boardwipe", "protection", "wincon"];
 
 async function settle<T>(promise: Promise<T>): Promise<T | null> {
   try {
@@ -74,6 +75,9 @@ export async function getCandidatePool(
     }
   }
 
+  const pool = [...candidates.values()];
+  const combos = await settle(findCombos(commander.name, pool.map((c) => c.name).sort()));
+
   const basicNames = commander.colorIdentity.length
     ? commander.colorIdentity.map((c) => BASIC_FOR_COLOR[c])
     : ["Wastes"];
@@ -85,7 +89,8 @@ export async function getCandidatePool(
     source,
     deckCount: primary?.deckCount ?? 0,
     averageLands: primary?.averageLands ?? null,
-    candidates: [...candidates.values()],
+    candidates: pool,
+    combos,
     basicLands: basicNames.map((name) => findCard(db, name)).filter((c): c is Card => Boolean(c)),
   };
 }

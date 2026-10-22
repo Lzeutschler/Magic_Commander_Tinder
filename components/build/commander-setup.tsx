@@ -1,24 +1,28 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { CardImage } from "@/components/card/card-image";
 import { ColorIdentity } from "@/components/card/mana";
-import { ArrowRightIcon, CircleNotchIcon, XIcon } from "@/components/icons";
+import { ArrowRightIcon, CaretDownIcon, CircleNotchIcon, SlidersHorizontalIcon, XIcon } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { identityName } from "@/lib/cards/colors";
 import type { CommanderSummary } from "@/lib/cards/types";
-import { useCommanderInsights } from "@/lib/data/client";
+import { fetchCandidatePool, useCommanderInsights } from "@/lib/data/client";
 import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
+import { describeSettings, type DeckSettings } from "@/lib/deckbuilder/settings";
+import { profilePool, recommendTemplate } from "@/lib/deckbuilder/template";
 import type { Bracket } from "@/lib/edhrec/types";
 import { THEMES } from "@/lib/tagging/themes";
 import { cn } from "@/lib/utils";
 import { useDeckStore } from "@/stores/decks";
 
 import { BracketPicker } from "./bracket-picker";
+import { DeckSettingsForm } from "./deck-settings-form";
 
 const MAX_THEMES = 12;
 const THEME_LABELS = new Map(THEMES.map((t) => [t.id, t.label]));
@@ -51,10 +55,32 @@ export function CommanderSetup({
   const [starting, setStarting] = useState(false);
   const insights = useCommanderInsights(commander.name);
 
+  // Swipe settings start from the preferences used last and, like the theme, belong to one commander.
+  const lastPreferences = useDeckStore((s) => s.lastPreferences);
+  const [settingsChoice, setSettingsChoice] = useState<{ commanderId: string; settings: DeckSettings } | null>(null);
+  const settings =
+    settingsChoice?.commanderId === commander.id ? settingsChoice.settings : { overrides: {}, preferences: lastPreferences };
+  const setSettings = (next: DeckSettings) => setSettingsChoice({ commanderId: commander.id, settings: next });
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+
+  // The recommendation needs the candidate pool; the swipe reuses this query once it starts.
+  const commanderName = insights.data?.commander.name ?? null;
+  const pool = useQuery({
+    queryKey: ["candidates", commanderName, bracket, theme],
+    queryFn: () => fetchCandidatePool(commanderName!, bracket, theme),
+    enabled: advancedOpen && Boolean(commanderName),
+    staleTime: Infinity,
+  });
+  const recommended = useMemo(
+    () => (pool.data ? recommendTemplate(bracket, commander.colorIdentity, profilePool(pool.data)) : null),
+    [pool.data, bracket, commander.colorIdentity],
+  );
+  const settingsNotes = describeSettings(settings);
+
   const start = () => {
     if (!insights.data) return;
     setStarting(true);
-    const id = createDeck({ commander: insights.data.commander, bracket, theme });
+    const id = createDeck({ commander: insights.data.commander, bracket, theme, settings, recommendation: recommended ?? undefined });
     onStart?.(id);
     router.push(`/build/${id}`);
   };
@@ -119,6 +145,28 @@ export function CommanderSetup({
                 </Badge>
               ))}
               <span className="text-sm text-muted-foreground">No EDHREC themes for this commander yet.</span>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <Button variant="ghost" size="sm" className="-ml-3" aria-expanded={advancedOpen} onClick={() => setAdvancedOpen((open) => !open)}>
+              <SlidersHorizontalIcon /> Advanced settings
+              <CaretDownIcon className={cn("transition-transform", advancedOpen && "rotate-180")} />
+            </Button>
+            {!advancedOpen && (
+              <span className="text-xs text-muted-foreground">
+                {settingsNotes.length ? settingsNotes.join(" · ") : "Land count, role targets, curve, budget"}
+              </span>
+            )}
+          </div>
+          {advancedOpen && (
+            <div className="rounded-lg border border-border p-4">
+              {pool.error && (
+                <p className="mb-4 text-sm text-destructive">Could not load the recommendation: {pool.error.message}</p>
+              )}
+              <DeckSettingsForm settings={settings} recommended={recommended} bracket={bracket} onChange={setSettings} />
             </div>
           )}
         </div>

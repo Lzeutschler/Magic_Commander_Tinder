@@ -1,6 +1,8 @@
 import type { Card } from "@/lib/cards/types";
 import type { Bracket, EdhrecTheme } from "@/lib/edhrec/types";
 
+import type { Combo } from "./combos";
+
 /** A card the swipe deck can offer, with how well it fits the commander. */
 export interface Candidate extends Card {
   /** EDHREC synergy (-1..1) or a heuristic estimate for fallback cards. */
@@ -17,6 +19,8 @@ export interface CandidatePool {
   deckCount: number;
   averageLands: number | null;
   candidates: Candidate[];
+  /** Commander Spellbook combos among the commander and the candidates; null when Spellbook was unreachable. */
+  combos: Combo[] | null;
   /** Basic lands for the commander's colors (Wastes when colorless), used to finish the deck. */
   basicLands: Card[];
 }

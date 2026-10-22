@@ -26,3 +26,26 @@ export function curveBucket(cmc: number): number {
 }
 
 export const CURVE_LABELS = ["≤1", "2", "3", "4", "5", "6+"];
+
+const BASIC_TYPES: [string, Color][] = [
+  ["plains", "W"],
+  ["island", "U"],
+  ["swamp", "B"],
+  ["mountain", "R"],
+  ["forest", "G"],
+];
+
+/**
+ * Colors of `identity` a land can produce. Scryfall has no produced mana for fetch lands, so lands that
+ * search for a basic land type (Misty Rainforest) or any basic land (Evolving Wilds) count for those colors.
+ */
+export function landColors(card: Pick<Card, "producedMana" | "oracleText">, identity: readonly Color[]): Color[] {
+  const colors = new Set(card.producedMana.filter((m): m is Color => identity.includes(m as Color)));
+  const search = card.oracleText.toLowerCase().match(/search your library for an? ([^.]*?)card/);
+  if (search) {
+    const wanted = search[1];
+    if (/\bbasic land\b/.test(wanted)) identity.forEach((c) => colors.add(c));
+    for (const [type, color] of BASIC_TYPES) if (wanted.includes(type) && identity.includes(color)) colors.add(color);
+  }
+  return identity.filter((c) => colors.has(c));
+}

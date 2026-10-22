@@ -7,7 +7,7 @@ import { rolesFromText } from "@/lib/tagging/roles";
 import { detectThemes } from "@/lib/tagging/themes";
 import { creatureTypes, detectTribes } from "@/lib/tagging/tribes";
 
-import { colorPips, curveBucket } from "./mana";
+import { colorPips, curveBucket, landColors } from "./mana";
 import { edhrecSlug } from "./names";
 import type { Card } from "./types";
 
@@ -26,6 +26,15 @@ describe("mana", () => {
   });
   it("buckets mana values", () => {
     expect([0, 1, 2, 5, 6, 9].map(curveBucket)).toEqual([0, 0, 1, 4, 5, 5]);
+  });
+  it("knows which colors lands make, including fetch lands", () => {
+    const misty = { producedMana: [], oracleText: "Search your library for a Forest or Island card, put it onto the battlefield, then shuffle." };
+    const wilds = { producedMana: [], oracleText: "Search your library for a basic land card, put it onto the battlefield tapped, then shuffle." };
+    const cityOfBrass = { producedMana: ["W", "U", "B", "R", "G"], oracleText: "" };
+    expect(landColors(misty, ["U", "B", "G"])).toEqual(["U", "G"]);
+    expect(landColors(wilds, ["W", "B"])).toEqual(["W", "B"]);
+    expect(landColors(cityOfBrass, ["R"])).toEqual(["R"]);
+    expect(landColors({ producedMana: ["C"], oracleText: "" }, ["U", "G"])).toEqual([]);
   });
 });
 
@@ -59,8 +68,28 @@ describe.skipIf(!existsSync(cardsFile))("generated card data", () => {
     ["Rhystic Study", "draw"],
     ["Armageddon", "mld"],
     ["Time Warp", "extraturn"],
+    ["Fact or Fiction", "draw"],
+    ["Lightning Greaves", "protection"],
+    ["Craterhoof Behemoth", "wincon"],
+    ["Thassa's Oracle", "wincon"],
   ])("%s has role %s", (name, role) => {
     expect(byName.get(name)?.roles).toContain(role);
+  });
+
+  it.each([
+    // Land tutors are ramp, not tutors.
+    ["Cultivate", "tutor"],
+    ["Rampant Growth", "tutor"],
+    // Path ramps the opponent; rituals are one-shot mana.
+    ["Path to Exile", "ramp"],
+    ["Dark Ritual", "ramp"],
+    // Cantrips, loots and eggs filter cards but do not add any.
+    ["Ponder", "draw"],
+    ["Brainstorm", "draw"],
+    ["Faithless Looting", "draw"],
+    ["Mind Stone", "draw"],
+  ])("%s does not have role %s", (name, role) => {
+    expect(byName.get(name)?.roles).not.toContain(role);
   });
 
   it("flags Game Changers and keeps lands out of ramp", () => {

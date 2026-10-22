@@ -1,6 +1,8 @@
 import type { Card } from "@/lib/cards/types";
 import type { Bracket } from "@/lib/edhrec/types";
 
+import { comboBreaksBracket, comboPartners, combosCompletedBy, combosInDeck, type Combo } from "./combos";
+
 export interface BracketInfo {
   name: string;
   tagline: string;
@@ -12,22 +14,26 @@ export interface BracketInfo {
 }
 
 /**
- * Commander Brackets (WotC beta). The Game Changers list itself comes from Scryfall's
- * `game_changer` flag, so only the per-bracket limits live here.
+ * Commander Brackets (WotC beta, as of the October 2025 and February 2026 updates). The Game Changers
+ * list itself comes from Scryfall's `game_changer` flag, so only the per-bracket limits live here.
+ * Tutors are no longer restricted by the brackets; two-card combos are checked with Commander
+ * Spellbook data (see combos.ts).
  */
 export const BRACKET_INFO: Record<Bracket, BracketInfo> = {
   1: {
     name: "Exhibition",
     tagline: "Theme first, power last",
-    description: "Ultra-casual decks built around a fun idea. No Game Changers, no mass land denial, no extra turns.",
+    description:
+      "Theme over function, with thematic or substandard ways to win. No Game Changers, two-card combos, mass land denial or extra turns. Games last nine turns or more.",
     maxGameChangers: 0,
     maxExtraTurns: 0,
     allowMassLandDenial: false,
   },
   2: {
     name: "Core",
-    tagline: "Precon power level",
-    description: "Like a modern preconstructed deck. No Game Changers, no mass land denial, no chained extra turns.",
+    tagline: "Casual, around precon power",
+    description:
+      "Wins that are incremental, telegraphed and disruptable. No Game Changers, two-card combos or mass land denial; few extra turns, never chained. Games last eight turns or more.",
     maxGameChangers: 0,
     maxExtraTurns: 1,
     allowMassLandDenial: false,
@@ -35,7 +41,8 @@ export const BRACKET_INFO: Record<Bracket, BracketInfo> = {
   3: {
     name: "Upgraded",
     tagline: "Tuned and stronger than a precon",
-    description: "Focused synergy and strong cards. Up to three Game Changers, no mass land denial or chained extra turns.",
+    description:
+      "Strong synergy and card quality; a win can come from one big turn. Up to three Game Changers, no early two-card combos, no mass land denial or chained extra turns. Games last six turns or more.",
     maxGameChangers: 3,
     maxExtraTurns: 1,
     allowMassLandDenial: false,
@@ -43,7 +50,8 @@ export const BRACKET_INFO: Record<Bracket, BracketInfo> = {
   4: {
     name: "Optimized",
     tagline: "High power, anything goes",
-    description: "Lethal, efficient and consistent. No restrictions beyond the banned list.",
+    description:
+      "Fast mana, tutors, free interaction and efficient wins. No restrictions beyond the banned list. Games last four turns or more.",
     maxGameChangers: Infinity,
     maxExtraTurns: Infinity,
     allowMassLandDenial: true,
@@ -51,7 +59,7 @@ export const BRACKET_INFO: Record<Bracket, BracketInfo> = {
   5: {
     name: "cEDH",
     tagline: "Competitive tournament play",
-    description: "The strongest possible deck for a competitive metagame.",
+    description: "The strongest possible deck for a competitive metagame. Games can end on any turn.",
     maxGameChangers: Infinity,
     maxExtraTurns: Infinity,
     allowMassLandDenial: true,
@@ -70,8 +78,16 @@ export function bracketCounts(cards: readonly Card[]): BracketCounts {
   };
 }
 
+/** What the bracket check knows about the deck besides its cards. */
+export interface BracketContext {
+  /** Name of the commander, which counts as a combo piece. */
+  commander?: string;
+  /** Commander Spellbook combos to check two-card combos against. */
+  combos?: readonly Combo[] | null;
+}
+
 /** Why `card` would break the bracket if added to `deck`, or null when it fits. */
-export function bracketViolation(card: Card, deck: readonly Card[], bracket: Bracket): string | null {
+export function bracketViolation(card: Card, deck: readonly Card[], bracket: Bracket, context: BracketContext = {}): string | null {
   const rules = BRACKET_INFO[bracket];
   const counts = bracketCounts(deck);
   if (card.gameChanger && counts.gameChangers >= rules.maxGameChangers) {
@@ -83,11 +99,20 @@ export function bracketViolation(card: Card, deck: readonly Card[], bracket: Bra
   if (card.roles.includes("extraturn") && counts.extraTurns >= rules.maxExtraTurns) {
     return rules.maxExtraTurns === 0 ? "Extra turns are not allowed in this bracket" : "Extra turns must not be chained in this bracket";
   }
+  if (context.combos?.length && bracket <= 3) {
+    const have = deckNames(deck, context.commander);
+    const combo = combosCompletedBy(card.name, context.combos, have).find((c) => comboBreaksBracket(c, bracket));
+    if (combo) {
+      return bracket <= 2
+        ? `Forms a two-card combo with ${comboPartners(combo, card.name)}`
+        : `Forms an early two-card combo with ${comboPartners(combo, card.name)}`;
+    }
+  }
   return null;
 }
 
 /** Bracket problems of a finished deck, for the editor. */
-export function deckBracketIssues(cards: readonly Card[], bracket: Bracket): string[] {
+export function deckBracketIssues(cards: readonly Card[], bracket: Bracket, context: BracketContext = {}): string[] {
   const rules = BRACKET_INFO[bracket];
   const counts = bracketCounts(cards);
   const issues: string[] = [];
@@ -100,5 +125,14 @@ export function deckBracketIssues(cards: readonly Card[], bracket: Bracket): str
   if (counts.extraTurns > rules.maxExtraTurns) {
     issues.push(`${counts.extraTurns} extra-turn cards (bracket ${bracket} allows ${rules.maxExtraTurns})`);
   }
+  for (const combo of combosInDeck(context.combos ?? [], deckNames(cards, context.commander))) {
+    if (comboBreaksBracket(combo, bracket)) issues.push(`Two-card combo: ${comboPartners(combo)}`);
+  }
   return issues;
+}
+
+function deckNames(cards: readonly Card[], commander: string | undefined): Set<string> {
+  const names = new Set(cards.map((c) => c.name));
+  if (commander) names.add(commander);
+  return names;
 }
