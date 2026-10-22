@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { ColorIdentity } from "@/components/card/mana";
+import { EmptyCauldron } from "@/components/cauldron";
 import { PlusIcon, UploadSimpleIcon } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,19 +34,22 @@ export function DeckList({ limit }: { limit?: number }) {
 
   if (!sorted.length) {
     return (
-      <div className="panel-inset flex flex-col items-center gap-4 border-dashed p-10 text-center">
-        <p className="text-muted-foreground">No decks yet. Build one by swiping, or import an existing list.</p>
-        <div className="flex flex-wrap justify-center gap-2">
-          <Button nativeButton={false} render={<Link href="/build" />}>
-            <PlusIcon /> Build a deck
-          </Button>
-          <ImportDialog>
-            <Button variant="outline">
-              <UploadSimpleIcon /> Import
+      <EmptyCauldron
+        title="Your cauldron is empty"
+        description="Brew your first deck by swiping, or pour in a list you already have."
+        actions={
+          <>
+            <Button nativeButton={false} render={<Link href="/build" />}>
+              <PlusIcon /> Build a deck
             </Button>
-          </ImportDialog>
-        </div>
-      </div>
+            <ImportDialog>
+              <Button variant="outline">
+                <UploadSimpleIcon /> Import
+              </Button>
+            </ImportDialog>
+          </>
+        }
+      />
     );
   }
 
@@ -65,7 +69,7 @@ function DeckTile({ deck, inProgress }: { deck: Deck; inProgress: boolean }) {
   return (
     <Link
       href={inProgress ? `/build/${deck.id}` : `/decks/${deck.id}`}
-      className="group panel flex flex-col overflow-hidden p-1.5 transition hover:-translate-y-0.5 hover:border-ember/70"
+      className="group panel flex flex-col overflow-hidden p-1.5 transition hover:-translate-y-1 hover:-rotate-[0.6deg] hover:border-brand/70"
     >
       <div className="relative h-32 overflow-hidden rounded-md bg-muted">
         {art && (
@@ -74,7 +78,13 @@ function DeckTile({ deck, inProgress }: { deck: Deck; inProgress: boolean }) {
             style={{ backgroundImage: `url(${art})` }}
           />
         )}
-        {inProgress && <Badge className="absolute top-2 left-2">Swiping</Badge>}
+        {inProgress && <Badge className="absolute top-2 left-2">Brewing</Badge>}
+      </div>
+      {/* The commander's colors as a thin band, like the frame color of a card. */}
+      <div className="mt-1.5 flex h-1.5 gap-px overflow-hidden rounded-xs" aria-hidden="true">
+        {(deck.commander.colorIdentity.length ? deck.commander.colorIdentity : ["C"]).map((color) => (
+          <span key={color} className="flex-1" style={{ backgroundColor: `var(--mana-${color.toLowerCase()})` }} />
+        ))}
       </div>
       <div className="space-y-1 px-2 pt-2.5 pb-1.5">
         <div className="flex items-center justify-between gap-2">

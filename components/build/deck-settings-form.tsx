@@ -216,7 +216,7 @@ function Section({ title, description, children }: { title: string; description:
   return (
     <section className="space-y-3">
       <div className="space-y-1">
-        <h3 className="eyebrow text-muted-foreground">{title}</h3>
+        <h3 className="ui-label text-muted-foreground">{title}</h3>
         <p className="text-xs text-muted-foreground">{description}</p>
       </div>
       <div className="space-y-2">{children}</div>

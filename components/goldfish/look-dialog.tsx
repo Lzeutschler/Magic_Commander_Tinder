@@ -91,7 +91,7 @@ export function LookDialog({
                     onClick={() => setDestinations((d) => ({ ...d, [id]: option }))}
                     className={cn(
                       "min-h-10 flex-1 rounded-md border border-border bg-card text-xs font-semibold capitalize shadow-sm transition hover:bg-accent",
-                      destinations[id] === option && "border-ember bg-ember/12 hover:bg-ember/12",
+                      destinations[id] === option && "border-brand bg-brand/12 hover:bg-brand/12",
                     )}
                   >
                     {option === "graveyard" ? "Grave" : option}

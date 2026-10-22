@@ -32,7 +32,7 @@ export async function findCombos(commander: string, cards: string[]): Promise<Co
 
   const res = await fetch(SPELLBOOK_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json", "User-Agent": "CommanderTinder/0.1" },
+    headers: { "Content-Type": "application/json", Accept: "application/json", "User-Agent": "Brewmance/0.1" },
     body: JSON.stringify({ commanders: [{ card: commander }], main: cards.map((card) => ({ card })) }),
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });

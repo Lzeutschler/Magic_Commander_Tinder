@@ -102,7 +102,7 @@ export function CommanderSetup({
               <p className="text-xs text-muted-foreground">{insights.data.deckCount.toLocaleString()} decks on EDHREC</p>
             )}
             {commander.partner && (
-              <p className="text-xs text-ember">Partner and background pairings are coming later — you can build it solo for now.</p>
+              <p className="text-xs text-brand">Partner and background pairings are coming later — you can build it solo for now.</p>
             )}
           </div>
           <Button variant="ghost" size="icon" onClick={onClose} aria-label={closeLabel}>
@@ -112,13 +112,13 @@ export function CommanderSetup({
         {children}
 
         <div className="space-y-3">
-          <h3 className="eyebrow text-muted-foreground">Bracket</h3>
+          <h3 className="ui-label text-muted-foreground">Bracket</h3>
           <BracketPicker value={bracket} onChange={setBracket} deckCounts={insights.data?.bracketCounts} />
           <p className="text-sm text-muted-foreground">{BRACKET_INFO[bracket].description}</p>
         </div>
 
         <div className="space-y-3">
-          <h3 className="eyebrow text-muted-foreground">Theme (optional)</h3>
+          <h3 className="ui-label text-muted-foreground">Theme (optional)</h3>
           {insights.isLoading ? (
             <div className="flex gap-2">
               {Array.from({ length: 5 }, (_, i) => (
@@ -190,7 +190,7 @@ function ThemeChip({ active, onClick, children }: { active: boolean; onClick: ()
       aria-pressed={active}
       className={cn(
         "inline-flex min-h-10 items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-sm font-medium shadow-sm transition hover:border-input hover:bg-accent",
-        active && "border-ember bg-ember/12 text-foreground hover:border-ember hover:bg-ember/12",
+        active && "border-brand bg-brand/12 text-foreground hover:border-brand hover:bg-brand/12",
       )}
     >
       {children}

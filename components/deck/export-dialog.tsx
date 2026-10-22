@@ -42,7 +42,7 @@ export function ExportDialog({ deck, children }: { deck: Deck; children: React.R
               onClick={() => setFormat(f.id)}
               className={cn(
                 "min-h-10 flex-1 rounded-md border border-border bg-card px-3 py-2 text-left text-sm shadow-sm transition hover:border-input hover:bg-accent",
-                format === f.id && "border-ember bg-ember/12 hover:border-ember hover:bg-ember/12",
+                format === f.id && "border-brand bg-brand/12 hover:border-brand hover:bg-brand/12",
               )}
             >
               <div className="font-medium">{f.label}</div>

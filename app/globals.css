@@ -10,12 +10,10 @@
   --font-sans: var(--font-archivo);
   --font-heading: var(--font-alegreya);
   --font-mana: var(--font-mana-symbols);
-  --color-ember: var(--ember);
-  --color-verdigris: var(--verdigris);
-  --color-felt: var(--felt);
+  --color-brand: var(--brand);
+  --color-teal: var(--teal);
+  --color-table: var(--table);
   --color-ink: var(--ink);
-  /* Older name for the accent, kept so code written against it keeps working. */
-  --color-gold: var(--ember);
   --color-pick: var(--pick);
   --color-pass: var(--pass);
   --color-maybe: var(--maybe);
@@ -74,51 +72,56 @@
   --shadow-xl: 0 0 0 1px oklch(0 0 0 / 50%), 0 4px 0 0 oklch(0 0 0 / 45%), 0 18px 32px -14px oklch(0 0 0 / 85%);
   --shadow-2xl: 0 0 0 1px oklch(0 0 0 / 55%), 0 6px 0 0 oklch(0 0 0 / 45%), 0 28px 48px -18px oklch(0 0 0 / 90%);
 
-  --tracking-label: 0.08em;
 }
 
 :root {
-  /* Tabletop palette: warm ink, parchment text, an ember accent and verdigris for secondary info. */
-  --ink: oklch(0.13 0.008 55);
-  --background: oklch(0.165 0.008 55);
-  --foreground: oklch(0.94 0.018 85);
-  --card: oklch(0.205 0.01 55);
-  --card-foreground: oklch(0.94 0.018 85);
-  --popover: oklch(0.225 0.011 55);
-  --popover-foreground: oklch(0.94 0.018 85);
-  --primary: oklch(0.72 0.165 48);
-  --primary-foreground: oklch(0.17 0.02 45);
-  --secondary: oklch(0.27 0.012 55);
-  --secondary-foreground: oklch(0.94 0.018 85);
-  --muted: oklch(0.25 0.011 55);
-  --muted-foreground: oklch(0.76 0.02 75);
-  --accent: oklch(0.3 0.014 55);
-  --accent-foreground: oklch(0.97 0.015 85);
-  --destructive: oklch(0.68 0.19 28);
-  --border: oklch(0.33 0.014 60);
-  --input: oklch(0.4 0.016 60);
-  --ring: oklch(0.78 0.15 55);
-  --chart-1: oklch(0.72 0.165 48);
-  --chart-2: oklch(0.76 0.09 180);
-  --chart-3: oklch(0.74 0.14 140);
-  --chart-4: oklch(0.7 0.12 260);
-  --chart-5: oklch(0.7 0.14 330);
+  /* Arcane Slate: cool graphite surfaces, periwinkle as the brand accent (blue mana, the planeswalker
+     spark) and teal for secondary highlights. Contrast on the background: text 15.6:1, brand 7.7:1. */
+  --ink: #0b0e13;
+  --background: #11141a;
+  --foreground: #e8ecf3;
+  --card: #1a1f28;
+  --card-foreground: #e8ecf3;
+  --popover: #1e2430;
+  --popover-foreground: #e8ecf3;
+  --primary: #8ea2ff;
+  --primary-foreground: #0e1220;
+  --secondary: #252c38;
+  --secondary-foreground: #e8ecf3;
+  --muted: #222833;
+  --muted-foreground: #a3acba;
+  --accent: #2b3341;
+  --accent-foreground: #f2f5fa;
+  --destructive: #f2716b;
+  --border: #2f3746;
+  --input: #3d4657;
+  --ring: #a9b8ff;
+  --chart-1: #8ea2ff;
+  --chart-2: #5ad1c8;
+  --chart-3: #8fd18a;
+  --chart-4: #e3b26a;
+  --chart-5: #d48ad8;
   --radius: 4px;
-  --sidebar: oklch(0.205 0.01 55);
-  --sidebar-foreground: oklch(0.94 0.018 85);
-  --sidebar-primary: oklch(0.72 0.165 48);
-  --sidebar-primary-foreground: oklch(0.17 0.02 45);
-  --sidebar-accent: oklch(0.27 0.012 55);
-  --sidebar-accent-foreground: oklch(0.94 0.018 85);
-  --sidebar-border: oklch(0.33 0.014 60);
-  --sidebar-ring: oklch(0.78 0.15 55);
+  --sidebar: #1a1f28;
+  --sidebar-foreground: #e8ecf3;
+  --sidebar-primary: #8ea2ff;
+  --sidebar-primary-foreground: #0e1220;
+  --sidebar-accent: #252c38;
+  --sidebar-accent-foreground: #e8ecf3;
+  --sidebar-border: #2f3746;
+  --sidebar-ring: #a9b8ff;
 
-  --ember: oklch(0.72 0.165 48);
-  --verdigris: oklch(0.78 0.09 180);
-  --felt: oklch(0.24 0.035 165);
-  --pick: oklch(0.76 0.16 148);
-  --pass: oklch(0.68 0.19 25);
-  --maybe: oklch(0.78 0.09 180);
+  --brand: #8ea2ff;
+  /* Hover fill and the pressed bottom edge of brand buttons. */
+  --brand-hover: #a6b6ff;
+  --brand-edge: #4553a8;
+  --teal: #5ad1c8;
+  /* Only the heart in the brand mark. */
+  --heart: #f28fb8;
+  --table: #141b25;
+  --pick: #6fd08c;
+  --pass: #f2716b;
+  --maybe: #5ad1c8;
   --mana-w: oklch(0.93 0.04 95);
   --mana-u: oklch(0.7 0.12 240);
   --mana-b: oklch(0.45 0.03 300);
@@ -137,9 +140,9 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* A faint paper grain instead of glowing gradients. */
+    /* A faint grain instead of glowing gradients. */
     background-image:
-      linear-gradient(180deg, oklch(0.2 0.012 55) 0, transparent 22rem),
+      linear-gradient(180deg, #171c25 0, transparent 22rem),
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .035 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
   h1,
@@ -154,7 +157,7 @@
     outline-offset: 2px;
   }
   ::selection {
-    background: oklch(0.72 0.165 48 / 40%);
+    background: rgb(142 162 255 / 35%);
   }
 }
 
@@ -174,15 +177,14 @@
   background-color: var(--ink);
   box-shadow: inset 0 2px 0 0 oklch(0 0 0 / 35%);
 }
-/* Small caps-style label: condensed, upper case, tracked. */
-@utility eyebrow {
+/* Labels for data and controls (Turn, Bracket, Log …): semi-condensed and semibold, in sentence case. */
+@utility ui-label {
   font-family: var(--font-sans);
-  font-stretch: 80%;
-  font-weight: 650;
-  font-size: 0.75rem;
-  line-height: 1rem;
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  font-stretch: 85%;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  letter-spacing: 0.005em;
 }
 /* Big tabular numbers for counters (life, turn, card counts). */
 @utility numeral {
@@ -192,17 +194,96 @@
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
-/* Older name for the accent headline colour; now a solid ember instead of a gradient. */
-@utility text-gold-gradient {
-  color: var(--ember);
-}
 @utility card-aspect {
   aspect-ratio: 488 / 680;
 }
-/* Green playmat felt for the goldfish table. */
-@utility felt {
-  background-color: var(--felt);
+/* The goldfish table: a dark slate mat with a soft pool of light in the middle. */
+@utility playmat {
+  background-color: var(--table);
   background-image:
-    radial-gradient(ellipse 70% 60% at 50% 45%, oklch(0.3 0.045 165 / 70%), transparent 75%),
+    radial-gradient(ellipse 70% 60% at 50% 45%, rgb(110 130 220 / 14%), transparent 75%),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Home page cauldron (components/home/brew-scene.tsx). Distances are in em, so the scene scales. */
+@keyframes brew-card {
+  0% { transform: translate(-50%, 6em) rotate(-4deg) scale(0.85); opacity: 0; }
+  4% { transform: translate(-50%, 4em) rotate(-4deg) scale(0.9); opacity: 1; }
+  14% { transform: translate(-50%, -7em) rotate(-3deg) scale(1); opacity: 1; }
+  23% { transform: translate(-50%, -8em) rotate(1deg) scale(1); opacity: 1; }
+  30% { transform: translate(55%, -10em) rotate(16deg) scale(1); opacity: 1; }
+  34%, 100% { transform: translate(120%, -11em) rotate(24deg) scale(0.95); opacity: 0; }
+}
+@keyframes brew-stamp {
+  0%, 21% { transform: scale(0.3); opacity: 0; }
+  24% { transform: scale(1.2); opacity: 1; }
+  27%, 33% { transform: scale(1); opacity: 1; }
+  34%, 100% { transform: scale(1); opacity: 0; }
+}
+@keyframes brew-float {
+  0% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+  12% { transform: translate(0, -2em) scale(0.9); opacity: 1; }
+  55% { transform: translate(var(--drift), -16em) scale(1); opacity: 1; }
+  100% { transform: translate(calc(var(--drift) * 1.4), -25em) scale(1); opacity: 0; }
+}
+/* A shorter rise for the small celebration cauldron, so the steam stays inside its panel. */
+@keyframes brew-float-sm {
+  0% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+  15% { transform: translate(0, -1.5em) scale(0.9); opacity: 1; }
+  60% { transform: translate(var(--drift), -9em) scale(1); opacity: 1; }
+  100% { transform: translate(calc(var(--drift) * 1.3), -14em) scale(1); opacity: 0; }
+}
+@keyframes brew-bubble {
+  0% { transform: translateY(0) scale(0.3); opacity: 0; }
+  30% { opacity: 0.9; }
+  85% { transform: translateY(-9px) scale(1); opacity: 0.8; }
+  100% { transform: translateY(-11px) scale(1.4); opacity: 0; }
+}
+@keyframes brew-wobble {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.02, 1.12); }
+}
+/* Only vertical: the horizontal centering comes from Tailwind's separate `translate` property. */
+@keyframes brew-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.35em); }
+}
+@keyframes brew-glow {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+/* Brew running over the rim of a boiling cauldron (error page). */
+@keyframes brew-drip {
+  0% { transform: scaleY(0); opacity: 0; }
+  30% { transform: scaleY(1); opacity: 1; }
+  80% { transform: translateY(6px) scaleY(1.1); opacity: 1; }
+  100% { transform: translateY(16px) scaleY(1.1); opacity: 0; }
+}
+/* Hearts bursting out of a shortlisted card; each heart sets --bx/--by. */
+@keyframes brew-burst {
+  0% { transform: translate(0, 0) scale(0.3); opacity: 0; }
+  15% { transform: translate(calc(var(--bx) * 0.2), calc(var(--by) * 0.2)) scale(1); opacity: 1; }
+  100% { transform: translate(var(--bx), var(--by)) scale(0.7); opacity: 0; }
+}
+/* Cards dealt into the opening hand. */
+@keyframes brew-deal {
+  0% { transform: translateY(40%) rotate(-10deg) scale(0.85); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+/* A life change floats up from the life total. */
+@keyframes brew-delta {
+  0% { transform: translateY(0.2em); opacity: 0; }
+  15% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-1.4em); opacity: 0; }
+}
+@keyframes brew-pop {
+  0% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brew-scene,
+  .brew-scene *,
+  [class*="animate-[brew-"] {
+    animation: none !important;
+  }
 }

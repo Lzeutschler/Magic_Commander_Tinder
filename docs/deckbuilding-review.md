@@ -1,4 +1,4 @@
-# Deckbau-Tinder: Review aus Spielersicht
+# Deck Matchmaker: Review aus Spielersicht
 
 Stand: Oktober 2026. Geprüft wurde der Code auf `main` (Stand Commit `3921873`). Dazu kam eine
 Simulation: Der Algorithmus hat für acht Commander mit echten EDHREC-Pools je ein Deck gebaut und
@@ -121,7 +121,7 @@ spielten keine Rolle. Kinnan meldete 25 Länder und bekam 30. Die Ur-Dragon beka
 ### 🟠 1.6 Keine Combo-Prüfung ✅
 
 Die Brackets sagen: B1–2 keine 2-Karten-Infinite-Combos, B3 keine frühen 2-Karten-Combos. Der
-Tinder bot munter Kiki-Jiki + Helm of the Host (Krenko B2) oder Dramatic Reversal + Isochron
+Swipe bot munter Kiki-Jiki + Helm of the Host (Krenko B2) oder Dramatic Reversal + Isochron
 Scepter an.
 
 **Umgesetzt:** Commander Spellbook (`/find-my-combos`) läuft einmal pro Pool serverseitig und

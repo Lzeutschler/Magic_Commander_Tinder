@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { CardImage } from "@/components/card/card-image";
 import { ColorIdentity, ManaCost } from "@/components/card/mana";
+import { EmptyCauldron } from "@/components/cauldron";
 import {
   ArrowLeftIcon,
   CardsIcon,
@@ -47,7 +48,7 @@ export function DeckEditor({ deckId }: { deckId: string }) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-muted-foreground">
         This deck does not exist on this device.
-        <Link href="/decks" className="text-ember underline underline-offset-4">
+        <Link href="/decks" className="text-brand underline underline-offset-4">
           Back to my decks
         </Link>
       </div>
@@ -111,7 +112,7 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6">
-      <Link href="/decks" className="eyebrow -my-2 inline-flex min-h-10 items-center gap-1.5 text-muted-foreground hover:text-foreground">
+      <Link href="/decks" className="ui-label -my-2 inline-flex min-h-10 items-center gap-1.5 text-muted-foreground hover:text-foreground">
         <ArrowLeftIcon className="size-4" /> My decks
       </Link>
 
@@ -185,7 +186,7 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
           </div>
 
           {deck.entries.length === 0 && (
-            <p className="panel-inset p-6 text-center text-muted-foreground">No cards yet. Swipe some or add them with the search.</p>
+            <EmptyCauldron title="Nothing in the brew yet" description="Swipe some cards in, or add them with the search above." />
           )}
 
           <div className={cn(view === "list" ? "columns-1 gap-5 md:columns-2" : "flex flex-wrap items-start gap-x-4")}>
@@ -196,7 +197,7 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
                   key={group.type}
                   className={cn("mb-5 break-inside-avoid", view === "visual" && "w-[calc(50%-0.5rem)] sm:w-[clamp(150px,15vw,200px)]")}
                 >
-                  <h3 className="eyebrow mb-2 flex items-baseline gap-2 text-muted-foreground">
+                  <h3 className="ui-label mb-2 flex items-baseline gap-2 text-muted-foreground">
                     {group.type === "Other" ? "Other" : `${group.type}s`.replace("Sorcerys", "Sorceries")}
                     <span className="text-foreground tabular-nums">{count}</span>
                   </h3>
@@ -250,7 +251,7 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
 
           {deck.maybe.length > 0 && (
             <section>
-              <h3 className="eyebrow mb-2 flex items-center gap-2 text-maybe">
+              <h3 className="ui-label mb-2 flex items-center gap-2 text-maybe">
                 <StarIcon className="size-4" /> Maybe
                 <span className="tabular-nums">{deck.maybe.length}</span>
               </h3>
@@ -304,7 +305,7 @@ function CardRow({
     <CardHoverPreview card={card}>
       <li className="group flex items-center gap-2 min-h-11 rounded-md px-2 py-1 text-sm hover:bg-accent">
         <span className="w-5 text-right text-muted-foreground tabular-nums">{quantity}</span>
-        <span className={cn("flex-1 truncate", card.gameChanger && "text-ember")} title={card.gameChanger ? "Game Changer" : undefined}>
+        <span className={cn("flex-1 truncate", card.gameChanger && "text-brand")} title={card.gameChanger ? "Game Changer" : undefined}>
           {card.name}
         </span>
         <ManaCost cost={card.manaCost} className="shrink-0" />

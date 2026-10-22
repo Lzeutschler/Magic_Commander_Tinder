@@ -19,7 +19,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           <InfoIcon className="size-4" />
         ),
         warning: (
-          <WarningIcon className="size-4 text-ember" />
+          <WarningIcon className="size-4 text-brand" />
         ),
         error: (
           <XCircleIcon className="size-4 text-destructive" />

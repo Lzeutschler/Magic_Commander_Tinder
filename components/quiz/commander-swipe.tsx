@@ -4,12 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { ColorIdentity, ManaCost } from "@/components/card/mana";
+import { BrewLoader, Cauldron, CelebrationCauldron } from "@/components/cauldron";
 import {
   ArrowCounterClockwiseIcon,
-  CircleNotchIcon,
   ListChecksIcon,
   NotePencilIcon,
-  SparkleIcon,
+  CheckIcon,
 } from "@/components/icons";
 import { SwipeButtons, SwipeStack, useSwipeKeys } from "@/components/swipe/swipe-controls";
 import { Badge } from "@/components/ui/badge";
@@ -69,9 +69,8 @@ export function CommanderSwipe({ track }: { track: Track }) {
 
   if (isLoading) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
-        <CircleNotchIcon className="size-8 animate-spin text-ember" />
-        Finding commanders that fit you…
+      <div className="flex flex-1 items-center justify-center p-8">
+        <BrewLoader>Brewing commanders that fit you…</BrewLoader>
       </div>
     );
   }
@@ -86,7 +85,7 @@ export function CommanderSwipe({ track }: { track: Track }) {
       <section className="order-1 flex flex-col items-center gap-5 select-none lg:order-2">
         <div className="flex w-full max-w-md flex-col items-center gap-3">
           <PopularityToggle />
-          <p className="eyebrow text-muted-foreground tabular-nums" data-testid="commander-count">
+          <p className="ui-label text-muted-foreground tabular-nums" data-testid="commander-count">
             {roundDone ? "Round complete" : `Commander ${decisions.length + 1} of ${limit}`}
           </p>
         </div>
@@ -114,7 +113,7 @@ export function CommanderSwipe({ track }: { track: Track }) {
 
         <div className="panel space-y-3 p-5">
           <div className="flex items-center justify-between text-sm">
-            <span className="eyebrow text-muted-foreground">Your shortlist</span>
+            <span className="ui-label text-muted-foreground">Your shortlist</span>
             <span className="numeral text-xl" data-testid="shortlist-count">
               {shortlist.length}
             </span>
@@ -161,8 +160,8 @@ function WhyThisFits({ scored, topScore }: { scored: ScoredCommander; topScore: 
       </div>
       <div className="flex items-center gap-3">
         <div className="panel-inset px-3 py-2 text-center">
-          <div className="numeral text-3xl text-ember">{matchPercent(scored.score, topScore)}%</div>
-          <div className="eyebrow mt-1 text-[0.6875rem] text-muted-foreground">match</div>
+          <div className="numeral text-3xl text-brand">{matchPercent(scored.score, topScore)}%</div>
+          <div className="ui-label mt-1 text-xs text-muted-foreground">match</div>
         </div>
         <div className="space-y-1 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
@@ -173,11 +172,11 @@ function WhyThisFits({ scored, topScore }: { scored: ScoredCommander; topScore: 
         </div>
       </div>
       <div>
-        <h3 className="eyebrow mb-2 text-muted-foreground">Why this fits</h3>
+        <h3 className="ui-label mb-2 text-muted-foreground">Why this fits</h3>
         <ul className="space-y-1.5 text-sm" data-testid="fit-reasons">
           {(reasons.length ? reasons.map((r) => r.text) : ["A solid all-rounder for your answers"]).map((text) => (
             <li key={text} className="flex gap-2">
-              <SparkleIcon className="mt-0.5 size-3.5 shrink-0 text-ember" />
+              <CheckIcon className="mt-0.5 size-4 shrink-0 text-teal" aria-hidden />
               {text}
             </li>
           ))}
@@ -228,7 +227,7 @@ function AnswerSummary({ track }: { track: Track }) {
 
   return (
     <div className="panel space-y-4 p-5">
-      <h2 className="eyebrow text-muted-foreground">Your answers</h2>
+      <h2 className="ui-label text-muted-foreground">Your answers</h2>
       <ul className="space-y-2.5 text-sm">
         {questions.map((q, i) => {
           const labels = (answers[q.id] ?? []).map((id) => q.options.find((o) => o.id === id)?.label).filter(Boolean);
@@ -237,7 +236,7 @@ function AnswerSummary({ track }: { track: Track }) {
           return (
             <li key={q.id}>
               <button type="button" onClick={() => goToStep(i)} className="group -mx-2 w-[calc(100%+1rem)] rounded-md px-2 py-1 text-left hover:bg-accent">
-                <div className="text-[11px] tracking-wide text-muted-foreground uppercase group-hover:text-foreground">{q.title}</div>
+                <div className="ui-label text-muted-foreground group-hover:text-foreground">{q.title}</div>
                 <div className="text-foreground/90">
                   {labels.length ? labels.join(", ") : "No preference"}
                   {followUpLabel && followUpLabel !== "Any" ? ` · ${followUpLabel}` : ""}
@@ -276,8 +275,12 @@ function RoundDone({
 }) {
   return (
     <div className="panel flex w-full max-w-md flex-col items-center gap-4 p-8 text-center">
-      <SparkleIcon className="size-10 text-ember" />
-      <h2 className="text-2xl font-bold">{shortlisted ? "Nice picks!" : "Nothing caught your eye?"}</h2>
+      {shortlisted ? (
+        <CelebrationCauldron className="-mt-2 text-[4.5px]" />
+      ) : (
+        <Cauldron mood="empty" className="text-[4.5px]" />
+      )}
+      <h2 className="text-2xl font-bold">{shortlisted ? "It's a brew!" : "Nothing caught your eye?"}</h2>
       <p className="text-muted-foreground">
         You looked at {seen} commanders and kept {shortlisted}.{" "}
         {shortlisted ? "Choose one from your shortlist to build a deck." : "Keep swiping or change your answers."}

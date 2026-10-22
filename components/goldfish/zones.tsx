@@ -117,8 +117,8 @@ export function Battlefield({ game, handlers }: { game: GameState; handlers: Car
       }}
       data-zone="battlefield"
       className={cn(
-        "felt relative flex min-h-0 min-w-0 flex-1 flex-col gap-2 overflow-auto rounded-xl border border-black/50 p-3 shadow-[inset_0_2px_12px_oklch(0_0_0/45%)] transition-shadow",
-        isOver && "shadow-[inset_0_0_0_2px_var(--ember),inset_0_2px_12px_oklch(0_0_0/45%)]",
+        "playmat relative flex min-h-0 min-w-0 flex-1 flex-col gap-2 overflow-auto rounded-xl border border-black/50 p-3 shadow-[inset_0_2px_12px_oklch(0_0_0/45%)] transition-shadow",
+        isOver && "shadow-[inset_0_0_0_2px_var(--brand),inset_0_2px_12px_oklch(0_0_0/45%)]",
       )}
       style={{ "--card-w": `calc(var(--bf-base) * ${scale})` } as React.CSSProperties}
     >
@@ -155,7 +155,7 @@ function Lane({
   return (
     <section aria-label={label} className={cn("relative flex min-h-[calc(var(--card-w)*1.395)] flex-wrap content-start items-start gap-2", className)}>
       {stacks.length === 0 && (
-        <span className="eyebrow pointer-events-none flex items-center gap-1.5 self-center text-foreground/55">
+        <span className="ui-label pointer-events-none flex items-center gap-1.5 self-center text-foreground/55">
           <ManaGlyph name={glyph} className="text-base" /> {label}
         </span>
       )}
@@ -214,7 +214,7 @@ export function Hand({ game, handlers }: { game: GameState; handlers: CardHandle
       data-zone="hand"
       className={cn(
         "relative z-20 flex h-[calc(var(--hand-w)*0.86)] shrink-0 items-start justify-center px-4 pt-2 transition-colors",
-        isOver && "bg-ember/8",
+        isOver && "bg-brand/8",
       )}
     >
       {cards.length === 0 && <span className="self-center text-sm text-muted-foreground">Hand is empty</span>}
@@ -229,11 +229,11 @@ export function Hand({ game, handlers }: { game: GameState; handlers: CardHandle
           } as React.CSSProperties}
         >
           <div className="transition-transform duration-150 ease-out origin-bottom group-hover/hand:-translate-y-[47%] group-hover/hand:scale-[1.2]">
-            <GameCardView card={card} handlers={handlers} />
+            <GameCardView card={card} handlers={handlers} enterFrom="library" />
           </div>
         </div>
       ))}
-      <span className="eyebrow pointer-events-none absolute top-1.5 right-4 text-muted-foreground">
+      <span className="ui-label pointer-events-none absolute top-1.5 right-4 text-muted-foreground">
         Hand <span className="text-foreground tabular-nums">{cards.length}</span>
       </span>
     </div>
@@ -265,7 +265,7 @@ export function Pile({
 
   return (
     <div className="space-y-1">
-      <div className="eyebrow flex items-center justify-between gap-1 text-[0.6875rem] text-muted-foreground">
+      <div className="ui-label flex items-center justify-between gap-1 text-xs text-muted-foreground">
         <span className="truncate">{zone === "command" ? "Command" : ZONE_LABELS[zone]}</span>
         <span className="text-foreground tabular-nums">{ids.length}</span>
       </div>
@@ -274,7 +274,7 @@ export function Pile({
         data-zone={zone}
         className={cn(
           "relative rounded-[6%] transition",
-          isOver && "ring-2 ring-ember ring-offset-2 ring-offset-background",
+          isOver && "ring-2 ring-brand ring-offset-2 ring-offset-background",
         )}
       >
         {top && !faceDown ? (
@@ -301,7 +301,7 @@ export function Pile({
           </button>
         )}
         {badge && (
-          <span className="pointer-events-none absolute -top-2 -right-2 rounded-sm bg-ember px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground shadow-md">
+          <span className="pointer-events-none absolute -top-2 -right-2 rounded-sm bg-brand px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground shadow-md">
             {badge}
           </span>
         )}

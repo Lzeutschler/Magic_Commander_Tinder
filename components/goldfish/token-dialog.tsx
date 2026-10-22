@@ -78,13 +78,13 @@ export function TokenDialog({
             <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Treasure, Goblin, Zombie…" className="pl-9" autoFocus />
           </div>
           <div className="flex items-center gap-1 text-sm">
-            <span className="eyebrow mr-1 text-muted-foreground">Amount</span>
+            <span className="ui-label mr-1 text-muted-foreground">Amount</span>
             {[1, 2, 3, 5, 10].map((n) => (
               <button
                 key={n}
                 type="button"
                 onClick={() => setCount(n)}
-                className={cn("size-10 rounded-md border border-border bg-card font-semibold tabular-nums shadow-sm hover:bg-accent", count === n && "border-ember bg-ember/12 hover:bg-ember/12")}
+                className={cn("size-10 rounded-md border border-border bg-card font-semibold tabular-nums shadow-sm hover:bg-accent", count === n && "border-brand bg-brand/12 hover:bg-brand/12")}
               >
                 {n}
               </button>

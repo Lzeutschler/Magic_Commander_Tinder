@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Address, ExternalLink, PageHeader, Prose } from "@/components/legal/prose";
-import { LEGAL_LAST_UPDATED, OPERATOR } from "@/lib/site";
+import { LEGAL_LAST_UPDATED, OPERATOR, SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Impressum",
-  description: "Impressum / legal notice of Commander Tinder, a private non-commercial fan project.",
+  description: `Impressum / legal notice of ${SITE.name}, a private non-commercial fan project.`,
   alternates: { canonical: "/impressum" },
 };
 
@@ -38,7 +38,7 @@ export default function ImpressumPage() {
 
         <h2>Privates Hobbyprojekt</h2>
         <p>
-          Commander Tinder ist ein privates, nicht-kommerzielles Fan-Projekt von{" "}
+          {SITE.name} ist ein privates, nicht-kommerzielles Fan-Projekt von{" "}
           <Link href="/about">Leonard Zeutschler</Link> für Spielerinnen und Spieler von Magic: The Gathering (Format
           Commander). Die Nutzung ist kostenlos. Es gibt keine Werbung, keine Nutzerkonten, keine kostenpflichtigen
           Angebote und keine Einnahmen.
@@ -58,7 +58,7 @@ export default function ImpressumPage() {
           Scryfall bereitgestellt.
         </p>
         <p>
-          Commander Tinder is unofficial Fan Content permitted under the{" "}
+          {SITE.name} is unofficial Fan Content permitted under the{" "}
           <ExternalLink href="https://company.wizards.com/en/legal/fancontentpolicy">Fan Content Policy</ExternalLink>
           . Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast.
           ©Wizards of the Coast LLC.
@@ -80,7 +80,7 @@ export default function ImpressumPage() {
 
         <h2>Private hobby project</h2>
         <p>
-          Commander Tinder is a private, non-commercial fan project by <Link href="/about">Leonard Zeutschler</Link>{" "}
+          {SITE.name} is a private, non-commercial fan project by <Link href="/about">Leonard Zeutschler</Link>{" "}
           for Magic: The Gathering Commander players. It is free to use. There are no ads, no user accounts, no paid
           features and no revenue.
         </p>
@@ -95,7 +95,7 @@ export default function ImpressumPage() {
         <h2>Copyright and trademarks</h2>
         <p>
           Card images, card text and mana symbols are property of Wizards of the Coast LLC and are served by Scryfall.
-          Commander Tinder is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by
+          {SITE.name} is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by
           Wizards. If you notice a copyright infringement, please let me know at {mail}.
         </p>
 

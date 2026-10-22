@@ -73,11 +73,11 @@ export function QuestionStep({
           )}
           <div className="h-1.5 flex-1 overflow-hidden rounded-xs bg-ink shadow-[inset_0_1px_0_0_oklch(0_0_0/40%)]" aria-hidden>
             <div
-              className="h-full bg-ember transition-[width] duration-500"
+              className="h-full bg-brand transition-[width] duration-500"
               style={{ width: `${(progress.step / progress.total) * 100}%` }}
             />
           </div>
-          <span className="eyebrow text-muted-foreground tabular-nums" data-testid="quiz-progress">
+          <span className="ui-label text-muted-foreground tabular-nums" data-testid="quiz-progress">
             {progress.step} / {progress.total}
           </span>
         </div>
@@ -115,7 +115,7 @@ export function QuestionStep({
 
       {question.followUp && onFollowUpChange && (
         <div className="flex flex-col items-center gap-3">
-          <h2 className="eyebrow text-muted-foreground">{question.followUp.title}</h2>
+          <h2 className="ui-label text-muted-foreground">{question.followUp.title}</h2>
           <div role="radiogroup" aria-label={question.followUp.title} className="flex flex-wrap justify-center gap-2">
             {question.followUp.options.map((option) => {
               const active = followUpSelected.includes(option.id);
@@ -128,7 +128,7 @@ export function QuestionStep({
                   onClick={() => onFollowUpChange(active ? [] : [option.id])}
                   className={cn(
                     "min-h-10 rounded-md border border-border bg-card px-4 py-1.5 text-sm font-medium shadow-sm transition hover:border-input hover:bg-accent",
-                    active && "border-ember bg-ember/12 hover:border-ember hover:bg-ember/12",
+                    active && "border-brand bg-brand/12 hover:border-brand hover:bg-brand/12",
                   )}
                 >
                   {option.label}

@@ -1,31 +1,28 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
+import { BrandMarkSvg } from "./brand-mark";
+
 /** The design tokens from `app/globals.css` as hex, for generated icons and social images. */
 export const BRAND_COLORS = {
-  ink: "#0a0705",
-  background: "#110d0b",
-  surface: "#1b1613",
-  ember: "#f57f3a",
-  text: "#f1ebde",
-  muted: "#b9b0a3",
-  felt: "#0d251b",
+  ink: "#0b0e13",
+  background: "#11141a",
+  surface: "#1a1f28",
+  brand: "#8ea2ff",
+  brandLight: "#a6b6ff",
+  brandEdge: "#4553a8",
+  heart: "#f28fb8",
+  text: "#e8ecf3",
+  muted: "#a3acba",
 } as const;
 
-const HEART_PATH =
-  "M18.6 20.2c-.2 0-3.9-2.4-3.9-5 0-1.3 1-2.3 2.2-2.3.7 0 1.3.4 1.7 1 .4-.6 1-1 1.7-1 1.2 0 2.2 1 2.2 2.3 0 2.6-3.7 5-3.9 5Z";
-
-/**
- * The brand mark (two fanned cards with a heart) for `ImageResponse`: Satori only understands
- * inline styles and plain SVG. Same drawing as `BrandMark` in `components/icons.tsx`.
- */
+/** The brand mark for `ImageResponse`, which needs plain colours instead of CSS variables. */
 export function BrandMarkImage({ size }: { size: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32">
-      <rect x="5" y="5" width="15" height="21" rx="1.6" transform="rotate(-14 12.5 15.5)" fill={BRAND_COLORS.ember} opacity="0.45" />
-      <rect x="11" y="5" width="15" height="21" rx="1.6" transform="rotate(8 18.5 15.5)" fill={BRAND_COLORS.ember} stroke={BRAND_COLORS.ink} strokeWidth="1.5" />
-      <path d={HEART_PATH} transform="rotate(8 18.5 15.5)" fill={BRAND_COLORS.ink} />
-    </svg>
+    <BrandMarkSvg
+      size={size}
+      colors={{ brew: BRAND_COLORS.brand, rim: BRAND_COLORS.brandLight, legs: BRAND_COLORS.brandEdge, heart: BRAND_COLORS.heart }}
+    />
   );
 }
 

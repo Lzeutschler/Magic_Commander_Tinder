@@ -26,7 +26,6 @@ import {
   ShuffleIcon,
   SidebarSimpleIcon,
   SkipForwardIcon,
-  SparkleIcon,
   StackIcon,
 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -98,7 +97,7 @@ export function GoldfishScreen({ deckId }: { deckId: string }) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-muted-foreground">
         This deck does not exist on this device.
-        <Link href="/goldfish" className="text-ember underline underline-offset-4">
+        <Link href="/goldfish" className="text-brand underline underline-offset-4">
           Pick another deck
         </Link>
       </div>
@@ -122,6 +121,8 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
   const start = useGameStore((s) => s.start);
   const [hovered, setHovered] = useState<GameCard | null>(null);
   const [rail, setRail] = useState(true);
+  // The last life change floats up from the life total.
+  const [lifeChange, setLifeChange] = useState<{ delta: number; id: number } | null>(null);
   // The big preview sits on the side away from the pointer so it never covers the hovered card.
   const pointerX = useRef(0);
   const [previewSide, setPreviewSide] = useState<"left" | "right">("right");
@@ -252,15 +253,15 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
             </DropdownMenuContent>
           </DropdownMenu>
           <Button variant="outline" size="sm" onClick={() => setDialog({ kind: "tokens" })} disabled={!playing}>
-            <SparkleIcon /> Tokens
+            <ManaGlyph name="token" className="text-base" /> Tokens
           </Button>
           <div className="ml-auto flex items-center gap-1.5">
             {!rail && (
               <div className="mr-2 hidden items-center gap-3 text-sm lg:flex">
-                <span className="eyebrow text-muted-foreground">
+                <span className="ui-label text-muted-foreground">
                   Turn <span className="numeral text-base text-foreground">{game.turn || "–"}</span>
                 </span>
-                <span className="flex items-center gap-1 text-ember">
+                <span className="flex items-center gap-1 text-brand">
                   <HeartIcon className="size-4" /> <span className="numeral text-base">{game.life}</span>
                 </span>
               </div>
@@ -314,23 +315,42 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
             <aside className="hidden w-52 shrink-0 flex-col gap-2 overflow-y-auto pb-2 lg:flex">
               <div className="panel grid grid-cols-2 divide-x divide-border text-center">
                 <div className="p-2.5">
-                  <div className="eyebrow text-[0.6875rem] text-muted-foreground">Turn</div>
+                  <div className="ui-label text-xs text-muted-foreground">Turn</div>
                   <div className="numeral mt-1 text-4xl" data-testid="turn">
                     {game.turn || "–"}
                   </div>
                 </div>
                 <div className="p-2.5">
-                  <div className="eyebrow flex items-center justify-center gap-1 text-[0.6875rem] text-muted-foreground">
+                  <div className="ui-label flex items-center justify-center gap-1 text-xs text-muted-foreground">
                     <HeartIcon className="size-3" /> Life
                   </div>
-                  <div className="numeral mt-1 text-4xl text-ember">{game.life}</div>
+                  <div className="relative">
+                    <div key={game.life} className="numeral mt-1 animate-[brew-pop_0.3s_ease-out] text-4xl text-brand">
+                      {game.life}
+                    </div>
+                    {lifeChange && (
+                      <span
+                        key={lifeChange.id}
+                        className={cn(
+                          "numeral pointer-events-none absolute -top-1 right-0 animate-[brew-delta_1.2s_ease-out_both] text-lg motion-reduce:hidden",
+                          lifeChange.delta > 0 ? "text-pick" : "text-pass",
+                        )}
+                        aria-hidden="true"
+                      >
+                        {lifeChange.delta > 0 ? `+${lifeChange.delta}` : `−${-lifeChange.delta}`}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="col-span-2 grid grid-cols-4 gap-1 border-t border-border p-1.5">
                   {[-5, -1, 1, 5].map((delta) => (
                     <button
                       key={delta}
                       type="button"
-                      onClick={() => act((g) => changeLife(g, delta))}
+                      onClick={() => {
+                        act((g) => changeLife(g, delta));
+                        setLifeChange((last) => ({ delta, id: (last?.id ?? 0) + 1 }));
+                      }}
                       aria-label={`${delta > 0 ? "Gain" : "Lose"} ${Math.abs(delta)} life`}
                       className="h-10 rounded-sm bg-secondary text-sm font-semibold tabular-nums shadow-sm transition hover:bg-accent active:translate-y-px"
                     >
@@ -342,7 +362,7 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
 
               <div className="panel space-y-2 p-3">
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="eyebrow text-[0.6875rem] text-muted-foreground">Untapped sources</span>
+                  <span className="ui-label text-xs text-muted-foreground">Untapped sources</span>
                   <span className="numeral text-2xl">{mana.total}</span>
                 </div>
                 <div className="flex flex-wrap gap-x-3 gap-y-1">
@@ -356,7 +376,7 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
               </div>
 
               <div className="panel min-h-0 flex-1 space-y-1 overflow-y-auto p-3 text-xs">
-                <div className="eyebrow mb-1.5 text-[0.6875rem] text-muted-foreground">Log</div>
+                <div className="ui-label mb-1.5 text-xs text-muted-foreground">Log</div>
                 {game.log.slice(0, 14).map((line, i) => (
                   <div key={`${game.log.length}-${i}`} className={i === 0 ? "text-foreground" : "text-muted-foreground"}>
                     {line}

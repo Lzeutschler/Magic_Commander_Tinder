@@ -22,7 +22,7 @@ export function MulliganOverlay({ game, act }: { game: GameState; act: (fn: (g: 
     );
 
   return (
-    <div className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-6 bg-[oklch(0.1_0.006_55/86%)] p-6">
+    <div className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-6 bg-ink/85 p-6">
       <div className="text-center">
         <h2 className="text-4xl font-extrabold">{choosing ? `Put ${toBottom} on the bottom` : "Opening hand"}</h2>
         <p className="text-sm text-muted-foreground">
@@ -35,17 +35,19 @@ export function MulliganOverlay({ game, act }: { game: GameState; act: (fn: (g: 
       </div>
 
       <div className="flex flex-wrap justify-center gap-3 [--card-w:clamp(110px,min(12.5vw,30vh),240px)]">
-        {hand.map((card) => (
+        {hand.map((card, i) => (
           <button
-            key={card.instanceId}
+            // A new key per mulligan deals the hand in again.
+            key={`${game.mulligans}-${card.instanceId}`}
             type="button"
             disabled={!choosing}
             onClick={() => toggle(card.instanceId)}
             className={cn(
-              "w-[var(--card-w)] rounded-[5%] transition",
+              "w-[var(--card-w)] animate-[brew-deal_0.45s_ease-out_both] rounded-[5%] transition",
               choosing && "hover:-translate-y-1",
               selected.includes(card.instanceId) && "translate-y-3 opacity-50 ring-3 ring-pass",
             )}
+            style={{ animationDelay: `${i * 70}ms` }}
             data-card-name={card.card.name}
           >
             <CardFace card={card} />

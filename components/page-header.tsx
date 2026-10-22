@@ -1,14 +1,12 @@
 import { cn } from "@/lib/utils";
 
-/** Title block for content pages: a small accent label, the serif title, an optional line of context and actions. */
+/** Title block for content pages: the serif title, an optional line of context and actions. */
 export function PageHeader({
-  eyebrow,
   title,
   description,
   actions,
   className,
 }: {
-  eyebrow?: string;
   title: React.ReactNode;
   description?: React.ReactNode;
   actions?: React.ReactNode;
@@ -17,7 +15,6 @@ export function PageHeader({
   return (
     <header className={cn("flex flex-wrap items-end justify-between gap-x-6 gap-y-4 border-b border-border pb-5", className)}>
       <div className="min-w-0 space-y-1.5">
-        {eyebrow && <p className="eyebrow text-ember">{eyebrow}</p>}
         <h1 className="text-4xl leading-none font-extrabold sm:text-5xl">{title}</h1>
         {description && <p className="max-w-2xl text-[0.9375rem] text-muted-foreground">{description}</p>}
       </div>

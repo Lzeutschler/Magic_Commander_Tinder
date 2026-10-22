@@ -17,18 +17,21 @@ export interface CardHandlers {
 
 /**
  * A card in the sandbox. Width comes from the surrounding `--card-w` CSS variable so each zone
- * can size its cards; tapped cards turn sideways.
+ * can size its cards; tapped cards turn sideways. `enterFrom="library"` lets a new card fly in
+ * from the library pile on the left, as when it is drawn into the hand.
  */
 export function GameCardView({
   card,
   handlers,
   className,
   draggable = true,
+  enterFrom,
 }: {
   card: GameCard;
   handlers: CardHandlers;
   className?: string;
   draggable?: boolean;
+  enterFrom?: "library";
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: card.instanceId,
@@ -40,8 +43,8 @@ export function GameCardView({
     <motion.div
       ref={setNodeRef}
       layout
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: isDragging ? 0.3 : 1, scale: 1, rotate: card.tapped ? 90 : 0 }}
+      initial={enterFrom === "library" ? { opacity: 0, scale: 0.6, x: "-38vw", y: "-32vh", rotate: -14 } : { opacity: 0, scale: 0.8 }}
+      animate={{ opacity: isDragging ? 0.3 : 1, scale: 1, x: 0, y: 0, rotate: card.tapped ? 90 : 0 }}
       transition={{ type: "spring", stiffness: 400, damping: 32 }}
       className={cn(
         "relative shrink-0 cursor-pointer touch-none select-none",
@@ -64,11 +67,11 @@ export function GameCardView({
       {(counters.length > 0 || card.isToken) && (
         <div className="pointer-events-none absolute inset-x-0 bottom-[12%] flex flex-wrap justify-center gap-1">
           {counters.map(([kind, amount]) => (
-            <span key={kind} className="rounded-sm bg-ink/90 px-1.5 py-0.5 text-xs font-bold text-ember tabular-nums shadow-xs ring-1 ring-ember/60">
+            <span key={kind} className="rounded-sm bg-ink/90 px-1.5 py-0.5 text-xs font-bold text-brand tabular-nums shadow-xs ring-1 ring-brand/60">
               {kind === "+1/+1" ? `+${amount}/+${amount}` : `${amount} ${kind}`}
             </span>
           ))}
-          {card.isToken && <span className="eyebrow rounded-sm bg-ink/85 px-1.5 py-0.5 text-[10px] text-muted-foreground">token</span>}
+          {card.isToken && <span className="ui-label rounded-sm bg-ink/85 px-1.5 py-0.5 text-[10px] text-muted-foreground">token</span>}
         </div>
       )}
     </motion.div>

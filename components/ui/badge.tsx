@@ -3,9 +3,9 @@ import { useRender } from "@base-ui/react/use-render"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
 
-// Badges are square-cornered tags with condensed caps, like the type line labels on deck sites.
+// Badges are square-cornered tags in a semi-condensed face, like the type line labels on deck sites.
 const badgeVariants = cva(
-  "group/badge inline-flex h-6 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-sm border border-transparent px-2 text-[0.6875rem] leading-none font-semibold tracking-[0.06em] whitespace-nowrap uppercase transition-colors [font-stretch:82%] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 aria-invalid:border-destructive [&>svg]:pointer-events-none [&>svg]:size-3!",
+  "group/badge inline-flex h-6 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-sm border border-transparent px-2 text-xs leading-none font-semibold whitespace-nowrap transition-colors [font-stretch:88%] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 aria-invalid:border-destructive [&>svg]:pointer-events-none [&>svg]:size-3!",
   {
     variants: {
       variant: {
@@ -18,7 +18,7 @@ const badgeVariants = cva(
           "border-input text-foreground [a]:hover:bg-accent",
         ghost:
           "text-muted-foreground hover:bg-accent hover:text-foreground",
-        link: "text-ember underline-offset-4 hover:underline",
+        link: "text-brand underline-offset-4 hover:underline",
       },
     },
     defaultVariants: {

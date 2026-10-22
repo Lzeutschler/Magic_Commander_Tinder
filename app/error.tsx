@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect } from "react";
 
-import { ArrowCounterClockwiseIcon, ManaGlyph } from "@/components/icons";
+import { Cauldron } from "@/components/cauldron";
+import { ArrowCounterClockwiseIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
 export default function ErrorPage({ error, retry }: { error: unknown; retry: () => void }) {
@@ -18,10 +19,10 @@ export default function ErrorPage({ error, retry }: { error: unknown; retry: () 
       role="alert"
       className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center gap-5 px-4 py-20 text-center"
     >
-      <ManaGlyph name="instant" className="text-5xl text-ember" />
-      <h1 className="text-4xl leading-tight font-extrabold">Something fizzled</h1>
+      <Cauldron mood="boiling" className="text-[5px]" />
+      <h1 className="text-4xl leading-tight font-extrabold">This brew fizzled</h1>
       <p className="text-muted-foreground">
-        An unexpected error interrupted this page. Your decks are stored in your browser and are safe. Try again, or
+        Something boiled over and interrupted this page. Your decks are stored in your browser and are safe. Try again, or
         head back to the start.
       </p>
       {digest && <p className="font-mono text-xs text-muted-foreground">Error ID: {digest}</p>}

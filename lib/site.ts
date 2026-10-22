@@ -11,15 +11,19 @@ function resolveSiteUrl(): string {
 }
 
 export const SITE = {
-  name: "Commander Tinder",
+  name: "Brewmance",
+  /** For the home screen icon label, where space is tight. */
+  shortName: "Brewmance",
+  /** The headline on the home page and in the Open Graph image. */
+  tagline: "Swipe right on your next Commander deck",
   url: resolveSiteUrl(),
   description:
-    "Find your commander, swipe your way to a deck and goldfish it — a free deckbuilding companion for Magic: The Gathering Commander.",
-  themeColor: "#0a0705",
+    "Find your commander, swipe right on the cards you love and goldfish the deck — a free deckbuilding companion for Magic: The Gathering Commander.",
+  themeColor: "#0b0e13",
 } as const;
 
 /**
- * Provider of the site for the Impressum and the privacy policy. Commander Tinder is a private,
+ * Provider of the site for the Impressum and the privacy policy. The site is a private,
  * non-commercial hobby project, so Leonard runs it as a private person (not via 45level GmbH).
  */
 export const OPERATOR = {

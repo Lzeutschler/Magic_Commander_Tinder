@@ -56,7 +56,7 @@ const OUTPUTS = [
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 /** Bump when the output format changes so stale local data is rebuilt. */
 const SCHEMA_VERSION = 3;
-const SCRYFALL_HEADERS = { "User-Agent": "CommanderTinder/0.1", Accept: "application/json" };
+const SCRYFALL_HEADERS = { "User-Agent": "Brewmance/0.1", Accept: "application/json" };
 /** EDHREC color identity page slugs, e.g. json.edhrec.com/pages/commanders/orzhov.json. */
 const EDHREC_IDENTITIES = [
   "colorless", "mono-white", "mono-blue", "mono-black", "mono-red", "mono-green",

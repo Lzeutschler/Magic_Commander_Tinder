@@ -9,13 +9,13 @@ import { toast } from "sonner";
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { CardImage } from "@/components/card/card-image";
 import { ManaCost } from "@/components/card/mana";
+import { BrewLoader, CelebrationCauldron } from "@/components/cauldron";
 import {
   ArrowLeftIcon,
   ArrowUUpLeftIcon,
   CardsIcon,
-  CircleNotchIcon,
+  CheckIcon,
   SlidersHorizontalIcon,
-  SparkleIcon,
 } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -70,7 +70,7 @@ export function SwipeScreen({ deckId }: { deckId: string }) {
     return (
       <FullScreenMessage>
         This deck does not exist on this device.{" "}
-        <Link href="/build" className="text-ember underline underline-offset-4">
+        <Link href="/build" className="text-brand underline underline-offset-4">
           Start a new one
         </Link>
       </FullScreenMessage>
@@ -87,7 +87,7 @@ export function SwipeScreen({ deckId }: { deckId: string }) {
     );
   }
   if (!session) {
-    return <FullScreenMessage loading>Shuffling suggestions for {frontFaceName(deck.commander.name)}…</FullScreenMessage>;
+    return <FullScreenMessage loading>Stirring in suggestions for {frontFaceName(deck.commander.name)}…</FullScreenMessage>;
   }
   return <SwipeBoard deck={deck} session={session} />;
 }
@@ -165,7 +165,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
         <DeckCounter deck={deck} stats={stats} template={template} />
         <RoleMeters stats={stats} template={template} />
         <div>
-          <div className="eyebrow mb-1.5 text-muted-foreground">Mana curve <span className="normal-case tracking-normal font-normal">(dashed = target)</span></div>
+          <div className="ui-label mb-1.5 text-muted-foreground">Mana curve <span className="normal-case tracking-normal font-normal">(dashed = target)</span></div>
           <MiniCurve stats={stats} template={template} />
         </div>
         <div className="flex flex-col gap-2">
@@ -189,7 +189,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
       {/* Swipe stack */}
       <section className="order-1 flex flex-col items-center gap-5 select-none lg:order-2">
         <div className="flex w-full max-w-md items-center justify-between gap-2">
-          <div className="eyebrow flex items-center gap-2 text-muted-foreground">
+          <div className="ui-label flex items-center gap-2 text-muted-foreground">
             <CardsIcon className="size-4" />
             {session.phase === "spells" && "Spells & permanents"}
             {session.phase === "lands" && "Nonbasic lands"}
@@ -232,7 +232,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
               <ul className="space-y-1.5 text-sm">
                 {reasons.map((reason) => (
                   <li key={reason} className="flex gap-2">
-                    <SparkleIcon className="mt-0.5 size-3.5 shrink-0 text-ember" />
+                    <CheckIcon className="mt-0.5 size-4 shrink-0 text-teal" aria-hidden />
                     {reason}
                   </li>
                 ))}
@@ -254,7 +254,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
 
         <div className="panel space-y-3 p-5">
           <div className="flex items-center justify-between text-sm">
-            <span className="eyebrow text-muted-foreground">Recent picks</span>
+            <span className="ui-label text-muted-foreground">Recent picks</span>
             <Link href={`/decks/${deck.id}`} className="-my-2 inline-flex min-h-10 items-center text-xs text-muted-foreground hover:text-foreground">
               Open deck →
             </Link>
@@ -288,15 +288,15 @@ function FitMeters({ candidate, deckCount }: { candidate: Candidate; deckCount: 
   return (
     <div className="grid grid-cols-2 gap-3 text-center">
       <div className="panel-inset rounded-lg p-2.5">
-        <div className={cn("numeral text-3xl", synergy > 0 ? "text-ember" : "text-muted-foreground")}>
+        <div className={cn("numeral text-3xl", synergy > 0 ? "text-brand" : "text-muted-foreground")}>
           {synergy > 0 ? "+" : ""}
           {synergy}%
         </div>
-        <div className="eyebrow mt-1 text-[0.6875rem] text-muted-foreground">synergy</div>
+        <div className="ui-label mt-1 text-xs text-muted-foreground">synergy</div>
       </div>
       <div className="panel-inset rounded-lg p-2.5">
         <div className="numeral text-3xl">{inclusion}%</div>
-        <div className="eyebrow mt-1 text-[0.6875rem] text-muted-foreground">{deckCount ? `of ${deckCount.toLocaleString()} decks` : "popularity"}</div>
+        <div className="ui-label mt-1 text-xs text-muted-foreground">{deckCount ? `of ${deckCount.toLocaleString()} decks` : "popularity"}</div>
       </div>
     </div>
   );
@@ -316,8 +316,8 @@ function DonePanel({
   const stats = deckStats(deck);
   return (
     <div className="panel flex w-full max-w-md flex-col items-center gap-4 p-8 text-center">
-      <SparkleIcon className="size-10 text-ember" />
-      <h2 className="text-2xl font-bold">Your deck is ready</h2>
+      <CelebrationCauldron className="-mt-2 text-[4.5px]" />
+      <h2 className="text-2xl font-bold">Your brew is ready</h2>
       <p className="text-muted-foreground">
         {stats.nonlands} spells and {stats.lands} nonbasic lands picked.{" "}
         {DECK_SIZE - stats.total > 0 && `${DECK_SIZE - stats.total} basic lands will complete the 99.`}
@@ -335,8 +335,7 @@ function DonePanel({
 function FullScreenMessage({ children, loading }: { children: React.ReactNode; loading?: boolean }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center text-muted-foreground">
-      {loading && <CircleNotchIcon className="size-8 animate-spin text-ember" />}
-      <div className="flex flex-col items-center gap-3">{children}</div>
+      {loading ? <BrewLoader>{children}</BrewLoader> : <div className="flex flex-col items-center gap-3">{children}</div>}
       {!loading && (
         <Link href="/build" className="inline-flex min-h-10 items-center gap-1.5 text-sm hover:text-foreground">
           <ArrowLeftIcon className="size-4" /> Back to build

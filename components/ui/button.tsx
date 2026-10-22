@@ -9,16 +9,16 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-[inset_0_1px_0_0_oklch(1_0_0/30%),0_2px_0_0_oklch(0.42_0.12_40)] hover:bg-[oklch(0.77_0.16_52)] active:shadow-[inset_0_1px_0_0_oklch(1_0_0/30%),0_1px_0_0_oklch(0.42_0.12_40)]",
+          "bg-primary text-primary-foreground shadow-[inset_0_1px_0_0_oklch(1_0_0/30%),0_2px_0_0_var(--brand-edge)] hover:bg-[var(--brand-hover)] active:shadow-[inset_0_1px_0_0_oklch(1_0_0/30%),0_1px_0_0_var(--brand-edge)]",
         outline:
-          "border-input bg-card text-foreground shadow-sm hover:border-[oklch(0.5_0.02_60)] hover:bg-accent aria-expanded:bg-accent",
+          "border-input bg-card text-foreground shadow-sm hover:border-[#4b5568] hover:bg-accent aria-expanded:bg-accent",
         secondary:
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-accent aria-expanded:bg-accent",
         ghost:
           "text-muted-foreground hover:bg-accent hover:text-foreground aria-expanded:bg-accent aria-expanded:text-foreground",
         destructive:
           "border-destructive/40 bg-destructive/12 text-destructive hover:bg-destructive/22",
-        link: "text-ember underline decoration-ember/40 underline-offset-4 hover:decoration-ember",
+        link: "text-brand underline decoration-brand/40 underline-offset-4 hover:decoration-brand",
       },
       size: {
         default:

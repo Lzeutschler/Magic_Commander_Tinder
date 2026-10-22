@@ -37,7 +37,7 @@ export function AnswerTile({
           tall: "aspect-[4/3] lg:aspect-[3/4]",
           dense: "aspect-[5/4]",
         }[variant],
-        selected && "border-ember shadow-[inset_0_0_0_1px_var(--ember),0_2px_0_0_oklch(0_0_0/50%)] hover:border-ember",
+        selected && "border-brand shadow-[inset_0_0_0_1px_var(--brand),0_2px_0_0_oklch(0_0_0/50%)] hover:border-brand",
       )}
     >
       {option.art ? (
@@ -50,7 +50,7 @@ export function AnswerTile({
           className="absolute inset-0 -z-10 size-full object-cover transition duration-500 group-hover:scale-105"
         />
       ) : (
-        <div className="absolute inset-0 -z-10 bg-[repeating-linear-gradient(60deg,oklch(0.72_0.165_48/7%)_0_1px,transparent_1px_10px)]">
+        <div className="absolute inset-0 -z-10 bg-[repeating-linear-gradient(60deg,rgb(142_162_255/8%)_0_1px,transparent_1px_10px)]">
           <ShuffleIcon className={cn("absolute top-3 left-3 text-muted-foreground/70", dense ? "size-5" : "size-7")} />
         </div>
       )}
@@ -60,7 +60,7 @@ export function AnswerTile({
         <ManaSymbol symbol={option.symbol} className={cn("absolute top-2.5 left-2.5 drop-shadow-lg", dense ? "size-6" : "size-8")} />
       )}
       {selected && (
-        <span className="absolute top-2 right-2 grid size-7 place-items-center rounded-sm bg-ember text-ink shadow-md">
+        <span className="absolute top-2 right-2 grid size-7 place-items-center rounded-sm bg-brand text-ink shadow-md">
           <CheckIcon className="size-4" />
         </span>
       )}

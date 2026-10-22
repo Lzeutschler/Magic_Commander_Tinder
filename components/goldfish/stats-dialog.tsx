@@ -34,13 +34,13 @@ export function StatsDialog({ deck, onClose }: { deck: Deck; onClose: () => void
         </div>
 
         <section className="space-y-2">
-          <h3 className="eyebrow text-muted-foreground">Lands in the opening 7</h3>
+          <h3 className="ui-label text-muted-foreground">Lands in the opening 7</h3>
           <div className="flex h-32 items-end gap-2">
             {result.landShares.map((share, lands) => (
               <div key={lands} className="flex flex-1 flex-col items-center gap-1">
                 <span className="text-[11px] text-muted-foreground tabular-nums">{percent(share)}</span>
                 <div
-                  className={cn("w-full rounded-t-xs", lands >= 2 && lands <= 4 ? "bg-ember" : "bg-foreground/25")}
+                  className={cn("w-full rounded-t-xs", lands >= 2 && lands <= 4 ? "bg-brand" : "bg-foreground/25")}
                   style={{ height: `${(share / maxShare) * 80}px` }}
                 />
                 <span className="text-xs">{lands}</span>
@@ -50,7 +50,7 @@ export function StatsDialog({ deck, onClose }: { deck: Deck; onClose: () => void
         </section>
 
         <section className="space-y-2">
-          <h3 className="eyebrow text-muted-foreground">
+          <h3 className="ui-label text-muted-foreground">
             Commander castable by turn ({deck.commander.cmc} mana)
           </h3>
           <div className="grid grid-cols-10 gap-1 text-center text-[11px]">
@@ -73,7 +73,7 @@ export function StatsDialog({ deck, onClose }: { deck: Deck; onClose: () => void
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="panel-inset p-3">
-      <div className="numeral text-3xl text-ember">{value}</div>
+      <div className="numeral text-3xl text-brand">{value}</div>
       <div className="mt-1 text-[11px] leading-tight text-muted-foreground">{label}</div>
     </div>
   );

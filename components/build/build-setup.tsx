@@ -19,7 +19,6 @@ export function BuildSetup() {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-8">
       <PageHeader
-        eyebrow="Deckbuilding Tinder"
         title="Build a deck"
         description="Pick a commander and a power level. Then swipe through cards that fit — the deck keeps its mana curve and staples in balance while you choose."
       />

@@ -9,7 +9,6 @@ export default function GoldfishIndexPage() {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-10">
       <PageHeader
-        eyebrow="Playtest"
         title="Goldfish"
         description="Test a deck on an empty table: draw, mulligan, play lands and spells, tap, add counters and tokens. Pick a deck to start."
       />

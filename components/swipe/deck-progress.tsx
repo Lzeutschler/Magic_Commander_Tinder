@@ -23,7 +23,7 @@ export function RoleMeters({ stats, template }: { stats: DeckStats; template: De
             </div>
             <div className="h-1.5 overflow-hidden rounded-xs bg-ink shadow-[inset_0_1px_0_0_oklch(0_0_0/40%)]">
               <div
-                className={cn("h-full transition-all duration-500", have >= target ? "bg-pick" : "bg-ember")}
+                className={cn("h-full transition-all duration-500", have >= target ? "bg-pick" : "bg-brand")}
                 style={{ width: `${Math.min(100, (have / target) * 100)}%` }}
               />
             </div>
@@ -49,7 +49,7 @@ export function MiniCurve({ stats, template }: { stats: DeckStats; template: Dec
             <div
               className={cn(
                 "w-full rounded-t-xs transition-all duration-500",
-                count > template.curve[i] ? "bg-pass/85" : "bg-ember/85",
+                count > template.curve[i] ? "bg-pass/85" : "bg-brand/85",
               )}
               style={{ height: `${(count / max) * 100}%` }}
             />
@@ -71,7 +71,7 @@ export function DeckCounter({ deck, stats, template }: { deck: Deck; stats: Deck
             {stats.total}
             <span className="text-xl text-muted-foreground">/{DECK_SIZE}</span>
           </div>
-          <div className="eyebrow mt-1 text-muted-foreground">cards picked</div>
+          <div className="ui-label mt-1 text-muted-foreground">cards picked</div>
         </div>
         <div className="text-right text-xs leading-relaxed text-muted-foreground tabular-nums">
           <div>
@@ -87,7 +87,7 @@ export function DeckCounter({ deck, stats, template }: { deck: Deck; stats: Deck
       </div>
       <div className="h-2 overflow-hidden rounded-xs bg-ink shadow-[inset_0_1px_0_0_oklch(0_0_0/40%)]">
         <div
-          className="h-full bg-ember transition-all duration-500"
+          className="h-full bg-brand transition-all duration-500"
           style={{ width: `${(stats.total / DECK_SIZE) * 100}%` }}
         />
       </div>

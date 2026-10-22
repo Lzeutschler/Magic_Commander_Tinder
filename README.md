@@ -1,8 +1,8 @@
-# Commander Tinder
+# Brewmance
 
 A web app for Magic: The Gathering Commander players:
 
-1. **Deckbuilding Tinder** (live): pick a commander and a bracket, then swipe through cards that fit.
+1. **Deck Matchmaker** (live): pick a commander and a bracket, then swipe through cards that fit.
    The deck keeps its mana curve, ramp, draw, interaction, board wipes, protection and finishers in balance,
    with targets tuned to what EDHREC decks of that commander play, and respects the bracket's Game Changer,
    mass land denial, extra-turn and two-card combo limits (combos via Commander Spellbook). Deck settings
@@ -50,14 +50,22 @@ server on another port), `pnpm lint`, `pnpm typecheck`.
 
 ## Design
 
-A tabletop look rather than stock shadcn: warm ink surfaces, parchment text, an ember accent and a green
-felt playmat for the goldfish table. Tokens live in `app/globals.css`.
+"Arcane Slate", a tabletop look rather than stock shadcn: cool graphite surfaces, periwinkle as the brand
+accent (`brand`, blue mana / planeswalker spark) and teal for secondary highlights (`teal`, also the maybe
+pile). Text and accents meet WCAG AA (text 15.6:1, brand 7.7:1 on the background). Tokens live in
+`app/globals.css`; `lib/brand.tsx` mirrors them as hex for the generated icons and Open Graph image.
 
-- **Type:** Alegreya for headings, Archivo (with its width axis) for UI and body text. The `.eyebrow`
-  utility gives condensed upper-case labels, `.numeral` big tabular counters.
+- **Name:** the site name lives only in `SITE.name` (`lib/site.ts`); header, footer, metadata, legal pages
+  and the Open Graph image read it from there, and the logo mark has no lettering.
+  The browser storage keys `commander-tinder` and `commander-tinder-quiz` keep the old name on purpose:
+  renaming them would drop every saved deck and quiz.
+- **Type:** Alegreya for headings, Archivo (with its width axis) for UI and body text. `ui-label` gives
+  semi-condensed labels in sentence case, `numeral` big tabular counters. No upper-case eyebrows over
+  headings, no gradient text.
 - **Shape:** small radii (3px controls, 6px panels, 8px dialogs); cards keep their printed 4.75% corner.
   Shadows are hard ink edges plus a short drop (`shadow-sm` … `shadow-2xl` are redefined), no glows.
-- **Surfaces:** `.panel` (raised), `.panel-inset` (recessed well), `.felt` (goldfish table).
+- **Surfaces:** `panel` (raised), `panel-inset` (recessed well), `playmat` (goldfish table). These are
+  `@utility` classes, so variants such as `hover:` or `[&_h3]:` work on them.
 - **Icons:** [Phosphor](https://phosphoricons.com) in the bold weight via `components/icons.tsx`, plus
   the [Mana](https://mana.andrewgioia.com) font (SIL OFL) for tap and card type symbols (`ManaGlyph`).
   Mana costs stay Scryfall's SVGs. Import icons from `@/components/icons`, not from an icon package.
@@ -103,7 +111,7 @@ build command (`pnpm build`, which first downloads the Scryfall bulk data).
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | recommended | Public origin without trailing slash, e.g. `https://commander-tinder.com`. Used for `metadataBase` (canonical and Open Graph URLs), `robots.txt` and `sitemap.xml`. |
+| `NEXT_PUBLIC_SITE_URL` | recommended | Public origin without trailing slash, e.g. `https://brewmance.com`. Used for `metadataBase` (canonical and Open Graph URLs), `robots.txt` and `sitemap.xml`. |
 
 Without `NEXT_PUBLIC_SITE_URL`, `lib/site.ts` falls back to Vercel's `VERCEL_PROJECT_PRODUCTION_URL`
 (the production domain, set automatically) and then to `http://localhost:3000`. Set it for Production
@@ -135,7 +143,7 @@ extend the CSP there and update the privacy policy (`app/datenschutz/page.tsx`).
 
 ### Before going live
 
-- Commander Tinder runs as Leonard's private, non-commercial hobby project, which fits Vercel's Hobby plan.
+- Brewmance runs as Leonard's private, non-commercial hobby project, which fits Vercel's Hobby plan.
   Provider details for `/impressum` and `/datenschutz` live in `lib/site.ts` (`OPERATOR`).
 - If the project ever earns money (ads, donations, paid features) or moves to a company, revisit the
   Impressum, the privacy policy and the Vercel plan.
@@ -149,5 +157,5 @@ the web app manifest are generated from `app/`.
 
 ## Legal
 
-Commander Tinder is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed
+Brewmance is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed
 by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.
