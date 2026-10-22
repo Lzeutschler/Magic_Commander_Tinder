@@ -51,7 +51,7 @@ Scryfall, run `pnpm exec playwright install chromium` once), `pnpm lint`, `pnpm 
 ## Project layout
 
 ```
-app/                 pages and API routes (api/candidates, api/commander-insights, api/cards/*)
+app/                 pages and API routes (api/candidates, api/commander-insights, api/cards/*), legal pages, metadata routes
 components/          UI: build/ (commander + bracket picker), swipe/, deck/ (editor), goldfish/, card/, ui/ (shadcn)
 lib/cards/           card types, names/slugs, mana helpers, image URLs
 lib/tagging/         roles (Tagger tags), commander themes and tribes
@@ -59,15 +59,62 @@ lib/deckbuilder/     deck template, bracket rules, scoring, swipe session, basic
 lib/deck-io/         deck list import/export
 lib/goldfish/        pure game actions (zones, mulligan, tokens, …) and the opening-hand simulator
 lib/server/          server-only card database and candidate pool
+lib/site.ts          site URL, description and the provider details for Impressum and privacy policy
 stores/              decks.ts (persisted decks and swipe sessions), game.ts (goldfish game with undo)
 scripts/             card database build
 ```
 
 ## Deployment
 
-Import the repository in Vercel; no environment variables are needed. To refresh card data weekly,
-create a Deploy Hook in Vercel and store its URL as the `VERCEL_DEPLOY_HOOK_URL` repository secret
-(used by `.github/workflows/refresh-card-data.yml`).
+The app deploys to Vercel as is: import the repository, keep the detected Next.js preset and the default
+build command (`pnpm build`, which first downloads the Scryfall bulk data).
+
+### Environment variables
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | recommended | Public origin without trailing slash, e.g. `https://commander-tinder.com`. Used for `metadataBase` (canonical and Open Graph URLs), `robots.txt` and `sitemap.xml`. |
+
+Without `NEXT_PUBLIC_SITE_URL`, `lib/site.ts` falls back to Vercel's `VERCEL_PROJECT_PRODUCTION_URL`
+(the production domain, set automatically) and then to `http://localhost:3000`. Set it for Production
+in *Project Settings → Environment Variables* once the custom domain is live, then redeploy.
+
+### Domain
+
+Add the domain in *Project Settings → Domains*, point DNS to Vercel as shown there, and redirect the
+`www` variant (or the apex) to the primary domain. Vercel issues the TLS certificate. Then set
+`NEXT_PUBLIC_SITE_URL` to the primary domain.
+
+Optional: set *Functions → Region* to Frankfurt (`fra1`) so API routes run in the EU.
+
+### Weekly card data refresh (Deploy Hook)
+
+1. In Vercel, *Project Settings → Git → Deploy Hooks*, create a hook for the `main` branch.
+2. In GitHub, *Settings → Secrets and variables → Actions*, add the hook URL as `VERCEL_DEPLOY_HOOK_URL`.
+
+`.github/workflows/refresh-card-data.yml` calls the hook every week, which rebuilds the site with fresh
+Scryfall data.
+
+### Security headers
+
+`next.config.ts` sends a Content Security Policy (images and mana symbols only from `cards.scryfall.io`
+and `svgs.scryfall.io`, no framing), `Referrer-Policy`, `X-Content-Type-Options`, `Permissions-Policy`,
+`Cross-Origin-Opener-Policy` and HSTS. Preview deployments additionally allow `vercel.live` for the
+Vercel Toolbar. If you add a third-party script, image host or API that the browser calls directly,
+extend the CSP there and update the privacy policy (`app/datenschutz/page.tsx`).
+
+### Before going live
+
+- Resolve every `<Todo>` on `/impressum` and `/datenschutz` (search the code for `<Todo`).
+- Provider details live in `lib/site.ts` (`OPERATOR`); keep them in sync with the 45level Impressum.
+- Vercel's Hobby plan is for non-commercial use only; a site run by a company needs a Pro plan.
+
+## Pages and SEO
+
+`/about`, `/impressum` and `/datenschutz` (German, with an English translation; `/imprint` and `/privacy`
+redirect there). Metadata, Open Graph and Twitter cards are set in `app/layout.tsx`; the social image
+(`app/opengraph-image.tsx`), favicon (`app/icon.svg`), Apple touch icon, `robots.txt`, `sitemap.xml` and
+the web app manifest are generated from `app/`.
 
 ## Legal
 
