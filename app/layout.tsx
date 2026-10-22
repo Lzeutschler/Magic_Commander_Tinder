@@ -1,15 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Cinzel, Inter } from "next/font/google";
 
 import { Providers } from "@/components/providers";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SITE } from "@/lib/site";
 
+import { fontVariables } from "./fonts";
 import "./globals.css";
-
-const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
-const cinzel = Cinzel({ variable: "--font-cinzel", subsets: ["latin"], weight: ["500", "700"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -36,7 +33,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${cinzel.variable} h-full antialiased`}>
+    <html lang="en" className={`dark ${fontVariables} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <Providers>
           <SiteHeader />

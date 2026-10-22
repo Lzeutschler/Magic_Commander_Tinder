@@ -1,6 +1,5 @@
 "use client";
 
-import { ArrowLeft, Download, Layers, List, Minus, Play, Plus, Star, Swords, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -9,6 +8,18 @@ import { toast } from "sonner";
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { CardImage } from "@/components/card/card-image";
 import { ColorIdentity, ManaCost } from "@/components/card/mana";
+import {
+  ArrowLeftIcon,
+  CardsIcon,
+  DownloadSimpleIcon,
+  HeartIcon,
+  ListIcon,
+  MinusIcon,
+  PlayIcon,
+  PlusIcon,
+  StarIcon,
+  TrashIcon,
+} from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { allowsMultipleCopies } from "@/lib/cards/names";
@@ -36,7 +47,7 @@ export function DeckEditor({ deckId }: { deckId: string }) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-muted-foreground">
         This deck does not exist on this device.
-        <Link href="/decks" className="text-gold underline">
+        <Link href="/decks" className="text-ember underline underline-offset-4">
           Back to my decks
         </Link>
       </div>
@@ -100,12 +111,12 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6">
-      <Link href="/decks" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="size-4" /> My decks
+      <Link href="/decks" className="eyebrow -my-2 inline-flex min-h-10 items-center gap-1.5 text-muted-foreground hover:text-foreground">
+        <ArrowLeftIcon className="size-4" /> My decks
       </Link>
 
-      <header className="panel flex flex-col gap-5 p-5 md:flex-row">
-        <div className="w-40 shrink-0 self-center md:self-start">
+      <header className="panel flex flex-col gap-5 p-4 sm:p-5 md:flex-row">
+        <div className="w-48 shrink-0 self-center md:w-52 md:self-start">
           <CardImage card={deck.commander} flippable />
         </div>
         <div className="flex flex-1 flex-col gap-4">
@@ -117,7 +128,7 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
               const name = e.currentTarget.value.trim();
               if (name && name !== deck.name) update((d) => ({ ...d, name }));
             }}
-            className="h-auto border-transparent bg-transparent px-0 font-heading text-2xl font-bold md:text-3xl dark:bg-transparent"
+            className="h-auto border-transparent bg-transparent px-2 -mx-2 font-heading text-3xl leading-tight font-extrabold shadow-none hover:border-input md:text-4xl"
           />
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <ColorIdentity colors={deck.commander.colorIdentity} />
@@ -128,7 +139,7 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
               <select
                 value={deck.bracket}
                 onChange={(e) => update((d) => ({ ...d, bracket: Number(e.target.value) as Bracket }))}
-                className="rounded-md border border-white/10 bg-card px-2 py-1 text-foreground"
+                className="h-10 rounded-md border border-input bg-card px-2 text-foreground shadow-sm"
               >
                 {BRACKETS.map((b) => (
                   <option key={b} value={b}>
@@ -140,18 +151,18 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
           </div>
           <div className="mt-auto flex flex-wrap gap-2">
             <Button nativeButton={false} render={<Link href={`/build/${deck.id}`} />}>
-              <Swords /> {hasSession ? "Continue swiping" : "Swipe more cards"}
+              <HeartIcon /> {hasSession ? "Continue swiping" : "Swipe more cards"}
             </Button>
             <ExportDialog deck={deck}>
               <Button variant="outline">
-                <Download /> Export
+                <DownloadSimpleIcon /> Export
               </Button>
             </ExportDialog>
             <Button variant="outline" nativeButton={false} render={<Link href={`/goldfish/${deck.id}`} />}>
-              <Play /> Goldfish
+              <PlayIcon /> Goldfish
             </Button>
             <Button variant="ghost" className="text-destructive" onClick={remove}>
-              <Trash2 /> Delete
+              <TrashIcon /> Delete
             </Button>
           </div>
         </div>
@@ -163,31 +174,34 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
             <div className="flex-1">
               <AddCardSearch identity={deck.commander.colorIdentity} onAdd={addCard} />
             </div>
-            <div className="flex rounded-lg border border-white/10 p-0.5">
+            <div className="flex gap-0.5 rounded-md border border-border bg-ink p-0.5">
               <ViewButton active={view === "list"} onClick={() => setView("list")} label="List view">
-                <List className="size-4" />
+                <ListIcon className="size-4" />
               </ViewButton>
               <ViewButton active={view === "visual"} onClick={() => setView("visual")} label="Visual view">
-                <Layers className="size-4" />
+                <CardsIcon className="size-4" />
               </ViewButton>
             </div>
           </div>
 
           {deck.entries.length === 0 && (
-            <p className="panel p-6 text-center text-muted-foreground">No cards yet. Swipe some or add them with the search.</p>
+            <p className="panel-inset p-6 text-center text-muted-foreground">No cards yet. Swipe some or add them with the search.</p>
           )}
 
-          <div className={cn(view === "list" ? "columns-1 gap-5 md:columns-2" : "space-y-6")}>
+          <div className={cn(view === "list" ? "columns-1 gap-5 md:columns-2" : "flex flex-wrap items-start gap-x-4")}>
             {groups.map((group) => {
               const count = group.entries.reduce((s, e) => s + e.quantity, 0);
               return (
-                <section key={group.type} className="mb-5 break-inside-avoid">
-                  <h3 className="mb-2 flex items-baseline gap-2 text-sm font-semibold tracking-widest text-muted-foreground uppercase">
+                <section
+                  key={group.type}
+                  className={cn("mb-5 break-inside-avoid", view === "visual" && "w-[calc(50%-0.5rem)] sm:w-[clamp(150px,15vw,200px)]")}
+                >
+                  <h3 className="eyebrow mb-2 flex items-baseline gap-2 text-muted-foreground">
                     {group.type === "Other" ? "Other" : `${group.type}s`.replace("Sorcerys", "Sorceries")}
-                    <span className="font-sans text-xs">{count}</span>
+                    <span className="text-foreground tabular-nums">{count}</span>
                   </h3>
                   {view === "list" ? (
-                    <ul className="panel divide-y divide-white/5 p-1">
+                    <ul className="panel divide-y divide-border/60 p-1">
                       {group.entries.map((entry) => (
                         <CardRow
                           key={entry.card.id}
@@ -199,25 +213,33 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
                       ))}
                     </ul>
                   ) : (
-                    <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 xl:grid-cols-5">
-                      {group.entries.map((entry) => (
-                        <button
-                          key={entry.card.id}
-                          type="button"
-                          onClick={() => changeQuantity(entry, -1)}
-                          title="Click to remove"
-                          className="group relative transition hover:-translate-y-1"
-                        >
-                          <CardImage card={entry.card} size="normal" />
-                          {entry.quantity > 1 && (
-                            <span className="absolute top-2 right-2 rounded-full bg-black/80 px-2 py-0.5 text-xs font-bold">
-                              ×{entry.quantity}
+                    // A stack per type: each card shows its title bar, the hovered one comes to the front.
+                    <div className="flex flex-col pb-1">
+                      {group.entries.map((entry, i) => (
+                        <CardHoverPreview key={entry.card.id} card={entry.card}>
+                          <button
+                            type="button"
+                            onClick={() => changeQuantity(entry, -1)}
+                            title={`${entry.card.name} · click to remove one`}
+                            aria-label={`Remove one ${entry.card.name}`}
+                            className={cn(
+                              "group relative block rounded-[4.75%] transition-transform hover:z-10 hover:-translate-y-1 focus-visible:z-10",
+                              i > 0 && "-mt-[118%]",
+                            )}
+                          >
+                            <CardImage card={entry.card} size="normal" />
+                            <span className="absolute top-[4.5%] right-[6%] flex gap-1">
+                              {entry.quantity > 1 && (
+                                <span className="rounded-sm bg-ink/90 px-1.5 py-0.5 text-xs font-bold tabular-nums shadow-xs">
+                                  ×{entry.quantity}
+                                </span>
+                              )}
+                              <span className="grid size-6 place-items-center rounded-sm bg-pass text-ink opacity-0 shadow-xs transition group-hover:opacity-100 group-focus-visible:opacity-100">
+                                <MinusIcon className="size-3.5" />
+                              </span>
                             </span>
-                          )}
-                          <span className="absolute inset-0 grid place-items-center rounded-[4.75%] bg-black/50 opacity-0 transition group-hover:opacity-100">
-                            <Minus className="size-8" />
-                          </span>
-                        </button>
+                          </button>
+                        </CardHoverPreview>
                       ))}
                     </div>
                   )}
@@ -228,18 +250,18 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
 
           {deck.maybe.length > 0 && (
             <section>
-              <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold tracking-widest text-maybe uppercase">
-                <Star className="size-4" /> Maybe
-                <span className="font-sans text-xs">{deck.maybe.length}</span>
+              <h3 className="eyebrow mb-2 flex items-center gap-2 text-maybe">
+                <StarIcon className="size-4" /> Maybe
+                <span className="tabular-nums">{deck.maybe.length}</span>
               </h3>
-              <ul className="panel divide-y divide-white/5 p-1">
+              <ul className="panel divide-y divide-border/60 p-1">
                 {deck.maybe.map((card) => (
                   <CardHoverPreview key={card.id} card={card}>
-                    <li className="flex items-center gap-3 px-3 py-1.5 text-sm">
+                    <li className="flex min-h-11 items-center gap-3 px-2 py-1 text-sm">
                       <span className="flex-1 truncate">{card.name}</span>
                       <ManaCost cost={card.manaCost} />
                       <Button size="xs" variant="outline" onClick={() => addCard(card)}>
-                        <Plus /> Add
+                        <PlusIcon /> Add
                       </Button>
                       <Button
                         size="icon-xs"
@@ -247,7 +269,7 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
                         aria-label={`Remove ${card.name} from maybe`}
                         onClick={() => update((d) => ({ ...d, maybe: d.maybe.filter((m) => m.id !== card.id) }))}
                       >
-                        <Trash2 />
+                        <TrashIcon />
                       </Button>
                     </li>
                   </CardHoverPreview>
@@ -280,23 +302,23 @@ function CardRow({
   const multiple = allowsMultipleCopies(card.name, card.oracleText);
   return (
     <CardHoverPreview card={card}>
-      <li className="group flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-white/5">
+      <li className="group flex items-center gap-2 min-h-11 rounded-md px-2 py-1 text-sm hover:bg-accent">
         <span className="w-5 text-right text-muted-foreground tabular-nums">{quantity}</span>
-        <span className={cn("flex-1 truncate", card.gameChanger && "text-gold")} title={card.gameChanger ? "Game Changer" : undefined}>
+        <span className={cn("flex-1 truncate", card.gameChanger && "text-ember")} title={card.gameChanger ? "Game Changer" : undefined}>
           {card.name}
         </span>
         <ManaCost cost={card.manaCost} className="shrink-0" />
-        <span className="flex gap-0.5 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
+        <span className="flex gap-0.5 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
           {multiple && (
             <Button size="icon-xs" variant="ghost" aria-label={`Add another ${card.name}`} onClick={onAdd}>
-              <Plus />
+              <PlusIcon />
             </Button>
           )}
           <Button size="icon-xs" variant="ghost" aria-label={`Move ${card.name} to maybe`} onClick={onMaybe}>
-            <Star />
+            <StarIcon />
           </Button>
           <Button size="icon-xs" variant="ghost" aria-label={`Remove ${card.name}`} onClick={onRemove}>
-            <Minus />
+            <MinusIcon />
           </Button>
         </span>
       </li>
@@ -321,7 +343,7 @@ function ViewButton({
       onClick={onClick}
       aria-label={label}
       aria-pressed={active}
-      className={cn("grid size-9 place-items-center rounded-md text-muted-foreground", active && "bg-white/10 text-foreground")}
+      className={cn("grid size-9 place-items-center rounded-sm text-muted-foreground hover:text-foreground", active && "bg-secondary text-foreground shadow-sm")}
     >
       {children}
     </button>

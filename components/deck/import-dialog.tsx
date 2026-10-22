@@ -1,10 +1,10 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { CircleNotchIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -85,7 +85,7 @@ export function ImportDialog({ children }: { children: React.ReactElement }) {
         {error && <p className="text-sm text-destructive">{error}</p>}
         <div className="flex justify-end">
           <Button onClick={importDeck} disabled={busy || !text.trim()}>
-            {busy && <Loader2 className="animate-spin" />} Import
+            {busy && <CircleNotchIcon className="animate-spin" />} Import
           </Button>
         </div>
       </DialogContent>

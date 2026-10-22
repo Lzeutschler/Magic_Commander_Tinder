@@ -1,8 +1,8 @@
-import { ArrowRight, ArrowUpRight } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { ArrowRightIcon, ArrowUpRightIcon } from "@/components/icons";
 import { ExternalLink, Prose } from "@/components/legal/prose";
 import { Button } from "@/components/ui/button";
 import { OPERATOR } from "@/lib/site";
@@ -31,12 +31,11 @@ export default function AboutPage() {
           placeholder="blur"
           priority
           sizes="160px"
-          className="size-36 shrink-0 rounded-full border border-white/10 object-cover object-top shadow-xl shadow-black/40 sm:size-40"
+          className="size-36 shrink-0 rotate-[-3deg] rounded-xl border-[5px] border-ink object-cover object-top shadow-xl ring-1 ring-border sm:size-40"
         />
         <div className="space-y-3">
-          <h1 className="text-3xl font-bold sm:text-4xl">
-            <span className="text-gold-gradient">Hi, I&apos;m Leonard</span>
-          </h1>
+          <p className="eyebrow text-ember">About</p>
+          <h1 className="text-4xl leading-none font-extrabold sm:text-5xl">Hi, I&apos;m Leonard</h1>
           <p className="text-muted-foreground">
             Full-stack developer and AI engineer from the Ruhr area, Germany — and the person behind Commander Tinder.
           </p>
@@ -49,7 +48,7 @@ export default function AboutPage() {
                   nativeButton={false}
                   render={<a href={href} target="_blank" rel="noreferrer" />}
                 >
-                  {label} <ArrowUpRight aria-hidden />
+                  {label} <ArrowUpRightIcon aria-hidden />
                 </Button>
               </li>
             ))}
@@ -82,7 +81,7 @@ export default function AboutPage() {
         </p>
         <div className="pt-2">
           <Button nativeButton={false} render={<Link href="/build" />}>
-            Start building <ArrowRight aria-hidden />
+            Start building <ArrowRightIcon aria-hidden />
           </Button>
         </div>
       </Prose>
@@ -98,6 +97,12 @@ export default function AboutPage() {
           <li>
             Card suggestions based on data from <ExternalLink href="https://edhrec.com">EDHREC</ExternalLink>. Commander
             Tinder is not affiliated with EDHREC or Scryfall.
+          </li>
+          <li>
+            Tap and card type symbols from the <ExternalLink href="https://mana.andrewgioia.com">Mana</ExternalLink> font
+            by Andrew Gioia; Alegreya and Archivo typefaces and{" "}
+            <ExternalLink href="https://phosphoricons.com">Phosphor</ExternalLink> icons. All under the SIL Open Font
+            License or MIT.
           </li>
           <li>
             Commander Tinder is unofficial Fan Content permitted under the{" "}

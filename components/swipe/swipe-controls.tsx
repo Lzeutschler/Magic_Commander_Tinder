@@ -1,10 +1,10 @@
 "use client";
 
-import { Heart, Star, Undo2, X } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { useEffect } from "react";
 
 import { CardBack } from "@/components/card/card-back";
+import { ArrowUUpLeftIcon, HeartIcon, StarIcon, XIcon } from "@/components/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Card } from "@/lib/cards/types";
 import type { SwipeDecision } from "@/lib/deckbuilder/session";
@@ -25,7 +25,7 @@ export function SwipeStack({
   onDecision: (decision: SwipeDecision) => void;
 }) {
   return (
-    <div className="relative aspect-[488/680] w-[min(340px,80vw,calc((100dvh-16rem)*0.7176))] min-w-48">
+    <div className="relative aspect-[488/680] w-[min(400px,84vw,calc((100dvh-18rem)*0.7176))] min-w-48">
       <CardBack className="absolute inset-0 translate-x-3 translate-y-3 rotate-3 opacity-50" />
       <CardBack className="absolute inset-0 translate-x-1.5 translate-y-1.5 rotate-1 opacity-80" />
       <AnimatePresence custom={lastDecision} initial={false}>
@@ -50,16 +50,16 @@ export function SwipeButtons({
   return (
     <div className="flex items-center gap-4">
       <RoundButton label="Undo (Z)" onClick={onUndo} disabled={!canUndo} className="size-11">
-        <Undo2 className="size-5" />
+        <ArrowUUpLeftIcon className="size-5" />
       </RoundButton>
-      <RoundButton label="Pass (←)" onClick={() => onDecision("pass")} className="size-16 border-pass/60 text-pass hover:bg-pass/15">
-        <X className="size-8" />
+      <RoundButton label="Pass (←)" onClick={() => onDecision("pass")} className="size-16 border-pass/70 text-pass hover:bg-pass/15">
+        <XIcon className="size-8" />
       </RoundButton>
-      <RoundButton label="Maybe (↑)" onClick={() => onDecision("maybe")} className="size-12 border-maybe/60 text-maybe hover:bg-maybe/15">
-        <Star className="size-5" />
+      <RoundButton label="Maybe (↑)" onClick={() => onDecision("maybe")} className="size-12 border-maybe/70 text-maybe hover:bg-maybe/15">
+        <StarIcon className="size-5" />
       </RoundButton>
-      <RoundButton label={`${pickLabel} (→)`} onClick={() => onDecision("pick")} className="size-16 border-pick/60 text-pick hover:bg-pick/15">
-        <Heart className="size-8" />
+      <RoundButton label={`${pickLabel} (→)`} onClick={() => onDecision("pick")} className="size-16 border-pick/70 text-pick hover:bg-pick/15">
+        <HeartIcon className="size-8" />
       </RoundButton>
     </div>
   );
@@ -96,7 +96,7 @@ function RoundButton({
             type="button"
             aria-label={label}
             className={cn(
-              "grid place-items-center rounded-full border-2 border-white/15 bg-card/80 shadow-lg shadow-black/40 transition hover:scale-110 active:scale-95 disabled:pointer-events-none disabled:opacity-40",
+              "grid place-items-center rounded-full border-2 border-input bg-card shadow-[inset_0_1px_0_0_oklch(1_0_0/8%),0_3px_0_0_oklch(0_0_0/55%)] transition hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[inset_0_1px_0_0_oklch(1_0_0/8%),0_1px_0_0_oklch(0_0_0/55%)] disabled:pointer-events-none disabled:opacity-40",
               className,
             )}
             {...props}

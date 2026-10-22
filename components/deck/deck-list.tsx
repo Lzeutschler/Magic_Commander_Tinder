@@ -1,9 +1,10 @@
 "use client";
 
-import { Plus, Upload } from "lucide-react";
 import Link from "next/link";
 
 import { ColorIdentity } from "@/components/card/mana";
+import { PlusIcon, UploadSimpleIcon } from "@/components/icons";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cardImageUrl } from "@/lib/cards/image";
@@ -24,7 +25,7 @@ export function DeckList({ limit }: { limit?: number }) {
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 3 }, (_, i) => (
-          <Skeleton key={i} className="h-40 rounded-2xl" />
+          <Skeleton key={i} className="h-44 rounded-xl" />
         ))}
       </div>
     );
@@ -32,15 +33,15 @@ export function DeckList({ limit }: { limit?: number }) {
 
   if (!sorted.length) {
     return (
-      <div className="panel flex flex-col items-center gap-4 p-10 text-center">
+      <div className="panel-inset flex flex-col items-center gap-4 border-dashed p-10 text-center">
         <p className="text-muted-foreground">No decks yet. Build one by swiping, or import an existing list.</p>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap justify-center gap-2">
           <Button nativeButton={false} render={<Link href="/build" />}>
-            <Plus /> Build a deck
+            <PlusIcon /> Build a deck
           </Button>
           <ImportDialog>
             <Button variant="outline">
-              <Upload /> Import
+              <UploadSimpleIcon /> Import
             </Button>
           </ImportDialog>
         </div>
@@ -57,29 +58,34 @@ export function DeckList({ limit }: { limit?: number }) {
   );
 }
 
+/** A deck as a framed art crop with a name plate below, like a card's title and type line. */
 function DeckTile({ deck, inProgress }: { deck: Deck; inProgress: boolean }) {
   const count = deckCount(deck.entries);
   const art = deck.commander.image ? cardImageUrl(deck.commander.image, "art_crop") : null;
   return (
     <Link
       href={inProgress ? `/build/${deck.id}` : `/decks/${deck.id}`}
-      className="group relative flex h-40 flex-col justify-end overflow-hidden rounded-2xl border border-white/10 p-4 shadow-xl transition hover:-translate-y-1 hover:border-gold/50"
+      className="group panel flex flex-col overflow-hidden p-1.5 transition hover:-translate-y-0.5 hover:border-ember/70"
     >
-      {art && (
-        <div
-          className="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-105"
-          style={{ backgroundImage: `url(${art})` }}
-        />
-      )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/10" />
-      <div className="relative space-y-1">
+      <div className="relative h-32 overflow-hidden rounded-md bg-muted">
+        {art && (
+          <div
+            className="absolute inset-0 bg-cover bg-[center_25%] transition duration-500 group-hover:scale-105"
+            style={{ backgroundImage: `url(${art})` }}
+          />
+        )}
+        {inProgress && <Badge className="absolute top-2 left-2">Swiping</Badge>}
+      </div>
+      <div className="space-y-1 px-2 pt-2.5 pb-1.5">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="truncate font-heading text-lg font-bold">{deck.name}</h3>
+          <h3 className="truncate text-xl leading-tight font-bold">{deck.name}</h3>
           <ColorIdentity colors={deck.commander.colorIdentity} />
         </div>
         <p className="text-xs text-muted-foreground">
-          {count}/{DECK_SIZE} cards · Bracket {deck.bracket} {BRACKET_INFO[deck.bracket].name}
-          {inProgress && <span className="ml-2 rounded bg-gold/20 px-1.5 py-0.5 text-gold">swiping</span>}
+          <span className="tabular-nums">
+            {count}/{DECK_SIZE}
+          </span>{" "}
+          cards · Bracket {deck.bracket} {BRACKET_INFO[deck.bracket].name}
         </p>
       </div>
     </Link>

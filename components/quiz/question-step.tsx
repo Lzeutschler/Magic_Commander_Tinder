@@ -1,8 +1,8 @@
 "use client";
 
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useRef } from "react";
 
+import { ArrowLeftIcon, ArrowRightIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import type { Question } from "@/lib/quiz/types";
 import { cn } from "@/lib/utils";
@@ -68,26 +68,24 @@ export function QuestionStep({
         <div className="flex items-center gap-3">
           {onBack && (
             <Button variant="ghost" size="sm" onClick={onBack} className="-ml-2 text-muted-foreground">
-              <ArrowLeft /> Back
+              <ArrowLeftIcon /> Back
             </Button>
           )}
-          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10" aria-hidden>
+          <div className="h-1.5 flex-1 overflow-hidden rounded-xs bg-ink shadow-[inset_0_1px_0_0_oklch(0_0_0/40%)]" aria-hidden>
             <div
-              className="h-full rounded-full bg-gradient-to-r from-gold/70 to-gold transition-[width] duration-500"
+              className="h-full bg-ember transition-[width] duration-500"
               style={{ width: `${(progress.step / progress.total) * 100}%` }}
             />
           </div>
-          <span className="text-xs text-muted-foreground tabular-nums" data-testid="quiz-progress">
+          <span className="eyebrow text-muted-foreground tabular-nums" data-testid="quiz-progress">
             {progress.step} / {progress.total}
           </span>
         </div>
       )}
 
       <header className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold sm:text-4xl">
-          <span className="text-gold-gradient">{question.title}</span>
-        </h1>
-        {question.subtitle && <p className="text-muted-foreground">{question.subtitle}</p>}
+        <h1 className="text-4xl leading-tight font-extrabold sm:text-5xl">{question.title}</h1>
+        {question.subtitle && <p className="mx-auto max-w-2xl text-muted-foreground">{question.subtitle}</p>}
       </header>
 
       <div
@@ -117,7 +115,7 @@ export function QuestionStep({
 
       {question.followUp && onFollowUpChange && (
         <div className="flex flex-col items-center gap-3">
-          <h2 className="text-sm font-semibold tracking-widest text-muted-foreground uppercase">{question.followUp.title}</h2>
+          <h2 className="eyebrow text-muted-foreground">{question.followUp.title}</h2>
           <div role="radiogroup" aria-label={question.followUp.title} className="flex flex-wrap justify-center gap-2">
             {question.followUp.options.map((option) => {
               const active = followUpSelected.includes(option.id);
@@ -129,8 +127,8 @@ export function QuestionStep({
                   aria-checked={active}
                   onClick={() => onFollowUpChange(active ? [] : [option.id])}
                   className={cn(
-                    "rounded-full border border-white/10 px-4 py-1.5 text-sm transition hover:border-white/30",
-                    active && "border-gold bg-gold/15 text-gold",
+                    "min-h-10 rounded-md border border-border bg-card px-4 py-1.5 text-sm font-medium shadow-sm transition hover:border-input hover:bg-accent",
+                    active && "border-ember bg-ember/12 hover:border-ember hover:bg-ember/12",
                   )}
                 >
                   {option.label}
@@ -142,14 +140,14 @@ export function QuestionStep({
       )}
 
       {!single && (
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-white/10 bg-background/85 px-4 py-3 backdrop-blur-md">
+        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-ink px-4 py-3 shadow-[0_-1px_0_0_oklch(0_0_0/50%)]">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
             <span className="text-sm text-muted-foreground">
               {selected.length ? `${selected.length} of ${question.max} picked` : question.optional ? "No preference? Just continue." : `Pick up to ${question.max}`}
             </span>
-            <Button size="lg" className="h-11 px-6 text-base" onClick={onNext} disabled={!canContinue}>
+            <Button size="lg" onClick={onNext} disabled={!canContinue}>
               {selected.length === 0 && question.optional ? "Skip" : nextLabel}
-              <ArrowRight />
+              <ArrowRightIcon />
             </Button>
           </div>
         </div>

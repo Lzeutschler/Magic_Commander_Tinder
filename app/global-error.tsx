@@ -1,14 +1,15 @@
 "use client";
 
+import { fontVariables } from "./fonts";
 import "./globals.css";
 
 /** Replaces the root layout when it fails, so it brings its own document and only relies on global CSS. */
 export default function GlobalError({ retry }: { error: unknown; retry: () => void }) {
   return (
-    <html lang="en" className="dark h-full antialiased">
+    <html lang="en" className={`dark ${fontVariables} h-full antialiased`}>
       <body className="flex min-h-full flex-col items-center justify-center gap-5 px-4 text-center font-sans">
         <title>Something went wrong · Commander Tinder</title>
-        <h1 className="text-2xl font-bold">Commander Tinder hit a snag</h1>
+        <h1 className="text-4xl leading-tight font-extrabold">Commander Tinder hit a snag</h1>
         <p className="max-w-md text-muted-foreground">
           The app could not load. Your decks are stored in your browser and are safe. Please try again in a moment.
         </p>
@@ -16,13 +17,13 @@ export default function GlobalError({ retry }: { error: unknown; retry: () => vo
           <button
             type="button"
             onClick={() => retry()}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/80"
+            className="h-10 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[inset_0_1px_0_0_oklch(1_0_0/30%),0_2px_0_0_oklch(0.42_0.12_40)] hover:bg-[oklch(0.77_0.16_52)]"
           >
             Try again
           </button>
           {/* A full page load, since the client router is part of what failed. */}
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-          <a href="/" className="rounded-lg border border-input px-4 py-2 text-sm font-medium hover:bg-muted">
+          <a href="/" className="inline-flex h-10 items-center rounded-md border border-input bg-card px-4 text-sm font-semibold shadow-sm hover:bg-accent">
             Back to the start
           </a>
         </div>

@@ -1,10 +1,16 @@
 "use client";
 
-import { ListChecks, Loader2, RotateCcw, Sparkles, SquarePen } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { ColorIdentity, ManaCost } from "@/components/card/mana";
+import {
+  ArrowCounterClockwiseIcon,
+  CircleNotchIcon,
+  ListChecksIcon,
+  NotePencilIcon,
+  SparkleIcon,
+} from "@/components/icons";
 import { SwipeButtons, SwipeStack, useSwipeKeys } from "@/components/swipe/swipe-controls";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -64,7 +70,7 @@ export function CommanderSwipe({ track }: { track: Track }) {
   if (isLoading) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
-        <Loader2 className="size-8 animate-spin text-gold" />
+        <CircleNotchIcon className="size-8 animate-spin text-ember" />
         Finding commanders that fit you…
       </div>
     );
@@ -80,7 +86,7 @@ export function CommanderSwipe({ track }: { track: Track }) {
       <section className="order-1 flex flex-col items-center gap-5 select-none lg:order-2">
         <div className="flex w-full max-w-md flex-col items-center gap-3">
           <PopularityToggle />
-          <p className="text-sm text-muted-foreground tabular-nums" data-testid="commander-count">
+          <p className="eyebrow text-muted-foreground tabular-nums" data-testid="commander-count">
             {roundDone ? "Round complete" : `Commander ${decisions.length + 1} of ${limit}`}
           </p>
         </div>
@@ -108,8 +114,8 @@ export function CommanderSwipe({ track }: { track: Track }) {
 
         <div className="panel space-y-3 p-5">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-semibold">Your shortlist</span>
-            <span className="text-xs text-muted-foreground" data-testid="shortlist-count">
+            <span className="eyebrow text-muted-foreground">Your shortlist</span>
+            <span className="numeral text-xl" data-testid="shortlist-count">
               {shortlist.length}
             </span>
           </div>
@@ -123,7 +129,7 @@ export function CommanderSwipe({ track }: { track: Track }) {
                 .map(({ commanderId, decision, scored }) =>
                   scored ? (
                     <CardHoverPreview key={commanderId} card={scored.commander}>
-                      <li className="flex items-center justify-between gap-2 rounded px-1.5 py-1 hover:bg-white/5">
+                      <li className="flex items-center justify-between gap-2 min-h-10 rounded-md px-2 py-1.5 hover:bg-accent">
                         <span className={cn("truncate", decision === "maybe" && "text-maybe")}>{scored.commander.name}</span>
                         <ColorIdentity colors={scored.commander.colorIdentity} />
                       </li>
@@ -133,7 +139,7 @@ export function CommanderSwipe({ track }: { track: Track }) {
             </ul>
           )}
           <Button variant="outline" className="w-full" onClick={showShortlist} disabled={shortlist.length === 0}>
-            <ListChecks /> Review shortlist
+            <ListChecksIcon /> Review shortlist
           </Button>
         </div>
       </aside>
@@ -148,15 +154,15 @@ function WhyThisFits({ scored, topScore }: { scored: ScoredCommander; topScore: 
     <div className="panel space-y-4 p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="font-heading text-lg leading-tight font-bold">{commander.name}</h2>
+          <h2 className="font-heading text-2xl leading-tight font-bold">{commander.name}</h2>
           <p className="mt-1 text-xs text-muted-foreground">{commander.typeLine}</p>
         </div>
         <ManaCost cost={commander.manaCost} className="shrink-0 pt-1" />
       </div>
       <div className="flex items-center gap-3">
-        <div className="rounded-lg bg-gold/10 px-3 py-1.5 text-center">
-          <div className="font-heading text-2xl font-bold text-gold">{matchPercent(scored.score, topScore)}%</div>
-          <div className="text-[10px] tracking-wider text-muted-foreground uppercase">match</div>
+        <div className="panel-inset px-3 py-2 text-center">
+          <div className="numeral text-3xl text-ember">{matchPercent(scored.score, topScore)}%</div>
+          <div className="eyebrow mt-1 text-[0.6875rem] text-muted-foreground">match</div>
         </div>
         <div className="space-y-1 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
@@ -167,11 +173,11 @@ function WhyThisFits({ scored, topScore }: { scored: ScoredCommander; topScore: 
         </div>
       </div>
       <div>
-        <h3 className="mb-2 text-xs font-semibold tracking-widest text-muted-foreground uppercase">Why this fits</h3>
+        <h3 className="eyebrow mb-2 text-muted-foreground">Why this fits</h3>
         <ul className="space-y-1.5 text-sm" data-testid="fit-reasons">
           {(reasons.length ? reasons.map((r) => r.text) : ["A solid all-rounder for your answers"]).map((text) => (
             <li key={text} className="flex gap-2">
-              <Sparkles className="mt-0.5 size-3.5 shrink-0 text-gold" />
+              <SparkleIcon className="mt-0.5 size-3.5 shrink-0 text-ember" />
               {text}
             </li>
           ))}
@@ -183,7 +189,7 @@ function WhyThisFits({ scored, topScore }: { scored: ScoredCommander; topScore: 
             {ARCHETYPE_LABELS[id]}
           </Badge>
         ))}
-        {franchise !== "magic" && <Badge className="bg-gold/20 text-gold">{FRANCHISE_LABELS[franchise]}</Badge>}
+        {franchise !== "magic" && <Badge>{FRANCHISE_LABELS[franchise]}</Badge>}
         {commander.partner && <Badge variant="outline">Partner</Badge>}
       </div>
     </div>
@@ -194,7 +200,7 @@ function PopularityToggle() {
   const popularity = useQuizStore((s) => s.popularity);
   const setPopularity = useQuizStore((s) => s.setPopularity);
   return (
-    <div role="radiogroup" aria-label="Popularity" className="inline-flex rounded-full border border-white/10 bg-card/60 p-1 text-sm">
+    <div role="radiogroup" aria-label="Popularity" className="inline-flex gap-0.5 rounded-md border border-border bg-ink p-0.5 text-sm shadow-[inset_0_2px_0_0_oklch(0_0_0/30%)]">
       {POPULARITY_OPTIONS.map((option) => (
         <button
           key={option.id}
@@ -203,8 +209,8 @@ function PopularityToggle() {
           aria-checked={popularity === option.id}
           onClick={() => setPopularity(option.id)}
           className={cn(
-            "rounded-full px-3 py-1 text-muted-foreground transition hover:text-foreground",
-            popularity === option.id && "bg-gold/15 text-gold",
+            "min-h-9 rounded-sm px-3 font-semibold text-muted-foreground transition [font-stretch:92%] hover:text-foreground",
+            popularity === option.id && "bg-secondary text-foreground shadow-sm",
           )}
         >
           {option.label}
@@ -222,7 +228,7 @@ function AnswerSummary({ track }: { track: Track }) {
 
   return (
     <div className="panel space-y-4 p-5">
-      <h2 className="font-heading font-bold">Your answers</h2>
+      <h2 className="eyebrow text-muted-foreground">Your answers</h2>
       <ul className="space-y-2.5 text-sm">
         {questions.map((q, i) => {
           const labels = (answers[q.id] ?? []).map((id) => q.options.find((o) => o.id === id)?.label).filter(Boolean);
@@ -230,7 +236,7 @@ function AnswerSummary({ track }: { track: Track }) {
           const followUpLabel = followUp ? q.followUp!.options.find((o) => o.id === followUp)?.label : null;
           return (
             <li key={q.id}>
-              <button type="button" onClick={() => goToStep(i)} className="group w-full text-left">
+              <button type="button" onClick={() => goToStep(i)} className="group -mx-2 w-[calc(100%+1rem)] rounded-md px-2 py-1 text-left hover:bg-accent">
                 <div className="text-[11px] tracking-wide text-muted-foreground uppercase group-hover:text-foreground">{q.title}</div>
                 <div className="text-foreground/90">
                   {labels.length ? labels.join(", ") : "No preference"}
@@ -243,10 +249,10 @@ function AnswerSummary({ track }: { track: Track }) {
       </ul>
       <div className="flex flex-col gap-2">
         <Button variant="outline" onClick={() => goToStep(0)}>
-          <SquarePen /> Change answers
+          <NotePencilIcon /> Change answers
         </Button>
         <Button variant="ghost" onClick={restart} className="text-muted-foreground">
-          <RotateCcw /> Start over
+          <ArrowCounterClockwiseIcon /> Start over
         </Button>
       </div>
     </div>
@@ -270,7 +276,7 @@ function RoundDone({
 }) {
   return (
     <div className="panel flex w-full max-w-md flex-col items-center gap-4 p-8 text-center">
-      <Sparkles className="size-10 text-gold" />
+      <SparkleIcon className="size-10 text-ember" />
       <h2 className="text-2xl font-bold">{shortlisted ? "Nice picks!" : "Nothing caught your eye?"}</h2>
       <p className="text-muted-foreground">
         You looked at {seen} commanders and kept {shortlisted}.{" "}
@@ -286,7 +292,7 @@ function RoundDone({
           </Button>
         )}
         <Button onClick={onShortlist} disabled={!shortlisted}>
-          <ListChecks /> Review shortlist
+          <ListChecksIcon /> Review shortlist
         </Button>
       </div>
     </div>

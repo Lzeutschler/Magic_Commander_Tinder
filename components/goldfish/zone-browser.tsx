@@ -1,8 +1,8 @@
 "use client";
 
-import { Shuffle } from "lucide-react";
 import { useState } from "react";
 
+import { ShuffleIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -55,17 +55,17 @@ export function ZoneBrowser({
           <DialogDescription>Hover a card and pick where it goes.</DialogDescription>
         </DialogHeader>
         <Input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Filter by name or type…" autoFocus />
-        <div className="grid min-h-0 flex-1 grid-cols-3 gap-3 overflow-y-auto p-1 sm:grid-cols-5 lg:grid-cols-7">
+        <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 overflow-y-auto p-1 sm:grid-cols-4 lg:grid-cols-6">
           {cards.map((card) => (
             <div key={card.instanceId} className="group relative">
               <CardFace card={{ ...card, faceDown: false }} />
-              <div className="absolute inset-0 flex flex-col justify-center gap-1 rounded-[4.75%] bg-black/75 p-2 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
+              <div className="absolute inset-0 grid grid-cols-2 content-center gap-1 rounded-[4.75%] bg-ink/85 p-2 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
                 {TARGETS.filter((t) => t.zone !== zone || (isLibrary && t.position)).map((target) => (
                   <button
                     key={target.label}
                     type="button"
                     onClick={() => act((g) => moveCard(g, card.instanceId, target.zone, { position: target.position }))}
-                    className="rounded bg-white/10 py-1 text-[11px] hover:bg-gold hover:text-primary-foreground"
+                    className="min-h-10 rounded-sm bg-secondary px-1 text-xs font-semibold shadow-sm hover:bg-primary hover:text-primary-foreground"
                   >
                     {target.label}
                   </button>
@@ -83,7 +83,7 @@ export function ZoneBrowser({
                 onClose();
               }}
             >
-              <Shuffle /> Shuffle and close
+              <ShuffleIcon /> Shuffle and close
             </Button>
           </div>
         )}

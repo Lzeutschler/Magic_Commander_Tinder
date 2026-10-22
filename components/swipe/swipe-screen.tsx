@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Layers, Loader2, Sparkles, Undo2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -10,6 +9,13 @@ import { toast } from "sonner";
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { CardImage } from "@/components/card/card-image";
 import { ManaCost } from "@/components/card/mana";
+import {
+  ArrowLeftIcon,
+  ArrowUUpLeftIcon,
+  CardsIcon,
+  CircleNotchIcon,
+  SparkleIcon,
+} from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cardImageUrl } from "@/lib/cards/image";
@@ -61,7 +67,7 @@ export function SwipeScreen({ deckId }: { deckId: string }) {
     return (
       <FullScreenMessage>
         This deck does not exist on this device.{" "}
-        <Link href="/build" className="text-gold underline">
+        <Link href="/build" className="text-ember underline underline-offset-4">
           Start a new one
         </Link>
       </FullScreenMessage>
@@ -145,7 +151,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
             <CardImage card={deck.commander} size="small" />
           </div>
           <div className="min-w-0">
-            <div className="truncate font-heading font-bold">{deck.name}</div>
+            <div className="truncate font-heading text-lg leading-tight font-bold">{deck.name}</div>
             <div className="text-xs text-muted-foreground">
               Bracket {deck.bracket} · {BRACKET_INFO[deck.bracket].name}
               {deck.theme ? ` · ${deck.theme}` : ""}
@@ -155,7 +161,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
         <DeckCounter deck={deck} stats={stats} template={session.template} />
         <RoleMeters stats={stats} template={session.template} />
         <div>
-          <div className="mb-1 text-xs text-muted-foreground">Mana curve (dashed = target)</div>
+          <div className="eyebrow mb-1.5 text-muted-foreground">Mana curve <span className="normal-case tracking-normal font-normal">(dashed = target)</span></div>
           <MiniCurve stats={stats} template={session.template} />
         </div>
         <div className="flex flex-col gap-2">
@@ -177,8 +183,8 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
 
       {/* Swipe stack */}
       <section className="order-1 flex flex-col items-center gap-5 select-none lg:order-2">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Layers className="size-4" />
+        <div className="eyebrow flex items-center gap-2 text-muted-foreground">
+          <CardsIcon className="size-4" />
           {session.phase === "spells" && "Spells & permanents"}
           {session.phase === "lands" && "Nonbasic lands"}
           {session.phase === "done" && "Deck complete"}
@@ -201,7 +207,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
           <div className="panel space-y-4 p-5">
             <div>
               <div className="flex items-start justify-between gap-2">
-                <h2 className="font-heading text-lg font-bold">{current.name}</h2>
+                <h2 className="font-heading text-2xl leading-tight font-bold">{current.name}</h2>
                 <ManaCost cost={current.manaCost} className="pt-1" />
               </div>
               <p className="text-xs text-muted-foreground">{current.typeLine}</p>
@@ -211,14 +217,14 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
               <ul className="space-y-1.5 text-sm">
                 {reasons.map((reason) => (
                   <li key={reason} className="flex gap-2">
-                    <Sparkles className="mt-0.5 size-3.5 shrink-0 text-gold" />
+                    <SparkleIcon className="mt-0.5 size-3.5 shrink-0 text-ember" />
                     {reason}
                   </li>
                 ))}
               </ul>
             )}
             <div className="flex flex-wrap gap-1.5">
-              {current.gameChanger && <Badge className="bg-gold/20 text-gold">Game Changer</Badge>}
+              {current.gameChanger && <Badge>Game Changer</Badge>}
               {current.roles
                 .filter((r) => r !== "mld" && r !== "extraturn")
                 .map((role) => (
@@ -233,8 +239,8 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
 
         <div className="panel space-y-3 p-5">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-semibold">Recent picks</span>
-            <Link href={`/decks/${deck.id}`} className="text-xs text-muted-foreground hover:text-foreground">
+            <span className="eyebrow text-muted-foreground">Recent picks</span>
+            <Link href={`/decks/${deck.id}`} className="-my-2 inline-flex min-h-10 items-center text-xs text-muted-foreground hover:text-foreground">
               Open deck →
             </Link>
           </div>
@@ -244,7 +250,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
             <ul className="space-y-1 text-sm">
               {recentPicks.map((card) => (
                 <CardHoverPreview key={card.id} card={card}>
-                  <li className="flex items-center justify-between gap-2 rounded px-1.5 py-1 hover:bg-white/5">
+                  <li className="flex items-center justify-between gap-2 rounded-md px-2 py-1.5 hover:bg-accent">
                     <span className="truncate">{card.name}</span>
                     <ManaCost cost={card.manaCost} />
                   </li>
@@ -266,16 +272,16 @@ function FitMeters({ candidate, deckCount }: { candidate: Candidate; deckCount: 
   const inclusion = Math.round(candidate.inclusion * 100);
   return (
     <div className="grid grid-cols-2 gap-3 text-center">
-      <div className="rounded-lg bg-white/5 p-2">
-        <div className={cn("font-heading text-2xl font-bold", synergy > 0 ? "text-gold" : "text-muted-foreground")}>
+      <div className="panel-inset rounded-lg p-2.5">
+        <div className={cn("numeral text-3xl", synergy > 0 ? "text-ember" : "text-muted-foreground")}>
           {synergy > 0 ? "+" : ""}
           {synergy}%
         </div>
-        <div className="text-[11px] text-muted-foreground">synergy</div>
+        <div className="eyebrow mt-1 text-[0.6875rem] text-muted-foreground">synergy</div>
       </div>
-      <div className="rounded-lg bg-white/5 p-2">
-        <div className="font-heading text-2xl font-bold">{inclusion}%</div>
-        <div className="text-[11px] text-muted-foreground">{deckCount ? `of ${deckCount.toLocaleString()} decks` : "popularity"}</div>
+      <div className="panel-inset rounded-lg p-2.5">
+        <div className="numeral text-3xl">{inclusion}%</div>
+        <div className="eyebrow mt-1 text-[0.6875rem] text-muted-foreground">{deckCount ? `of ${deckCount.toLocaleString()} decks` : "popularity"}</div>
       </div>
     </div>
   );
@@ -295,7 +301,7 @@ function DonePanel({
   const stats = deckStats(deck);
   return (
     <div className="panel flex w-full max-w-md flex-col items-center gap-4 p-8 text-center">
-      <Sparkles className="size-10 text-gold" />
+      <SparkleIcon className="size-10 text-ember" />
       <h2 className="text-2xl font-bold">Your deck is ready</h2>
       <p className="text-muted-foreground">
         {stats.nonlands} spells and {stats.lands} nonbasic lands picked.{" "}
@@ -303,7 +309,7 @@ function DonePanel({
       </p>
       <div className="flex gap-2">
         <Button variant="outline" onClick={onUndo} disabled={!canUndo}>
-          <Undo2 /> Undo
+          <ArrowUUpLeftIcon /> Undo
         </Button>
         <Button onClick={onFinish}>Finish &amp; open editor</Button>
       </div>
@@ -314,11 +320,11 @@ function DonePanel({
 function FullScreenMessage({ children, loading }: { children: React.ReactNode; loading?: boolean }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center text-muted-foreground">
-      {loading && <Loader2 className="size-8 animate-spin text-gold" />}
+      {loading && <CircleNotchIcon className="size-8 animate-spin text-ember" />}
       <div className="flex flex-col items-center gap-3">{children}</div>
       {!loading && (
-        <Link href="/build" className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-          <ArrowLeft className="size-4" /> Back to build
+        <Link href="/build" className="inline-flex min-h-10 items-center gap-1.5 text-sm hover:text-foreground">
+          <ArrowLeftIcon className="size-4" /> Back to build
         </Link>
       )}
     </div>

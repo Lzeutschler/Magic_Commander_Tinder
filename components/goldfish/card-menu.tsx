@@ -102,33 +102,33 @@ export function CardMenu({
 
   const groups = menuItems(game, menu.card);
   const left = Math.min(menu.x, window.innerWidth - 230);
-  const top = Math.min(menu.y, window.innerHeight - 40 - groups.flat().length * 30);
+  const top = Math.min(menu.y, window.innerHeight - 40 - groups.flat().length * 36);
 
   return (
     <div
       ref={ref}
       role="menu"
-      className="fixed z-50 w-56 rounded-xl border border-white/10 bg-popover/95 p-1 text-sm shadow-2xl backdrop-blur"
+      className="fixed z-50 w-60 rounded-xl border border-border bg-popover p-1 text-sm shadow-xl"
       style={{ left, top: Math.max(8, top) }}
     >
-      <div className="truncate px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+      <div className="eyebrow truncate px-2.5 py-1.5 text-muted-foreground">
         {menu.card.faceDown ? "Face-down card" : menu.card.card.name}
       </div>
       {groups.map((group, i) => (
-        <div key={i} className={cn(i > 0 && "mt-1 border-t border-white/10 pt-1")}>
+        <div key={i} className={cn(i > 0 && "mt-1 border-t border-border pt-1")}>
           {group.map((item) => (
             <button
               key={item.label}
               type="button"
               role="menuitem"
-              className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left hover:bg-white/10"
+              className="flex min-h-9 w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left hover:bg-accent hover:shadow-[inset_2px_0_0_0_var(--ember)] focus-visible:bg-accent"
               onClick={() => {
                 onAction(item.action);
                 onClose();
               }}
             >
               {item.label}
-              {item.hint && <span className="text-[10px] text-muted-foreground">{item.hint}</span>}
+              {item.hint && <span className="text-[11px] text-muted-foreground">{item.hint}</span>}
             </button>
           ))}
         </div>

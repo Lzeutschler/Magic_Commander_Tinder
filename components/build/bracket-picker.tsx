@@ -26,17 +26,17 @@ export function BracketPicker({
             aria-checked={active}
             onClick={() => onChange(bracket)}
             className={cn(
-              "flex flex-col gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-left transition hover:border-white/25",
-              active && "border-gold/80 bg-gold/10 shadow-[0_0_24px] shadow-gold/15",
+              "flex min-h-10 flex-col gap-1 rounded-lg border border-border bg-card p-3 text-left shadow-sm transition hover:border-input hover:bg-accent",
+              active && "border-ember bg-ember/12 shadow-[inset_0_0_0_1px_var(--ember),0_2px_0_0_oklch(0_0_0/45%)] hover:border-ember hover:bg-ember/12",
             )}
           >
             <span className="flex items-baseline gap-2">
-              <span className={cn("font-heading text-2xl font-bold", active ? "text-gold" : "text-muted-foreground")}>{bracket}</span>
-              <span className="font-semibold">{info.name}</span>
+              <span className={cn("numeral text-3xl", active ? "text-ember" : "text-muted-foreground")}>{bracket}</span>
+              <span className="font-semibold leading-tight">{info.name}</span>
             </span>
             <span className="text-xs text-muted-foreground">{info.tagline}</span>
             {deckCounts?.[bracket] !== undefined && (
-              <span className="text-[11px] text-muted-foreground/70">{deckCounts[bracket]!.toLocaleString()} decks on EDHREC</span>
+              <span className="text-[11px] text-muted-foreground tabular-nums">{deckCounts[bracket]!.toLocaleString()} decks on EDHREC</span>
             )}
           </button>
         );

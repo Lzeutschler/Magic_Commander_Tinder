@@ -7,9 +7,15 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-heading: var(--font-cinzel);
-  --color-gold: var(--gold);
+  --font-sans: var(--font-archivo);
+  --font-heading: var(--font-alegreya);
+  --font-mana: var(--font-mana-symbols);
+  --color-ember: var(--ember);
+  --color-verdigris: var(--verdigris);
+  --color-felt: var(--felt);
+  --color-ink: var(--ink);
+  /* Older name for the accent, kept so code written against it keeps working. */
+  --color-gold: var(--ember);
   --color-pick: var(--pick);
   --color-pass: var(--pass);
   --color-maybe: var(--maybe);
@@ -48,54 +54,71 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Small, deliberate corners: controls 3px, surfaces 6px, dialogs 8px. Cards keep their own 4.75%. */
+  --radius-xs: 2px;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  --radius-2xl: 8px;
+  --radius-3xl: 10px;
+  --radius-4xl: 12px;
+
+  /* Printed look: a hard ink edge under the object plus a short, dark drop. No soft glows. */
+  --shadow-2xs: 0 1px 0 0 oklch(0 0 0 / 45%);
+  --shadow-xs: 0 1px 0 0 oklch(0 0 0 / 55%);
+  --shadow-sm: inset 0 1px 0 0 oklch(1 0 0 / 6%), 0 2px 0 0 oklch(0 0 0 / 50%);
+  --shadow-md: 0 2px 0 0 oklch(0 0 0 / 55%), 0 6px 10px -6px oklch(0 0 0 / 70%);
+  --shadow-lg: 0 2px 0 0 oklch(0 0 0 / 60%), 0 10px 18px -10px oklch(0 0 0 / 80%);
+  --shadow-xl: 0 0 0 1px oklch(0 0 0 / 50%), 0 4px 0 0 oklch(0 0 0 / 45%), 0 18px 32px -14px oklch(0 0 0 / 85%);
+  --shadow-2xl: 0 0 0 1px oklch(0 0 0 / 55%), 0 6px 0 0 oklch(0 0 0 / 45%), 0 28px 48px -18px oklch(0 0 0 / 90%);
+
+  --tracking-label: 0.08em;
 }
 
 :root {
-  /* Dark, MTG Arena-inspired palette: ink-blue table, warm gold accents. */
-  --background: oklch(0.15 0.025 268);
-  --foreground: oklch(0.95 0.012 85);
-  --card: oklch(0.2 0.03 268);
-  --card-foreground: oklch(0.95 0.012 85);
-  --popover: oklch(0.19 0.03 268);
-  --popover-foreground: oklch(0.95 0.012 85);
-  --primary: oklch(0.8 0.13 80);
-  --primary-foreground: oklch(0.18 0.03 268);
-  --secondary: oklch(0.26 0.035 268);
-  --secondary-foreground: oklch(0.95 0.012 85);
-  --muted: oklch(0.24 0.03 268);
-  --muted-foreground: oklch(0.72 0.025 268);
-  --accent: oklch(0.29 0.045 268);
-  --accent-foreground: oklch(0.97 0.01 85);
-  --destructive: oklch(0.65 0.2 25);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.8 0.13 80 / 70%);
-  --chart-1: oklch(0.8 0.13 80);
-  --chart-2: oklch(0.7 0.13 245);
-  --chart-3: oklch(0.72 0.15 155);
-  --chart-4: oklch(0.68 0.18 20);
-  --chart-5: oklch(0.66 0.16 300);
-  --radius: 0.75rem;
-  --sidebar: oklch(0.19 0.03 268);
-  --sidebar-foreground: oklch(0.95 0.012 85);
-  --sidebar-primary: oklch(0.8 0.13 80);
-  --sidebar-primary-foreground: oklch(0.18 0.03 268);
-  --sidebar-accent: oklch(0.26 0.035 268);
-  --sidebar-accent-foreground: oklch(0.95 0.012 85);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.8 0.13 80 / 70%);
+  /* Tabletop palette: warm ink, parchment text, an ember accent and verdigris for secondary info. */
+  --ink: oklch(0.13 0.008 55);
+  --background: oklch(0.165 0.008 55);
+  --foreground: oklch(0.94 0.018 85);
+  --card: oklch(0.205 0.01 55);
+  --card-foreground: oklch(0.94 0.018 85);
+  --popover: oklch(0.225 0.011 55);
+  --popover-foreground: oklch(0.94 0.018 85);
+  --primary: oklch(0.72 0.165 48);
+  --primary-foreground: oklch(0.17 0.02 45);
+  --secondary: oklch(0.27 0.012 55);
+  --secondary-foreground: oklch(0.94 0.018 85);
+  --muted: oklch(0.25 0.011 55);
+  --muted-foreground: oklch(0.76 0.02 75);
+  --accent: oklch(0.3 0.014 55);
+  --accent-foreground: oklch(0.97 0.015 85);
+  --destructive: oklch(0.68 0.19 28);
+  --border: oklch(0.33 0.014 60);
+  --input: oklch(0.4 0.016 60);
+  --ring: oklch(0.78 0.15 55);
+  --chart-1: oklch(0.72 0.165 48);
+  --chart-2: oklch(0.76 0.09 180);
+  --chart-3: oklch(0.74 0.14 140);
+  --chart-4: oklch(0.7 0.12 260);
+  --chart-5: oklch(0.7 0.14 330);
+  --radius: 4px;
+  --sidebar: oklch(0.205 0.01 55);
+  --sidebar-foreground: oklch(0.94 0.018 85);
+  --sidebar-primary: oklch(0.72 0.165 48);
+  --sidebar-primary-foreground: oklch(0.17 0.02 45);
+  --sidebar-accent: oklch(0.27 0.012 55);
+  --sidebar-accent-foreground: oklch(0.94 0.018 85);
+  --sidebar-border: oklch(0.33 0.014 60);
+  --sidebar-ring: oklch(0.78 0.15 55);
 
-  --gold: oklch(0.8 0.13 80);
-  --pick: oklch(0.74 0.17 152);
-  --pass: oklch(0.66 0.2 22);
-  --maybe: oklch(0.75 0.12 240);
+  --ember: oklch(0.72 0.165 48);
+  --verdigris: oklch(0.78 0.09 180);
+  --felt: oklch(0.24 0.035 165);
+  --pick: oklch(0.76 0.16 148);
+  --pass: oklch(0.68 0.19 25);
+  --maybe: oklch(0.78 0.09 180);
   --mana-w: oklch(0.93 0.04 95);
   --mana-u: oklch(0.7 0.12 240);
   --mana-b: oklch(0.45 0.03 300);
@@ -106,36 +129,80 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/60;
+  }
+  html {
+    @apply font-sans;
+    font-variation-settings: normal;
   }
   body {
     @apply bg-background text-foreground;
+    /* A faint paper grain instead of glowing gradients. */
     background-image:
-      radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.32 0.07 275 / 55%), transparent 70%),
-      radial-gradient(ellipse 60% 40% at 100% 110%, oklch(0.3 0.08 320 / 35%), transparent 70%);
-    background-attachment: fixed;
+      linear-gradient(180deg, oklch(0.2 0.012 55) 0, transparent 22rem),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .035 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
   h1,
   h2,
   h3 {
-    @apply font-heading tracking-wide;
+    @apply font-heading;
+    letter-spacing: -0.005em;
+    text-wrap: balance;
   }
-  html {
-    @apply font-sans;
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: oklch(0.72 0.165 48 / 40%);
   }
 }
-@layer utilities {
-  /* Gold-rimmed panel used for Arena-style surfaces. */
-  .panel {
-    @apply rounded-2xl border border-white/10 bg-card/70 shadow-xl shadow-black/30 backdrop-blur-md;
-  }
-  .text-gold-gradient {
-    background: linear-gradient(180deg, oklch(0.92 0.09 85), oklch(0.72 0.14 70));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-  .card-aspect {
-    aspect-ratio: 488 / 680;
-  }
+
+/* A flat tabletop surface: solid fill, crisp border, a highlight on the top edge, an ink edge below. */
+@utility panel {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 5%),
+    0 2px 0 0 oklch(0 0 0 / 45%);
+}
+/* A recessed well, e.g. a drop zone or an empty slot. */
+@utility panel-inset {
+  border-radius: var(--radius-xl);
+  border: 1px solid oklch(0 0 0 / 40%);
+  background-color: var(--ink);
+  box-shadow: inset 0 2px 0 0 oklch(0 0 0 / 35%);
+}
+/* Small caps-style label: condensed, upper case, tracked. */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-stretch: 80%;
+  font-weight: 650;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+/* Big tabular numbers for counters (life, turn, card counts). */
+@utility numeral {
+  font-family: var(--font-sans);
+  font-stretch: 75%;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+/* Older name for the accent headline colour; now a solid ember instead of a gradient. */
+@utility text-gold-gradient {
+  color: var(--ember);
+}
+@utility card-aspect {
+  aspect-ratio: 488 / 680;
+}
+/* Green playmat felt for the goldfish table. */
+@utility felt {
+  background-color: var(--felt);
+  background-image:
+    radial-gradient(ellipse 70% 60% at 50% 45%, oklch(0.3 0.045 165 / 70%), transparent 75%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }

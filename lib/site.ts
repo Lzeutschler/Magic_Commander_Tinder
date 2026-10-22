@@ -15,7 +15,7 @@ export const SITE = {
   url: resolveSiteUrl(),
   description:
     "Find your commander, swipe your way to a deck and goldfish it — a free deckbuilding companion for Magic: The Gathering Commander.",
-  themeColor: "#070b16",
+  themeColor: "#0a0705",
 } as const;
 
 /**

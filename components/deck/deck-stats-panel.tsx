@@ -1,9 +1,9 @@
 "use client";
 
-import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { ManaSymbol } from "@/components/card/mana";
+import { CheckCircleIcon, WarningIcon } from "@/components/icons";
 import { RoleMeters } from "@/components/swipe/deck-progress";
 import { CURVE_LABELS } from "@/lib/cards/mana";
 import { BRACKET_INFO, deckBracketIssues } from "@/lib/deckbuilder/brackets";
@@ -25,9 +25,9 @@ export function DeckStatsPanel({ deck }: { deck: Deck }) {
     <div className="space-y-4">
       <section className="panel space-y-3 p-4">
         <div className="flex items-baseline justify-between">
-          <span className="font-heading text-3xl font-bold tabular-nums">
+          <span className="numeral text-5xl">
             {stats.total}
-            <span className="text-base text-muted-foreground">/{DECK_SIZE}</span>
+            <span className="text-xl text-muted-foreground">/{DECK_SIZE}</span>
           </span>
           <span className="text-sm text-muted-foreground">+ commander</span>
         </div>
@@ -45,7 +45,7 @@ export function DeckStatsPanel({ deck }: { deck: Deck }) {
       </section>
 
       <section className="panel space-y-2 p-4">
-        <h3 className="text-sm font-semibold">Mana curve</h3>
+        <h3 className="eyebrow text-muted-foreground">Mana curve</h3>
         <div className="h-36">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={curveData} margin={{ top: 8, right: 4, bottom: 0, left: -28 }}>
@@ -53,27 +53,27 @@ export function DeckStatsPanel({ deck }: { deck: Deck }) {
               <YAxis allowDecimals={false} tickLine={false} axisLine={false} tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} />
               <Tooltip
                 cursor={{ fill: "oklch(1 0 0 / 5%)" }}
-                contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
+                contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 4, fontSize: 12, boxShadow: "var(--shadow-lg)" }}
                 formatter={(value) => [value, "cards"]}
               />
-              <Bar dataKey="count" fill="var(--gold)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" fill="var(--ember)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </section>
 
       <section className="panel space-y-3 p-4">
-        <h3 className="text-sm font-semibold">Roles</h3>
+        <h3 className="eyebrow text-muted-foreground">Roles</h3>
         <RoleMeters stats={stats} template={template} />
       </section>
 
       {colors.length > 0 && (
         <section className="panel space-y-2 p-4">
-          <h3 className="text-sm font-semibold">Colors: pips vs. land sources</h3>
+          <h3 className="eyebrow text-muted-foreground">Colors: pips vs. land sources</h3>
           <table className="w-full text-sm">
             <tbody>
               {colors.map((color) => (
-                <tr key={color} className="border-b border-white/5 last:border-0">
+                <tr key={color} className="border-b border-border/60 last:border-0">
                   <td className="py-1.5">
                     <ManaSymbol symbol={color} />
                   </td>
@@ -89,7 +89,7 @@ export function DeckStatsPanel({ deck }: { deck: Deck }) {
       )}
 
       <section className="panel space-y-2 p-4">
-        <h3 className="text-sm font-semibold">Card types</h3>
+        <h3 className="eyebrow text-muted-foreground">Card types</h3>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
           {CARD_TYPES.filter((type) => stats.types[type]).map((type) => (
             <div key={type} className="flex justify-between">
@@ -104,9 +104,9 @@ export function DeckStatsPanel({ deck }: { deck: Deck }) {
 }
 
 function StatusLine({ ok, children }: { ok: boolean; children: React.ReactNode }) {
-  const Icon = ok ? CheckCircle2 : AlertTriangle;
+  const Icon = ok ? CheckCircleIcon : WarningIcon;
   return (
-    <p className={cn("flex items-start gap-2 text-sm", ok ? "text-pick" : "text-amber-300")}>
+    <p className={cn("flex items-start gap-2 text-sm", ok ? "text-pick" : "text-ember")}>
       <Icon className="mt-0.5 size-4 shrink-0" />
       <span>{children}</span>
     </p>
@@ -115,9 +115,9 @@ function StatusLine({ ok, children }: { ok: boolean; children: React.ReactNode }
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg bg-white/5 p-2">
-      <div className="font-heading text-lg font-bold">{value}</div>
-      <div className="text-muted-foreground">{label}</div>
+    <div className="panel-inset p-2">
+      <div className="numeral text-2xl">{value}</div>
+      <div className="mt-1 text-[11px] leading-tight text-muted-foreground">{label}</div>
     </div>
   );
 }
