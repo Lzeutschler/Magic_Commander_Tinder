@@ -1,4 +1,3 @@
-import { WarningIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 /** Long-form text for the legal and about pages, styled on top of the shared `panel` surface. */
@@ -41,25 +40,6 @@ export function Address({ lines }: { lines: string[] }) {
         </span>
       ))}
     </address>
-  );
-}
-
-/**
- * Visible placeholder for legal details that still need the operator's confirmation.
- * Remove every usage (search for `<Todo`) before going live.
- */
-export function Todo({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      role="note"
-      data-todo
-      className="flex gap-2 rounded-md border border-ember/50 bg-ember/10 p-3 text-foreground"
-    >
-      <WarningIcon className="mt-0.5 size-4 shrink-0 text-ember" aria-hidden />
-      <div>
-        <strong className="text-ember">TODO:</strong> {children}
-      </div>
-    </div>
   );
 }
 

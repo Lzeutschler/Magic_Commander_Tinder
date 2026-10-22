@@ -131,9 +131,10 @@ extend the CSP there and update the privacy policy (`app/datenschutz/page.tsx`).
 
 ### Before going live
 
-- Resolve every `<Todo>` on `/impressum` and `/datenschutz` (search the code for `<Todo`).
-- Provider details live in `lib/site.ts` (`OPERATOR`); keep them in sync with the 45level Impressum.
-- Vercel's Hobby plan is for non-commercial use only; a site run by a company needs a Pro plan.
+- Commander Tinder runs as Leonard's private, non-commercial hobby project, which fits Vercel's Hobby plan.
+  Provider details for `/impressum` and `/datenschutz` live in `lib/site.ts` (`OPERATOR`).
+- If the project ever earns money (ads, donations, paid features) or moves to a company, revisit the
+  Impressum, the privacy policy and the Vercel plan.
 
 ## Pages and SEO
 

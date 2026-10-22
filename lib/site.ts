@@ -19,22 +19,17 @@ export const SITE = {
 } as const;
 
 /**
- * Provider details for the Impressum and the privacy policy, taken from https://45level.com/de/impressum
- * (as of October 2025). Keep them in sync with that page.
+ * Provider of the site for the Impressum and the privacy policy. Commander Tinder is a private,
+ * non-commercial hobby project, so Leonard runs it as a private person (not via 45level GmbH).
  */
 export const OPERATOR = {
-  company: "45level GmbH",
+  name: "Leonard Zeutschler",
   street: "Hobirkheide 23",
   postalCode: "45149",
   city: "Essen",
   country: { de: "Deutschland", en: "Germany" },
-  managingDirector: "Thomas Zeutschler",
   email: "info@45level.com",
-  website: "https://45level.com",
-  registerCourt: "Amtsgericht Essen",
-  registerNumber: "HRB 37169",
-  vatId: "DE457712367",
-  contentResponsible: "Thomas Zeutschler",
+  website: "https://www.leonard-zeutschler.de",
 } as const;
 
 export const LEGAL_LAST_UPDATED = { de: "Oktober 2026", en: "October 2026" } as const;
