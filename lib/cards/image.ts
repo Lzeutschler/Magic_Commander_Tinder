@@ -18,3 +18,8 @@ export function cardImageUrl(
 ): string {
   return `${SCRYFALL_IMAGE_HOST}/${size}/${face}/${image.key}.jpg?${image.version}`;
 }
+
+/** Art crop for a bare Scryfall image key, as used by quiz answers. */
+export function artCropUrl(key: string): string {
+  return `${SCRYFALL_IMAGE_HOST}/art_crop/front/${key}.jpg`;
+}

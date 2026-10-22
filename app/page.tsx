@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 const STEPS = [
   {
     title: "Find your commander",
-    text: "Answer a few questions about colors, creatures and play style and get commanders that fit you.",
-    href: null,
+    text: "Answer seven questions about play style, colors and creatures — or just vibes — then swipe through commanders that fit you.",
+    href: "/quiz",
   },
   {
     title: "Deckbuilding Tinder",
@@ -81,35 +81,20 @@ export default function HomePage() {
       </section>
 
       <section className="grid border-y border-border md:grid-cols-3">
-        {STEPS.map(({ title, text, href }, i) => {
-          const content = (
-            <>
-              <div className="flex items-baseline justify-between gap-3">
-                <span className="numeral text-4xl text-ember">{String(i + 1).padStart(2, "0")}</span>
-                {href ? (
-                  <ArrowRightIcon className="size-5 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-ember" />
-                ) : (
-                  <span className="eyebrow text-muted-foreground">Coming soon</span>
-                )}
-              </div>
-              <h2 className="text-2xl font-bold">{title}</h2>
-              <p className="text-sm text-muted-foreground">{text}</p>
-            </>
-          );
-          const className = cn(
-            "group flex flex-col gap-3 p-6 md:border-l md:first:border-l-0 max-md:border-t max-md:first:border-t-0",
-            href ? "transition-colors hover:bg-card" : "opacity-75",
-          );
-          return href ? (
-            <Link key={title} href={href} className={className}>
-              {content}
-            </Link>
-          ) : (
-            <div key={title} className={className}>
-              {content}
+        {STEPS.map(({ title, text, href }, i) => (
+          <Link
+            key={title}
+            href={href}
+            className="group flex flex-col gap-3 p-6 transition-colors hover:bg-card max-md:border-t max-md:first:border-t-0 md:border-l md:first:border-l-0"
+          >
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="numeral text-4xl text-ember">{String(i + 1).padStart(2, "0")}</span>
+              <ArrowRightIcon className="size-5 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-ember" />
             </div>
-          );
-        })}
+            <h2 className="text-2xl font-bold">{title}</h2>
+            <p className="text-sm text-muted-foreground">{text}</p>
+          </Link>
+        ))}
       </section>
 
       <section className="space-y-5">

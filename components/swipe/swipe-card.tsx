@@ -3,7 +3,7 @@
 import { motion, useMotionValue, useTransform, type MotionValue, type PanInfo } from "motion/react";
 
 import { CardImage } from "@/components/card/card-image";
-import type { Candidate } from "@/lib/deckbuilder/types";
+import type { Card } from "@/lib/cards/types";
 import type { SwipeDecision } from "@/lib/deckbuilder/session";
 
 const SWIPE_DISTANCE = 110;
@@ -21,11 +21,12 @@ const exitVariants = {
   }),
 };
 
+/** A draggable card for any swipe stack: deck candidates as well as quiz commanders. */
 export function SwipeCard({
-  candidate,
+  card,
   onDecision,
 }: {
-  candidate: Candidate;
+  card: Pick<Card, "name" | "image" | "manaCost" | "typeLine" | "oracleText">;
   onDecision: (decision: SwipeDecision) => void;
 }) {
   const x = useMotionValue(0);
@@ -57,7 +58,7 @@ export function SwipeCard({
       transition={{ type: "spring", stiffness: 320, damping: 28 }}
       whileDrag={{ scale: 1.03 }}
     >
-      <CardImage card={candidate} size="large" eager flippable className="size-full shadow-2xl shadow-black/60" />
+      <CardImage card={card} size="large" eager flippable className="size-full shadow-2xl shadow-black/60" />
       <Stamp label="PICK" className="top-8 left-6 -rotate-12 border-pick text-pick" opacity={pickOpacity} />
       <Stamp label="PASS" className="top-8 right-6 rotate-12 border-pass text-pass" opacity={passOpacity} />
       <Stamp label="MAYBE" className="bottom-16 left-1/2 -translate-x-1/2 border-maybe text-maybe" opacity={maybeOpacity} />

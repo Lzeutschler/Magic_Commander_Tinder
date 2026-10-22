@@ -10,10 +10,12 @@ export function SiteHeader() {
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:gap-8">
         <Link
           href="/"
+          aria-label="Commander Tinder"
           className="-ml-1 flex shrink-0 items-center gap-2 rounded-md px-1 py-1 font-heading text-lg leading-none font-extrabold whitespace-nowrap sm:text-xl"
         >
           <BrandMark className="size-7" />
-          <span className="max-sm:sr-only">
+          {/* Phones only have room for the logo next to the four nav links. */}
+          <span className="max-sm:hidden">
             Commander <span className="text-ember">Tinder</span>
           </span>
         </Link>
