@@ -1,0 +1,22 @@
+name: Refresh card data
+
+# Every Vercel build regenerates the card database from Scryfall (see scripts/build-card-db.ts),
+# so a weekly redeploy keeps cards, prices and the Game Changers list current.
+on:
+  schedule:
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+jobs:
+  redeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel deploy hook
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "VERCEL_DEPLOY_HOOK_URL is not set, skipping."
+            exit 0
+          fi
+          curl -fsS -X POST "$HOOK"
