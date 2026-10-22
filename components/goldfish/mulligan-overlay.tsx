@@ -22,11 +22,9 @@ export function MulliganOverlay({ game, act }: { game: GameState; act: (fn: (g: 
     );
 
   return (
-    <div className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-6 bg-black/70 p-6 backdrop-blur-sm">
+    <div className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-6 bg-[oklch(0.1_0.006_55/86%)] p-6">
       <div className="text-center">
-        <h2 className="text-3xl font-bold">
-          <span className="text-gold-gradient">{choosing ? `Put ${toBottom} on the bottom` : "Opening hand"}</span>
-        </h2>
+        <h2 className="text-4xl font-extrabold">{choosing ? `Put ${toBottom} on the bottom` : "Opening hand"}</h2>
         <p className="text-sm text-muted-foreground">
           {choosing
             ? `Choose ${toBottom} card${toBottom > 1 ? "s" : ""} to put on the bottom of your library.`
@@ -36,7 +34,7 @@ export function MulliganOverlay({ game, act }: { game: GameState; act: (fn: (g: 
         </p>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-3 [--card-w:clamp(90px,11vw,170px)]">
+      <div className="flex flex-wrap justify-center gap-3 [--card-w:clamp(110px,min(12.5vw,30vh),240px)]">
         {hand.map((card) => (
           <button
             key={card.instanceId}
@@ -46,7 +44,7 @@ export function MulliganOverlay({ game, act }: { game: GameState; act: (fn: (g: 
             className={cn(
               "w-[var(--card-w)] rounded-[5%] transition",
               choosing && "hover:-translate-y-1",
-              selected.includes(card.instanceId) && "translate-y-3 opacity-50 ring-2 ring-pass",
+              selected.includes(card.instanceId) && "translate-y-3 opacity-50 ring-3 ring-pass",
             )}
             data-card-name={card.card.name}
           >

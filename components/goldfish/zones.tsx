@@ -2,8 +2,10 @@
 
 import { useDroppable } from "@dnd-kit/core";
 import { AnimatePresence } from "motion/react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 import { CardBack } from "@/components/card/card-back";
+import { ManaGlyph } from "@/components/icons";
 import { isLand } from "@/lib/cards/mana";
 import type { GameCard, GameState, ZoneId } from "@/lib/goldfish/types";
 import { ZONE_LABELS } from "@/lib/goldfish/types";
@@ -15,78 +17,225 @@ function useZoneDrop(zone: ZoneId) {
   return useDroppable({ id: zone });
 }
 
+const FRONT_ROW = /\b(Creature|Planeswalker|Battle)\b/;
+
+/** Identical, untouched permanents share a stack, like lands in Arena. Cards with counters stand alone. */
+function stackKey(card: GameCard): string {
+  if (Object.keys(card.counters).length > 0) return card.instanceId;
+  return [card.card.name, card.tapped, card.faceDown, card.flipped, card.isToken].join("|");
+}
+
+function toStacks(cards: GameCard[]): GameCard[][] {
+  const stacks = new Map<string, GameCard[]>();
+  for (const card of cards) {
+    const key = stackKey(card);
+    stacks.set(key, [...(stacks.get(key) ?? []), card]);
+  }
+  return [...stacks.values()];
+}
+
+const SCALES = [1, 0.9, 0.8, 0.7, 0.6];
+const GAP = 8;
+
+/** Rows a lane needs when its stacks wrap at `width`; tapped cards are turned sideways and take more room. */
+function rowCount(stacks: GameCard[][], card: number, width: number): number {
+  let rows = 1;
+  let x = 0;
+  for (const stack of stacks) {
+    const w = card * (stack[0].tapped ? 1.4 : 1);
+    if (x > 0 && x + GAP + w > width) {
+      rows++;
+      x = w;
+    } else x += (x > 0 ? GAP : 0) + w;
+  }
+  return rows;
+}
+
+function fanHeight(stacks: GameCard[][]): number {
+  const deepest = Math.max(1, ...stacks.map((s) => s.length));
+  return deepest > 1 ? Math.min(0.14 * (deepest - 1), 0.5) : 0;
+}
+
+/**
+ * Like Arena, cards shrink as the board fills up: the largest scale at which both rows fit
+ * without scrolling. `--bf-base` is the full card width the table allows.
+ */
+function useBoardScale(front: GameCard[][], back: GameCard[][]) {
+  const boxRef = useRef<HTMLDivElement | null>(null);
+  const probeRef = useRef<HTMLDivElement>(null);
+  const [box, setBox] = useState<{ width: number; height: number; card: number } | null>(null);
+
+  useLayoutEffect(() => {
+    const element = boxRef.current;
+    const probe = probeRef.current;
+    if (!element || !probe) return;
+    const measure = () =>
+      setBox({ width: element.clientWidth - 24, height: element.clientHeight - 24, card: probe.offsetWidth });
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  let scale = SCALES.at(-1)!;
+  if (!box?.card) scale = 1;
+  else {
+    for (const candidate of SCALES) {
+      const card = box.card * candidate;
+      const rows = rowCount(front, card, box.width) + rowCount(back, card, box.width);
+      const fans = (fanHeight(front) + fanHeight(back)) * card;
+      // Card rows, the gaps between them, and the divider between front and back row.
+      if (rows * card * 1.395 + rows * GAP + 9 + fans <= box.height) {
+        scale = candidate;
+        break;
+      }
+    }
+  }
+  return { boxRef, probeRef, scale };
+}
+
+/**
+ * The battlefield: creatures, planeswalkers and battles in the front row; lands and other
+ * permanents in the back row next to the hand.
+ */
 export function Battlefield({ game, handlers }: { game: GameState; handlers: CardHandlers }) {
   const { setNodeRef, isOver } = useZoneDrop("battlefield");
   const cards = game.zones.battlefield.map((id) => game.cards[id]);
-  const lands = cards.filter((c) => isLand(c.card) && !c.faceDown);
-  const permanents = cards.filter((c) => !lands.includes(c));
+  const front = cards.filter((c) => !c.faceDown && FRONT_ROW.test(c.card.typeLine.split(" // ")[0]));
+  const lands = cards.filter((c) => !c.faceDown && !front.includes(c) && isLand(c.card));
+  const others = cards.filter((c) => !front.includes(c) && !lands.includes(c));
+  const frontStacks = toStacks(front);
+  const landStacks = toStacks(lands);
+  const otherStacks = toStacks(others);
+  const { boxRef, probeRef, scale } = useBoardScale(frontStacks, [...landStacks, ...otherStacks]);
 
   return (
     <div
-      ref={setNodeRef}
+      ref={(node) => {
+        setNodeRef(node);
+        boxRef.current = node;
+      }}
       data-zone="battlefield"
       className={cn(
-        "relative flex min-h-0 flex-1 flex-col gap-3 overflow-auto rounded-2xl border border-white/10 p-3 transition [--card-w:clamp(64px,6.2vw,108px)]",
-        isOver && "border-gold/60 shadow-[inset_0_0_40px] shadow-gold/15",
+        "felt relative flex min-h-0 min-w-0 flex-1 flex-col gap-2 overflow-auto rounded-xl border border-black/50 p-3 shadow-[inset_0_2px_12px_oklch(0_0_0/45%)] transition-shadow",
+        isOver && "shadow-[inset_0_0_0_2px_var(--ember),inset_0_2px_12px_oklch(0_0_0/45%)]",
       )}
-      style={{
-        background:
-          "radial-gradient(ellipse at 50% 40%, oklch(0.3 0.05 250 / 70%), oklch(0.17 0.03 265 / 85%) 70%), repeating-linear-gradient(45deg, oklch(1 0 0 / 2%) 0 2px, transparent 2px 14px)",
-      }}
+      style={{ "--card-w": `calc(var(--bf-base) * ${scale})` } as React.CSSProperties}
     >
+      <div ref={probeRef} aria-hidden="true" className="pointer-events-none invisible absolute h-0 w-[var(--bf-base)]" />
       {cards.length === 0 && (
-        <div className="pointer-events-none absolute inset-0 grid place-items-center text-sm text-muted-foreground/60">
+        <div className="pointer-events-none absolute inset-0 grid place-items-center text-sm text-foreground/60">
           Drag cards here or click a card in your hand to play it
         </div>
       )}
-      <Row cards={permanents} handlers={handlers} className="flex-1" />
-      <Row cards={lands} handlers={handlers} />
+      <Lane label="Creatures" glyph="creature" stacks={frontStacks} handlers={handlers} className="flex-auto shrink-0" />
+      <div className="flex shrink-0 items-start gap-6 border-t border-dashed border-white/12 pt-2">
+        <Lane label="Lands" glyph="land" stacks={landStacks} handlers={handlers} className="min-w-0 flex-1" />
+        {others.length > 0 && (
+          <Lane label="Other permanents" glyph="artifact" stacks={otherStacks} handlers={handlers} className="min-w-0 max-w-[50%] justify-end" />
+        )}
+      </div>
     </div>
   );
 }
 
-function Row({ cards, handlers, className }: { cards: GameCard[]; handlers: CardHandlers; className?: string }) {
+function Lane({
+  label,
+  glyph,
+  stacks,
+  handlers,
+  className,
+}: {
+  label: string;
+  glyph: "creature" | "land" | "artifact";
+  stacks: GameCard[][];
+  handlers: CardHandlers;
+  className?: string;
+}) {
   return (
-    <div className={cn("flex min-h-[calc(var(--card-w)*1.4)] flex-wrap content-start items-start gap-2", className)}>
+    <section aria-label={label} className={cn("relative flex min-h-[calc(var(--card-w)*1.395)] flex-wrap content-start items-start gap-2", className)}>
+      {stacks.length === 0 && (
+        <span className="eyebrow pointer-events-none flex items-center gap-1.5 self-center text-foreground/55">
+          <ManaGlyph name={glyph} className="text-base" /> {label}
+        </span>
+      )}
       <AnimatePresence initial={false}>
-        {cards.map((card) => (
-          <GameCardView key={card.instanceId} card={card} handlers={handlers} />
-        ))}
+        {stacks.map((stack) =>
+          stack.length === 1 ? (
+            <GameCardView key={stack[0].instanceId} card={stack[0]} handlers={handlers} />
+          ) : (
+            <Stack key={stack[0].instanceId} cards={stack} handlers={handlers} />
+          ),
+        )}
       </AnimatePresence>
+    </section>
+  );
+}
+
+/** Copies of one card fanned downwards; every card stays clickable and draggable on its visible strip. */
+function Stack({ cards, handlers }: { cards: GameCard[]; handlers: CardHandlers }) {
+  const tapped = cards[0].tapped;
+  // The fan never grows taller than half a card, however many copies there are.
+  const step = `calc(var(--card-w) * ${Math.min(0.14, 0.5 / (cards.length - 1)).toFixed(3)})`;
+  return (
+    <div
+      className="relative shrink-0"
+      style={{
+        width: tapped ? "calc(var(--card-w) * 1.4)" : "var(--card-w)",
+        height: `calc(var(--card-w) * 1.395 + ${step} * ${cards.length - 1})`,
+      }}
+    >
+      {cards.map((card, i) => (
+        <div
+          key={card.instanceId}
+          className="absolute"
+          style={{ top: `calc(${step} * ${i})`, left: tapped ? "calc(var(--card-w) * 0.2)" : 0, zIndex: i }}
+        >
+          <GameCardView card={card} handlers={handlers} className="mx-0" />
+        </div>
+      ))}
+      <span className="pointer-events-none absolute -top-2 -right-2 z-20 grid h-6 min-w-6 place-items-center rounded-sm bg-ink px-1 text-xs font-bold tabular-nums shadow-md ring-1 ring-white/15">
+        ×{cards.length}
+      </span>
     </div>
   );
 }
 
+/** The hand peeks in from the bottom edge like in Arena; a hovered card rises to full size. */
 export function Hand({ game, handlers }: { game: GameState; handlers: CardHandlers }) {
   const { setNodeRef, isOver } = useZoneDrop("hand");
   const cards = game.zones.hand.map((id) => game.cards[id]);
   const mid = (cards.length - 1) / 2;
-  const overlap = cards.length > 9 ? 0.55 : cards.length > 6 ? 0.4 : 0.2;
+  const overlap = cards.length > 10 ? 0.55 : cards.length > 7 ? 0.38 : 0.12;
 
   return (
     <div
       ref={setNodeRef}
       data-zone="hand"
       className={cn(
-        "relative flex h-[calc(var(--card-w)*1.1)] items-start justify-center rounded-t-2xl pt-3 transition [--card-w:clamp(84px,8vw,138px)]",
-        isOver && "bg-gold/5",
+        "relative z-20 flex h-[calc(var(--hand-w)*0.86)] shrink-0 items-start justify-center px-4 pt-2 transition-colors",
+        isOver && "bg-ember/8",
       )}
     >
-      {cards.length === 0 && <span className="self-center text-xs text-muted-foreground/60">Hand is empty</span>}
+      {cards.length === 0 && <span className="self-center text-sm text-muted-foreground">Hand is empty</span>}
       {cards.map((card, i) => (
         <div
           key={card.instanceId}
-          className="transition-transform duration-200 hover:z-30 hover:-translate-y-[35%] hover:scale-125"
+          className="group/hand relative z-(--z) transition-transform duration-150 ease-out [--card-w:var(--hand-w)] hover:z-50"
           style={{
-            marginLeft: i === 0 ? 0 : `calc(var(--card-w) * -${overlap})`,
-            transform: `rotate(${(i - mid) * 2.5}deg) translateY(${Math.abs(i - mid) ** 1.6 * 2}px)`,
-            zIndex: i,
-          }}
+            marginLeft: i === 0 ? 0 : `calc(var(--hand-w) * -${overlap})`,
+            transform: `rotate(${(i - mid) * 1.6}deg) translateY(${Math.abs(i - mid) ** 1.5 * 1.5}px)`,
+            "--z": i,
+          } as React.CSSProperties}
         >
-          <GameCardView card={card} handlers={handlers} />
+          <div className="transition-transform duration-150 ease-out origin-bottom group-hover/hand:-translate-y-[47%] group-hover/hand:scale-[1.2]">
+            <GameCardView card={card} handlers={handlers} />
+          </div>
         </div>
       ))}
-      <span className="absolute top-1 right-3 text-xs text-muted-foreground">{cards.length} in hand</span>
+      <span className="eyebrow pointer-events-none absolute top-1.5 right-4 text-muted-foreground">
+        Hand <span className="text-foreground tabular-nums">{cards.length}</span>
+      </span>
     </div>
   );
 }
@@ -116,16 +265,16 @@ export function Pile({
 
   return (
     <div className="space-y-1">
-      <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-        <span>{ZONE_LABELS[zone]}</span>
-        <span className="tabular-nums">{ids.length}</span>
+      <div className="eyebrow flex items-center justify-between gap-1 text-[0.6875rem] text-muted-foreground">
+        <span className="truncate">{zone === "command" ? "Command" : ZONE_LABELS[zone]}</span>
+        <span className="text-foreground tabular-nums">{ids.length}</span>
       </div>
       <div
         ref={setNodeRef}
         data-zone={zone}
         className={cn(
           "relative rounded-[6%] transition",
-          isOver && "ring-2 ring-gold ring-offset-2 ring-offset-background",
+          isOver && "ring-2 ring-ember ring-offset-2 ring-offset-background",
         )}
       >
         {top && !faceDown ? (
@@ -135,24 +284,24 @@ export function Pile({
             type="button"
             onClick={onClick}
             disabled={!onClick}
-            className="block w-[var(--card-w)] disabled:cursor-default"
+            className="block w-[var(--card-w)] rounded-[4.75%] disabled:cursor-default"
             aria-label={ZONE_LABELS[zone]}
             onMouseEnter={() => handlers.onHover?.(null)}
           >
             {top ? (
               <div className="relative">
-                {ids.length > 1 && <CardBack className="absolute inset-0 translate-x-1 translate-y-1 opacity-60" />}
+                {ids.length > 1 && <CardBack className="absolute inset-0 translate-x-[3px] translate-y-[3px] opacity-70" />}
                 <CardBack className="relative" />
               </div>
             ) : (
-              <div className="card-aspect grid place-items-center rounded-[4.75%] border border-dashed border-white/15 text-[10px] text-muted-foreground/60">
+              <div className="panel-inset card-aspect grid place-items-center rounded-[4.75%] border-dashed text-[11px] text-muted-foreground">
                 empty
               </div>
             )}
           </button>
         )}
         {badge && (
-          <span className="pointer-events-none absolute -top-2 -right-2 rounded-full bg-gold px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
+          <span className="pointer-events-none absolute -top-2 -right-2 rounded-sm bg-ember px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground shadow-md">
             {badge}
           </span>
         )}

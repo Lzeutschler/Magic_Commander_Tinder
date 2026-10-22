@@ -1,8 +1,8 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
+import { CaretLeftIcon, CaretRightIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { resolveLook } from "@/lib/goldfish/game";
@@ -69,7 +69,7 @@ export function LookDialog({
           </DialogTitle>
           <DialogDescription>{mode.description} Leftmost is the top card.</DialogDescription>
         </DialogHeader>
-        <div className="flex flex-wrap justify-center gap-4 [--card-w:150px]">
+        <div className="flex flex-wrap justify-center gap-4 [--card-w:clamp(150px,16vw,200px)]">
           {order.map((id, index) => (
             <div key={id} className="flex w-[var(--card-w)] flex-col gap-2">
               <div className={cn("transition", destinations[id] !== "top" && "opacity-50")}>
@@ -77,10 +77,10 @@ export function LookDialog({
               </div>
               <div className="flex justify-between">
                 <Button size="icon-xs" variant="ghost" onClick={() => shift(index, -1)} disabled={index === 0} aria-label="Move left">
-                  <ChevronLeft />
+                  <CaretLeftIcon />
                 </Button>
                 <Button size="icon-xs" variant="ghost" onClick={() => shift(index, 1)} disabled={index === order.length - 1} aria-label="Move right">
-                  <ChevronRight />
+                  <CaretRightIcon />
                 </Button>
               </div>
               <div className="flex gap-1">
@@ -90,8 +90,8 @@ export function LookDialog({
                     type="button"
                     onClick={() => setDestinations((d) => ({ ...d, [id]: option }))}
                     className={cn(
-                      "flex-1 rounded-md border border-white/10 py-1 text-[11px] capitalize transition",
-                      destinations[id] === option && "border-gold bg-gold/15 text-gold",
+                      "min-h-10 flex-1 rounded-md border border-border bg-card text-xs font-semibold capitalize shadow-sm transition hover:bg-accent",
+                      destinations[id] === option && "border-ember bg-ember/12 hover:bg-ember/12",
                     )}
                   >
                     {option === "graveyard" ? "Grave" : option}

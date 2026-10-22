@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Cinzel, Inter } from "next/font/google";
+import { Alegreya, Archivo } from "next/font/google";
+import localFont from "next/font/local";
 
 import { Providers } from "@/components/providers";
 import { SiteFooter } from "@/components/site-footer";
@@ -7,8 +8,10 @@ import { SiteHeader } from "@/components/site-header";
 
 import "./globals.css";
 
-const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
-const cinzel = Cinzel({ variable: "--font-cinzel", subsets: ["latin"], weight: ["500", "700"] });
+const archivo = Archivo({ variable: "--font-archivo", subsets: ["latin"], axes: ["wdth"] });
+const alegreya = Alegreya({ variable: "--font-alegreya", subsets: ["latin"], weight: ["500", "700", "800"] });
+// Mana symbol font by Andrew Gioia (SIL OFL 1.1), used for tap and card type symbols.
+const mana = localFont({ variable: "--font-mana-symbols", src: "./fonts/mana.woff2", display: "block", preload: false });
 
 export const metadata: Metadata = {
   title: { default: "Commander Tinder", template: "%s · Commander Tinder" },
@@ -17,7 +20,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${cinzel.variable} h-full antialiased`}>
+    <html lang="en" className={`dark ${archivo.variable} ${alegreya.variable} ${mana.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <Providers>
           <SiteHeader />

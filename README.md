@@ -37,7 +37,22 @@ pnpm dev
 The data is rebuilt when it is older than a week; `pnpm data --force` rebuilds it now.
 
 Other scripts: `pnpm test` (Vitest), `pnpm test:e2e` (Playwright smoke test; needs network for EDHREC and
-Scryfall, run `pnpm exec playwright install chromium` once), `pnpm lint`, `pnpm typecheck`.
+Scryfall, run `pnpm exec playwright install chromium` once; `PORT=3001 pnpm test:e2e` runs it against a dev
+server on another port), `pnpm lint`, `pnpm typecheck`.
+
+## Design
+
+A tabletop look rather than stock shadcn: warm ink surfaces, parchment text, an ember accent and a green
+felt playmat for the goldfish table. Tokens live in `app/globals.css`.
+
+- **Type:** Alegreya for headings, Archivo (with its width axis) for UI and body text. The `.eyebrow`
+  utility gives condensed upper-case labels, `.numeral` big tabular counters.
+- **Shape:** small radii (3px controls, 6px panels, 8px dialogs); cards keep their printed 4.75% corner.
+  Shadows are hard ink edges plus a short drop (`shadow-sm` … `shadow-2xl` are redefined), no glows.
+- **Surfaces:** `.panel` (raised), `.panel-inset` (recessed well), `.felt` (goldfish table).
+- **Icons:** [Phosphor](https://phosphoricons.com) in the bold weight via `components/icons.tsx`, plus
+  the [Mana](https://mana.andrewgioia.com) font (SIL OFL) for tap and card type symbols (`ManaGlyph`).
+  Mana costs stay Scryfall's SVGs. Import icons from `@/components/icons`, not from an icon package.
 
 ## Data sources
 
@@ -52,7 +67,8 @@ Scryfall, run `pnpm exec playwright install chromium` once), `pnpm lint`, `pnpm 
 
 ```
 app/                 pages and API routes (api/candidates, api/commander-insights, api/cards/*)
-components/          UI: build/ (commander + bracket picker), swipe/, deck/ (editor), goldfish/, card/, ui/ (shadcn)
+components/          UI: build/ (commander + bracket picker), swipe/, deck/ (editor), goldfish/, card/, ui/ (shadcn),
+                     icons.tsx (Phosphor + Mana font)
 lib/cards/           card types, names/slugs, mana helpers, image URLs
 lib/tagging/         roles (Tagger tags), commander themes and tribes
 lib/deckbuilder/     deck template, bracket rules, scoring, swipe session, basic land fill

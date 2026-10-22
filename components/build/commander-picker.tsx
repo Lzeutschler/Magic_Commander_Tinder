@@ -1,10 +1,10 @@
 "use client";
 
-import { Search } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 
 import { CardImage } from "@/components/card/card-image";
 import { ManaSymbol } from "@/components/card/mana";
+import { MagnifyingGlassIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -64,7 +64,7 @@ export function CommanderPicker({
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={query}
             onChange={(e) => {
@@ -72,7 +72,7 @@ export function CommanderPicker({
               setLimit(PAGE_SIZE);
             }}
             placeholder="Search commanders or creature types…"
-            className="h-10 pl-9"
+            className="h-11 pl-9"
             autoFocus
           />
         </div>
@@ -83,9 +83,10 @@ export function CommanderPicker({
               type="button"
               onClick={() => toggleColor(color)}
               aria-pressed={colors.includes(color)}
+              aria-label={`Filter by `}
               className={cn(
-                "grid size-9 place-items-center rounded-full border border-transparent opacity-40 transition hover:opacity-80",
-                colors.includes(color) && "border-gold opacity-100 shadow-[0_0_12px] shadow-gold/40",
+                "grid size-10 place-items-center rounded-md border border-transparent opacity-45 grayscale-[60%] transition hover:bg-accent hover:opacity-90",
+                colors.includes(color) && "border-ember bg-ember/12 opacity-100 grayscale-0",
               )}
             >
               <ManaSymbol symbol={color} className="size-6" />
@@ -100,7 +101,7 @@ export function CommanderPicker({
 
       {error && <p className="text-sm text-destructive">Could not load commanders: {error.message}</p>}
 
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {isLoading &&
           Array.from({ length: 12 }, (_, i) => <Skeleton key={i} className="card-aspect rounded-[4.75%]" />)}
         {results.slice(0, limit).map((commander) => (
@@ -109,8 +110,8 @@ export function CommanderPicker({
             type="button"
             onClick={() => onSelect(commander)}
             className={cn(
-              "rounded-[5%] text-left transition duration-200 hover:-translate-y-1 hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-gold",
-              selected?.id === commander.id && "ring-2 ring-gold ring-offset-2 ring-offset-background",
+              "rounded-[5%] text-left transition duration-200 hover:-translate-y-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+              selected?.id === commander.id && "ring-3 ring-ember ring-offset-2 ring-offset-background",
             )}
             title={commander.name}
           >

@@ -21,9 +21,9 @@ export function RoleMeters({ stats, template }: { stats: DeckStats; template: De
                 {have}/{target}
               </span>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+            <div className="h-1.5 overflow-hidden rounded-xs bg-ink shadow-[inset_0_1px_0_0_oklch(0_0_0/40%)]">
               <div
-                className={cn("h-full rounded-full transition-all duration-500", have >= target ? "bg-pick" : "bg-gold")}
+                className={cn("h-full transition-all duration-500", have >= target ? "bg-pick" : "bg-ember")}
                 style={{ width: `${Math.min(100, (have / target) * 100)}%` }}
               />
             </div>
@@ -42,19 +42,19 @@ export function MiniCurve({ stats, template }: { stats: DeckStats; template: Dec
         <div key={i} className="flex flex-1 flex-col items-center gap-1">
           <div className="relative flex h-16 w-full items-end">
             <div
-              className="absolute inset-x-0 border-t border-dashed border-white/30"
+              className="absolute inset-x-0 border-t border-dashed border-foreground/40"
               style={{ bottom: `${(template.curve[i] / max) * 100}%` }}
               title={`Target: ${template.curve[i]}`}
             />
             <div
               className={cn(
-                "w-full rounded-t-sm transition-all duration-500",
-                count > template.curve[i] ? "bg-pass/80" : "bg-gold/80",
+                "w-full rounded-t-xs transition-all duration-500",
+                count > template.curve[i] ? "bg-pass/85" : "bg-ember/85",
               )}
               style={{ height: `${(count / max) * 100}%` }}
             />
           </div>
-          <span className="text-[10px] text-muted-foreground">{CURVE_LABELS[i]}</span>
+          <span className="text-[11px] text-muted-foreground tabular-nums">{CURVE_LABELS[i]}</span>
         </div>
       ))}
     </div>
@@ -67,13 +67,13 @@ export function DeckCounter({ deck, stats, template }: { deck: Deck; stats: Deck
     <div className="space-y-3">
       <div className="flex items-end justify-between">
         <div>
-          <div className="font-heading text-4xl font-bold tabular-nums" data-testid="picked-count">
+          <div className="numeral text-5xl" data-testid="picked-count">
             {stats.total}
-            <span className="text-lg text-muted-foreground">/{DECK_SIZE}</span>
+            <span className="text-xl text-muted-foreground">/{DECK_SIZE}</span>
           </div>
-          <div className="text-xs text-muted-foreground">cards picked</div>
+          <div className="eyebrow mt-1 text-muted-foreground">cards picked</div>
         </div>
-        <div className="text-right text-xs text-muted-foreground">
+        <div className="text-right text-xs leading-relaxed text-muted-foreground tabular-nums">
           <div>
             Spells {stats.nonlands}/{DECK_SIZE - template.lands}
           </div>
@@ -85,9 +85,9 @@ export function DeckCounter({ deck, stats, template }: { deck: Deck; stats: Deck
           </div>
         </div>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-white/10">
+      <div className="h-2 overflow-hidden rounded-xs bg-ink shadow-[inset_0_1px_0_0_oklch(0_0_0/40%)]">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-gold/70 to-gold transition-all duration-500"
+          className="h-full bg-ember transition-all duration-500"
           style={{ width: `${(stats.total / DECK_SIZE) * 100}%` }}
         />
       </div>

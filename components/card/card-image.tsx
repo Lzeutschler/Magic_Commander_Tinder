@@ -1,8 +1,8 @@
 "use client";
 
-import { RefreshCw } from "lucide-react";
 import { useState } from "react";
 
+import { ArrowsClockwiseIcon } from "@/components/icons";
 import { cardImageUrl, type ImageSize } from "@/lib/cards/image";
 import type { Card } from "@/lib/cards/types";
 import { cn } from "@/lib/utils";
@@ -27,7 +27,7 @@ export function CardImage({ card, size = "normal", className, flippable, eager, 
   if (!card.image || failed) return <TextCard card={card} className={className} />;
 
   return (
-    <div className={cn("group/card relative card-aspect overflow-hidden rounded-[4.75%] bg-muted shadow-lg shadow-black/40", className)}>
+    <div className={cn("group/card relative card-aspect overflow-hidden rounded-[4.75%] bg-muted shadow-lg", className)}>
       {/* eslint-disable-next-line @next/next/no-img-element -- Scryfall serves pre-sized images */}
       <img
         src={cardImageUrl(card.image, size, face)}
@@ -44,10 +44,10 @@ export function CardImage({ card, size = "normal", className, flippable, eager, 
             e.stopPropagation();
             setFace((f) => (f === "front" ? "back" : "front"));
           }}
-          className="absolute top-[9%] right-[6%] grid size-8 place-items-center rounded-full bg-black/60 text-white opacity-80 transition hover:opacity-100"
+          className="absolute top-[9%] right-[6%] grid size-10 place-items-center rounded-full border border-white/25 bg-ink/80 text-foreground shadow-md transition hover:bg-ink hover:text-ember"
           aria-label="Flip card"
         >
-          <RefreshCw className="size-4" />
+          <ArrowsClockwiseIcon className="size-5" />
         </button>
       )}
     </div>
@@ -56,12 +56,12 @@ export function CardImage({ card, size = "normal", className, flippable, eager, 
 
 function TextCard({ card, className }: Pick<CardImageProps, "card" | "className">) {
   return (
-    <div className={cn("card-aspect flex flex-col gap-2 overflow-hidden rounded-[4.75%] border-4 border-black bg-card p-3 text-xs", className)}>
+    <div className={cn("card-aspect flex flex-col gap-2 overflow-hidden rounded-[4.75%] border-[5px] border-ink bg-[oklch(0.86_0.03_85)] p-3 text-xs text-ink", className)}>
       <div className="flex items-start justify-between gap-2 font-semibold">
         <span>{card.name}</span>
         <ManaCost cost={card.manaCost} />
       </div>
-      <div className="border-y border-white/10 py-1 text-muted-foreground">{card.typeLine}</div>
+      <div className="border-y border-ink/20 py-1 text-ink/70">{card.typeLine}</div>
       <p className="whitespace-pre-line">{card.oracleText}</p>
     </div>
   );

@@ -1,9 +1,9 @@
 "use client";
 
-import { Copy, Download } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { CopyIcon, DownloadSimpleIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,8 +41,8 @@ export function ExportDialog({ deck, children }: { deck: Deck; children: React.R
               type="button"
               onClick={() => setFormat(f.id)}
               className={cn(
-                "flex-1 rounded-lg border border-white/10 px-3 py-2 text-left text-sm transition hover:border-white/25",
-                format === f.id && "border-gold bg-gold/10",
+                "min-h-10 flex-1 rounded-md border border-border bg-card px-3 py-2 text-left text-sm shadow-sm transition hover:border-input hover:bg-accent",
+                format === f.id && "border-ember bg-ember/12 hover:border-ember hover:bg-ember/12",
               )}
             >
               <div className="font-medium">{f.label}</div>
@@ -53,10 +53,10 @@ export function ExportDialog({ deck, children }: { deck: Deck; children: React.R
         <Textarea readOnly value={text} className="h-64 font-mono text-xs" onFocus={(e) => e.currentTarget.select()} />
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={download}>
-            <Download /> Download .txt
+            <DownloadSimpleIcon /> Download .txt
           </Button>
           <Button onClick={copy}>
-            <Copy /> Copy
+            <CopyIcon /> Copy
           </Button>
         </div>
       </DialogContent>

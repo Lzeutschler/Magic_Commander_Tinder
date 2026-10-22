@@ -18,12 +18,12 @@ export function ActiveNav() {
 
 export function Nav({ pathname }: { pathname: string | null }) {
   return (
-    <nav className="flex items-center gap-1 text-sm">
+    <nav className="flex h-full items-stretch gap-0.5 sm:gap-2">
       {NAV.map((item) =>
         item.soon ? (
           <span
             key={item.href}
-            className="hidden cursor-default px-3 py-1.5 text-muted-foreground/50 sm:inline"
+            className="eyebrow hidden cursor-default items-center px-3 text-muted-foreground/60 sm:flex"
             title="Coming soon"
           >
             {item.label}
@@ -32,9 +32,11 @@ export function Nav({ pathname }: { pathname: string | null }) {
           <Link
             key={item.href}
             href={item.href}
+            aria-current={pathname?.startsWith(item.href) ? "page" : undefined}
             className={cn(
-              "rounded-md px-2 py-1.5 whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground sm:px-3",
-              pathname?.startsWith(item.href) && "bg-white/5 text-foreground",
+              "eyebrow relative flex items-center px-2 text-[0.8125rem] whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground sm:px-3",
+              "after:absolute after:inset-x-2 after:bottom-0 after:h-[3px] after:bg-transparent sm:after:inset-x-3",
+              pathname?.startsWith(item.href) && "text-foreground after:bg-ember",
             )}
           >
             {item.label}
