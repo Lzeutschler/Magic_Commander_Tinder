@@ -9,7 +9,11 @@ A web app for Magic: The Gathering Commander players:
    play or tap, right-click for counters, tokens, flip and zone moves. London mulligan (first one free),
    scry/surveil/mill/search, commander tax, undo, keyboard shortcuts (D, U, N, S, M, ⌘Z) and an
    opening-hand simulator.
-3. **Playstyle quiz** (later): find commanders that match your colors, creatures and play style.
+3. **Commander quiz** (live, `/quiz`): newcomers answer seven vibe questions (hero or villain, favorite
+   universe such as Lord of the Rings or Marvel, creatures, art mood); experienced players answer seven
+   questions about win condition, engine, table politics, tempo, complexity, colors and creature types.
+   Then they swipe through the best-matching commanders with a "why this fits" for each, toggle popular
+   picks vs. hidden gems, and start the deckbuilding swipe from their shortlist.
 
 Decks are stored in the browser (localStorage); there are no accounts.
 
@@ -32,7 +36,7 @@ pnpm dev
 | --- | --- |
 | `data/cards.json` | API routes: every Commander-legal card with roles (ramp, draw, removal, …) |
 | `data/tokens.json` | API routes: tokens for the goldfish sandbox (`/api/tokens`) |
-| `public/data/commanders.json` | Client: all legal commanders with themes and tribes |
+| `public/data/commanders.json` | Client: all legal commanders with themes, tribes, archetypes and set |
 
 The data is rebuilt when it is older than a week; `pnpm data --force` rebuilds it now.
 
@@ -47,19 +51,25 @@ Scryfall, run `pnpm exec playwright install chromium` once), `pnpm lint`, `pnpm 
   filtered by bracket and theme. EDHREC has no official API; the app reads the JSON its own site uses
   (`json.edhrec.com/pages/commanders/{slug}[/{bracket}][/{theme}].json`) through a cached server
   route and falls back to its own popularity/theme scoring when EDHREC has no data.
+- **Commander archetypes** for the quiz (`lib/tagging/archetypes.ts`) combine Scryfall Tagger tags on
+  each commander with EDHREC theme pages (`pages/tags/{theme}.json`, top commanders per theme) and color
+  pages (`pages/commanders/{colors}.json`, deck totals). The card database build fetches these ~85
+  pages, caches them in `.cache/edhrec/` for a week and keeps going without them if EDHREC is down.
 
 ## Project layout
 
 ```
 app/                 pages and API routes (api/candidates, api/commander-insights, api/cards/*)
-components/          UI: build/ (commander + bracket picker), swipe/, deck/ (editor), goldfish/, card/, ui/ (shadcn)
+components/          UI: build/ (commander + bracket picker), swipe/, quiz/, deck/ (editor), goldfish/, card/, ui/ (shadcn)
 lib/cards/           card types, names/slugs, mana helpers, image URLs
-lib/tagging/         roles (Tagger tags), commander themes and tribes
+lib/tagging/         roles (Tagger tags), commander themes, tribes and archetypes
+lib/quiz/            quiz questions, franchises and the commander scoring
 lib/deckbuilder/     deck template, bracket rules, scoring, swipe session, basic land fill
 lib/deck-io/         deck list import/export
 lib/goldfish/        pure game actions (zones, mulligan, tokens, …) and the opening-hand simulator
 lib/server/          server-only card database and candidate pool
-stores/              decks.ts (persisted decks and swipe sessions), game.ts (goldfish game with undo)
+stores/              decks.ts (persisted decks and swipe sessions), game.ts (goldfish game with undo),
+                     quiz.ts (persisted quiz answers and commander shortlist)
 scripts/             card database build
 ```
 

@@ -1,4 +1,4 @@
-import type { Card, Color, Role } from "@/lib/cards/types";
+import type { Card, Color, CommanderSummary, Role } from "@/lib/cards/types";
 import type { Candidate } from "@/lib/deckbuilder/types";
 import type { Deck } from "@/lib/decks/types";
 
@@ -53,5 +53,31 @@ export function emptyDeck(commander: Card, bracket: Deck["bracket"] = 3): Deck {
     maybe: [],
     createdAt: 0,
     updatedAt: 0,
+  };
+}
+
+export function commander(overrides: Partial<CommanderSummary> & { name: string }): CommanderSummary {
+  nextId += 1;
+  return {
+    id: `commander-${nextId}`,
+    slug: overrides.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    set: "cmm",
+    manaCost: "{2}{B}",
+    cmc: 3,
+    typeLine: "Legendary Creature — Human",
+    oracleText: "Flying",
+    colorIdentity: ["B"],
+    image: null,
+    edhrecRank: 1000,
+    priceUsd: 1,
+    gameChanger: false,
+    themes: [],
+    tribes: [],
+    creatureTypes: ["Human"],
+    partner: null,
+    edhrecDecks: null,
+    edhrecThemes: {},
+    archetypes: {},
+    ...overrides,
   };
 }

@@ -1,20 +1,17 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Heart, Layers, Loader2, Sparkles, Star, Undo2, X } from "lucide-react";
-import { AnimatePresence } from "motion/react";
+import { ArrowLeft, Layers, Loader2, Sparkles, Undo2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { CardBack } from "@/components/card/card-back";
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { CardImage } from "@/components/card/card-image";
 import { ManaCost } from "@/components/card/mana";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cardImageUrl } from "@/lib/cards/image";
 import { frontFaceName } from "@/lib/cards/names";
 import { fetchCandidatePool } from "@/lib/data/client";
@@ -36,7 +33,7 @@ import { cn } from "@/lib/utils";
 import { useDeckStore, useDecksHydrated } from "@/stores/decks";
 
 import { DeckCounter, MiniCurve, RoleMeters } from "./deck-progress";
-import { SwipeCard } from "./swipe-card";
+import { SwipeButtons, SwipeStack, useSwipeKeys } from "./swipe-controls";
 
 export function SwipeScreen({ deckId }: { deckId: string }) {
   const hydrated = useDecksHydrated();
@@ -130,19 +127,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
     router.push(`/decks/${deck.id}`);
   };
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLElement && e.target.closest("input, textarea")) return;
-      if (e.key === "ArrowRight") decideCurrent("pick");
-      else if (e.key === "ArrowLeft") decideCurrent("pass");
-      else if (e.key === "ArrowUp") decideCurrent("maybe");
-      else if (e.key === "Backspace" || e.key.toLowerCase() === "z") undo();
-      else return;
-      e.preventDefault();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  });
+  useSwipeKeys(decideCurrent, undo);
 
   const recentPicks = session.history
     .filter((h) => h.decision === "pick")
@@ -203,28 +188,8 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
           <DonePanel deck={deck} onFinish={finish} onUndo={undo} canUndo={session.history.length > 0} />
         ) : (
           <>
-            <div className="relative aspect-[488/680] w-[min(340px,80vw,calc((100dvh-16rem)*0.7176))] min-w-48">
-              <CardBack className="absolute inset-0 translate-x-3 translate-y-3 rotate-3 opacity-50" />
-              <CardBack className="absolute inset-0 translate-x-1.5 translate-y-1.5 rotate-1 opacity-80" />
-              <AnimatePresence custom={lastDecision} initial={false}>
-                <SwipeCard key={current.id} candidate={current} onDecision={decideCurrent} />
-              </AnimatePresence>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <RoundButton label="Undo (Z)" onClick={undo} disabled={!session.history.length} className="size-11">
-                <Undo2 className="size-5" />
-              </RoundButton>
-              <RoundButton label="Pass (←)" onClick={() => decideCurrent("pass")} className="size-16 border-pass/60 text-pass hover:bg-pass/15">
-                <X className="size-8" />
-              </RoundButton>
-              <RoundButton label="Maybe (↑)" onClick={() => decideCurrent("maybe")} className="size-12 border-maybe/60 text-maybe hover:bg-maybe/15">
-                <Star className="size-5" />
-              </RoundButton>
-              <RoundButton label="Pick (→)" onClick={() => decideCurrent("pick")} className="size-16 border-pick/60 text-pick hover:bg-pick/15">
-                <Heart className="size-8" />
-              </RoundButton>
-            </div>
+            <SwipeStack card={current} cardKey={current.id} lastDecision={lastDecision} onDecision={decideCurrent} />
+            <SwipeButtons onDecision={decideCurrent} onUndo={undo} canUndo={session.history.length > 0} />
             <p className="hidden text-xs text-muted-foreground sm:block">Drag the card or use ← ↑ → · Z to undo</p>
           </>
         )}
@@ -343,34 +308,6 @@ function DonePanel({
         <Button onClick={onFinish}>Finish &amp; open editor</Button>
       </div>
     </div>
-  );
-}
-
-function RoundButton({
-  label,
-  className,
-  children,
-  ...props
-}: { label: string } & React.ComponentProps<"button">) {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <button
-            type="button"
-            aria-label={label}
-            className={cn(
-              "grid place-items-center rounded-full border-2 border-white/15 bg-card/80 shadow-lg shadow-black/40 transition hover:scale-110 active:scale-95 disabled:pointer-events-none disabled:opacity-40",
-              className,
-            )}
-            {...props}
-          />
-        }
-      >
-        {children}
-      </TooltipTrigger>
-      <TooltipContent>{label}</TooltipContent>
-    </Tooltip>
   );
 }
 

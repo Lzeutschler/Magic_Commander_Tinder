@@ -15,7 +15,13 @@ type HoverTarget = React.ReactElement<{
 }>;
 
 /** Shows a large card image next to the cursor while hovering the child element (mouse devices only). */
-export function CardHoverPreview({ card, children }: { card: Card; children: HoverTarget }) {
+export function CardHoverPreview({
+  card,
+  children,
+}: {
+  card: Pick<Card, "name" | "image" | "manaCost" | "typeLine" | "oracleText">;
+  children: HoverTarget;
+}) {
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
 
   const trigger = cloneElement(children, {

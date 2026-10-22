@@ -8,9 +8,9 @@ import { cn } from "@/lib/utils";
 const FEATURES = [
   {
     title: "Find your commander",
-    text: "Answer a few questions about colors, creatures and play style and get commanders that fit you.",
+    text: "Answer seven questions about play style, colors and creatures — or just vibes — then swipe through commanders that fit you.",
     icon: Sparkles,
-    href: null,
+    href: "/quiz",
   },
   {
     title: "Deckbuilding Tinder",

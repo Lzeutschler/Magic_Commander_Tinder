@@ -72,6 +72,8 @@ export const TRIBES: TribeDefinition[] = [
   tribe("Serpent"),
   tribe("Phyrexian", "Phyrexians"),
   tribe("Construct"),
+  tribe("Robot"),
+  tribe("Raccoon"),
   tribe("Artificer"),
   tribe("Monk"),
   tribe("Berserker"),
