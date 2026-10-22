@@ -158,56 +158,51 @@
   }
 }
 
-@layer utilities {
-  /* A flat tabletop surface: solid fill, crisp border, a highlight on the top edge, an ink edge below. */
-  .panel {
-    border-radius: var(--radius-xl);
-    border: 1px solid var(--border);
-    background-color: var(--card);
-    box-shadow:
-      inset 0 1px 0 0 oklch(1 0 0 / 5%),
-      0 2px 0 0 oklch(0 0 0 / 45%);
-  }
-  /* A recessed well, e.g. a drop zone or an empty slot. */
-  .panel-inset {
-    border-radius: var(--radius-xl);
-    border: 1px solid oklch(0 0 0 / 40%);
-    background-color: var(--ink);
-    box-shadow: inset 0 2px 0 0 oklch(0 0 0 / 35%);
-  }
-  /* Small caps-style label: condensed, upper case, tracked. */
-  .eyebrow {
-    font-family: var(--font-sans);
-    font-stretch: 80%;
-    font-weight: 650;
-    font-size: 0.75rem;
-    line-height: 1rem;
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-  }
-  /* Big tabular numbers for counters (life, turn, card counts). */
-  .numeral {
-    font-family: var(--font-sans);
-    font-stretch: 75%;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    line-height: 1;
-  }
-  .text-accent-ink {
-    color: var(--ember);
-  }
-  /* Older name for the accent headline colour; now a solid ember instead of a gradient. */
-  .text-gold-gradient {
-    color: var(--ember);
-  }
-  .card-aspect {
-    aspect-ratio: 488 / 680;
-  }
-  /* Green playmat felt for the goldfish table. */
-  .felt {
-    background-color: var(--felt);
-    background-image:
-      radial-gradient(ellipse 70% 60% at 50% 45%, oklch(0.3 0.045 165 / 70%), transparent 75%),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
+/* A flat tabletop surface: solid fill, crisp border, a highlight on the top edge, an ink edge below. */
+@utility panel {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 5%),
+    0 2px 0 0 oklch(0 0 0 / 45%);
+}
+/* A recessed well, e.g. a drop zone or an empty slot. */
+@utility panel-inset {
+  border-radius: var(--radius-xl);
+  border: 1px solid oklch(0 0 0 / 40%);
+  background-color: var(--ink);
+  box-shadow: inset 0 2px 0 0 oklch(0 0 0 / 35%);
+}
+/* Small caps-style label: condensed, upper case, tracked. */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-stretch: 80%;
+  font-weight: 650;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+/* Big tabular numbers for counters (life, turn, card counts). */
+@utility numeral {
+  font-family: var(--font-sans);
+  font-stretch: 75%;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+/* Older name for the accent headline colour; now a solid ember instead of a gradient. */
+@utility text-gold-gradient {
+  color: var(--ember);
+}
+@utility card-aspect {
+  aspect-ratio: 488 / 680;
+}
+/* Green playmat felt for the goldfish table. */
+@utility felt {
+  background-color: var(--felt);
+  background-image:
+    radial-gradient(ellipse 70% 60% at 50% 45%, oklch(0.3 0.045 165 / 70%), transparent 75%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }

@@ -11,10 +11,10 @@ export function SiteFooter() {
     <footer className="border-t border-border bg-ink py-6 text-xs leading-relaxed text-muted-foreground">
       <div className="mx-auto max-w-6xl space-y-2 px-4">
         <nav aria-label="Legal and about">
-          <ul className="flex flex-wrap gap-x-4 gap-y-1">
+          <ul className="-my-2 flex flex-wrap gap-x-4">
             {FOOTER_LINKS.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="underline hover:text-foreground">
+                <Link href={link.href} className="inline-flex min-h-10 items-center underline hover:text-foreground">
                   {link.label}
                 </Link>
               </li>

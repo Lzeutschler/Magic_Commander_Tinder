@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-import { BRAND_COLORS, FlameMark } from "@/lib/brand";
+import { BRAND_COLORS, BrandMarkImage } from "@/lib/brand";
 
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
@@ -15,10 +15,10 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: BRAND_COLORS.background,
+          background: BRAND_COLORS.ink,
         }}
       >
-        <FlameMark size={124} />
+        <BrandMarkImage size={140} />
       </div>
     ),
     size,
