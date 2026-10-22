@@ -4,7 +4,8 @@ import { useState } from "react";
 
 import { CommanderSetup } from "@/components/build/commander-setup";
 import { CardImage } from "@/components/card/card-image";
-import { ArrowLeftIcon, CheckIcon, CircleNotchIcon, StarIcon, XIcon } from "@/components/icons";
+import { BrewLoader, EmptyCauldron } from "@/components/cauldron";
+import { ArrowLeftIcon, CheckIcon, StarIcon, XIcon } from "@/components/icons";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import type { ScoredCommander, Track } from "@/lib/quiz/types";
@@ -27,8 +28,8 @@ export function Shortlist({ track }: { track: Track }) {
 
   if (isLoading) {
     return (
-      <div className="flex flex-1 items-center justify-center">
-        <CircleNotchIcon className="size-8 animate-spin text-brand" />
+      <div className="flex flex-1 items-center justify-center p-8">
+        <BrewLoader />
       </div>
     );
   }
@@ -65,10 +66,11 @@ export function Shortlist({ track }: { track: Track }) {
           </ul>
         </CommanderSetup>
       ) : (
-        <div className="panel-inset flex flex-col items-center gap-4 p-10 text-center text-muted-foreground">
-          Your shortlist is empty. Swipe right on commanders you like.
-          <Button onClick={keepSwiping}>Back to swiping</Button>
-        </div>
+        <EmptyCauldron
+          title="No sparks yet"
+          description="Your shortlist is empty. Swipe right on commanders you like."
+          actions={<Button onClick={keepSwiping}>Back to swiping</Button>}
+        />
       )}
 
       {entries.length > 1 && (

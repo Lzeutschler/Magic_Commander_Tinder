@@ -4,13 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { ColorIdentity, ManaCost } from "@/components/card/mana";
+import { BrewLoader, Cauldron, CelebrationCauldron } from "@/components/cauldron";
 import {
   ArrowCounterClockwiseIcon,
-  CircleNotchIcon,
   ListChecksIcon,
   NotePencilIcon,
   CheckIcon,
-  ManaGlyph,
 } from "@/components/icons";
 import { SwipeButtons, SwipeStack, useSwipeKeys } from "@/components/swipe/swipe-controls";
 import { Badge } from "@/components/ui/badge";
@@ -70,9 +69,8 @@ export function CommanderSwipe({ track }: { track: Track }) {
 
   if (isLoading) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
-        <CircleNotchIcon className="size-8 animate-spin text-brand" />
-        Finding commanders that fit you…
+      <div className="flex flex-1 items-center justify-center p-8">
+        <BrewLoader>Brewing commanders that fit you…</BrewLoader>
       </div>
     );
   }
@@ -277,8 +275,12 @@ function RoundDone({
 }) {
   return (
     <div className="panel flex w-full max-w-md flex-col items-center gap-4 p-8 text-center">
-      <ManaGlyph name="planeswalker" className="text-5xl text-brand" />
-      <h2 className="text-2xl font-bold">{shortlisted ? "Nice picks!" : "Nothing caught your eye?"}</h2>
+      {shortlisted ? (
+        <CelebrationCauldron className="-mt-2 text-[4.5px]" />
+      ) : (
+        <Cauldron mood="empty" className="text-[4.5px]" />
+      )}
+      <h2 className="text-2xl font-bold">{shortlisted ? "It's a brew!" : "Nothing caught your eye?"}</h2>
       <p className="text-muted-foreground">
         You looked at {seen} commanders and kept {shortlisted}.{" "}
         {shortlisted ? "Choose one from your shortlist to build a deck." : "Keep swiping or change your answers."}

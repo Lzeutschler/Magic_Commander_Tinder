@@ -9,13 +9,12 @@ import { toast } from "sonner";
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { CardImage } from "@/components/card/card-image";
 import { ManaCost } from "@/components/card/mana";
+import { BrewLoader, CelebrationCauldron } from "@/components/cauldron";
 import {
   ArrowLeftIcon,
   ArrowUUpLeftIcon,
   CardsIcon,
-  CircleNotchIcon,
   CheckIcon,
-  ManaGlyph,
 } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -85,7 +84,7 @@ export function SwipeScreen({ deckId }: { deckId: string }) {
     );
   }
   if (!session) {
-    return <FullScreenMessage loading>Shuffling suggestions for {frontFaceName(deck.commander.name)}…</FullScreenMessage>;
+    return <FullScreenMessage loading>Stirring in suggestions for {frontFaceName(deck.commander.name)}…</FullScreenMessage>;
   }
   return <SwipeBoard deck={deck} session={session} />;
 }
@@ -302,8 +301,8 @@ function DonePanel({
   const stats = deckStats(deck);
   return (
     <div className="panel flex w-full max-w-md flex-col items-center gap-4 p-8 text-center">
-      <ManaGlyph name="planeswalker" className="text-5xl text-brand" />
-      <h2 className="text-2xl font-bold">Your deck is ready</h2>
+      <CelebrationCauldron className="-mt-2 text-[4.5px]" />
+      <h2 className="text-2xl font-bold">Your brew is ready</h2>
       <p className="text-muted-foreground">
         {stats.nonlands} spells and {stats.lands} nonbasic lands picked.{" "}
         {DECK_SIZE - stats.total > 0 && `${DECK_SIZE - stats.total} basic lands will complete the 99.`}
@@ -321,8 +320,7 @@ function DonePanel({
 function FullScreenMessage({ children, loading }: { children: React.ReactNode; loading?: boolean }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center text-muted-foreground">
-      {loading && <CircleNotchIcon className="size-8 animate-spin text-brand" />}
-      <div className="flex flex-col items-center gap-3">{children}</div>
+      {loading ? <BrewLoader>{children}</BrewLoader> : <div className="flex flex-col items-center gap-3">{children}</div>}
       {!loading && (
         <Link href="/build" className="inline-flex min-h-10 items-center gap-1.5 text-sm hover:text-foreground">
           <ArrowLeftIcon className="size-4" /> Back to build

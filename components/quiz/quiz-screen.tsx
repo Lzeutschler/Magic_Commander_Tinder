@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { CircleNotchIcon } from "@/components/icons";
+import { BrewLoader } from "@/components/cauldron";
 import { artCropUrl } from "@/lib/cards/image";
 import { QUESTIONS, TRACK_QUESTION } from "@/lib/quiz/questions";
 import type { Track } from "@/lib/quiz/types";
@@ -21,8 +21,8 @@ export function QuizScreen() {
 
   if (!hydrated) {
     return (
-      <div className="flex flex-1 items-center justify-center">
-        <CircleNotchIcon className="size-8 animate-spin text-brand" />
+      <div className="flex flex-1 items-center justify-center p-8">
+        <BrewLoader />
       </div>
     );
   }

@@ -121,6 +121,8 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
   const start = useGameStore((s) => s.start);
   const [hovered, setHovered] = useState<GameCard | null>(null);
   const [rail, setRail] = useState(true);
+  // The last life change floats up from the life total.
+  const [lifeChange, setLifeChange] = useState<{ delta: number; id: number } | null>(null);
   // The big preview sits on the side away from the pointer so it never covers the hovered card.
   const pointerX = useRef(0);
   const [previewSide, setPreviewSide] = useState<"left" | "right">("right");
@@ -322,14 +324,33 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
                   <div className="ui-label flex items-center justify-center gap-1 text-xs text-muted-foreground">
                     <HeartIcon className="size-3" /> Life
                   </div>
-                  <div className="numeral mt-1 text-4xl text-brand">{game.life}</div>
+                  <div className="relative">
+                    <div key={game.life} className="numeral mt-1 animate-[brew-pop_0.3s_ease-out] text-4xl text-brand">
+                      {game.life}
+                    </div>
+                    {lifeChange && (
+                      <span
+                        key={lifeChange.id}
+                        className={cn(
+                          "numeral pointer-events-none absolute -top-1 right-0 animate-[brew-delta_1.2s_ease-out_both] text-lg motion-reduce:hidden",
+                          lifeChange.delta > 0 ? "text-pick" : "text-pass",
+                        )}
+                        aria-hidden="true"
+                      >
+                        {lifeChange.delta > 0 ? `+${lifeChange.delta}` : `−${-lifeChange.delta}`}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="col-span-2 grid grid-cols-4 gap-1 border-t border-border p-1.5">
                   {[-5, -1, 1, 5].map((delta) => (
                     <button
                       key={delta}
                       type="button"
-                      onClick={() => act((g) => changeLife(g, delta))}
+                      onClick={() => {
+                        act((g) => changeLife(g, delta));
+                        setLifeChange((last) => ({ delta, id: (last?.id ?? 0) + 1 }));
+                      }}
                       aria-label={`${delta > 0 ? "Gain" : "Lose"} ${Math.abs(delta)} life`}
                       className="h-10 rounded-sm bg-secondary text-sm font-semibold tabular-nums shadow-sm transition hover:bg-accent active:translate-y-px"
                     >

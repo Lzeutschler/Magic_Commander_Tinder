@@ -229,7 +229,7 @@ export function Hand({ game, handlers }: { game: GameState; handlers: CardHandle
           } as React.CSSProperties}
         >
           <div className="transition-transform duration-150 ease-out origin-bottom group-hover/hand:-translate-y-[47%] group-hover/hand:scale-[1.2]">
-            <GameCardView card={card} handlers={handlers} />
+            <GameCardView card={card} handlers={handlers} enterFrom="library" />
           </div>
         </div>
       ))}

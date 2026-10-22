@@ -4,6 +4,7 @@ import { AnimatePresence } from "motion/react";
 import { useEffect } from "react";
 
 import { CardBack } from "@/components/card/card-back";
+import { HeartBurst } from "@/components/cauldron";
 import { ArrowUUpLeftIcon, HeartIcon, StarIcon, XIcon } from "@/components/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Card } from "@/lib/cards/types";
@@ -12,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 import { SwipeCard } from "./swipe-card";
 
-/** Card stack with the top card draggable. `lastDecision` steers the exit animation. */
+/** Card stack with the top card draggable. `lastDecision` steers the exit animation; a pick bursts into hearts. */
 export function SwipeStack({
   card,
   cardKey,
@@ -31,6 +32,7 @@ export function SwipeStack({
       <AnimatePresence custom={lastDecision} initial={false}>
         <SwipeCard key={cardKey} card={card} onDecision={onDecision} />
       </AnimatePresence>
+      {lastDecision === "pick" && <HeartBurst key={cardKey} />}
     </div>
   );
 }

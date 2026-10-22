@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { CardImage } from "@/components/card/card-image";
 import { ColorIdentity, ManaCost } from "@/components/card/mana";
+import { EmptyCauldron } from "@/components/cauldron";
 import {
   ArrowLeftIcon,
   CardsIcon,
@@ -185,7 +186,7 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
           </div>
 
           {deck.entries.length === 0 && (
-            <p className="panel-inset p-6 text-center text-muted-foreground">No cards yet. Swipe some or add them with the search.</p>
+            <EmptyCauldron title="Nothing in the brew yet" description="Swipe some cards in, or add them with the search above." />
           )}
 
           <div className={cn(view === "list" ? "columns-1 gap-5 md:columns-2" : "flex flex-wrap items-start gap-x-4")}>

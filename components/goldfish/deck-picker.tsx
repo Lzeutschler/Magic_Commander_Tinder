@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { ColorIdentity } from "@/components/card/mana";
+import { EmptyCauldron } from "@/components/cauldron";
 import { ImportDialog } from "@/components/deck/import-dialog";
 import { PlayIcon, UploadSimpleIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -21,13 +22,15 @@ export function GoldfishDeckPicker() {
   return (
     <div className="space-y-4">
       {decks.length === 0 && (
-        <p className="panel-inset p-6 text-center text-muted-foreground">
-          No decks yet.{" "}
-          <Link href="/build" className="text-brand underline underline-offset-4">
-            Build one
-          </Link>{" "}
-          or import a list.
-        </p>
+        <EmptyCauldron
+          title="Nothing to playtest yet"
+          description="Brew a deck first, or import a list below, then bring it to the table."
+          actions={
+            <Button nativeButton={false} render={<Link href="/build" />}>
+              Build a deck
+            </Button>
+          }
+        />
       )}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {decks.map((deck) => {
