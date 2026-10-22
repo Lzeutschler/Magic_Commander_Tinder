@@ -1,5 +1,3 @@
-import { TriangleAlert } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 
 /** Long-form text for the legal and about pages, styled on top of the shared `panel` surface. */
@@ -41,25 +39,6 @@ export function Address({ lines }: { lines: string[] }) {
         </span>
       ))}
     </address>
-  );
-}
-
-/**
- * Visible placeholder for legal details that still need the operator's confirmation.
- * Remove every usage (search for `<Todo`) before going live.
- */
-export function Todo({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      role="note"
-      data-todo
-      className="flex gap-2 rounded-lg border border-amber-400/40 bg-amber-400/10 p-3 text-amber-200"
-    >
-      <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
-      <div>
-        <strong className="text-amber-100">TODO:</strong> {children}
-      </div>
-    </div>
   );
 }
 
