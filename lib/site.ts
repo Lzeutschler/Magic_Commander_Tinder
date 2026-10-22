@@ -12,10 +12,12 @@ function resolveSiteUrl(): string {
 
 export const SITE = {
   name: "Commander Tinder",
+  /** For the home screen icon label, where space is tight. */
+  shortName: "Cmdr Tinder",
   url: resolveSiteUrl(),
   description:
     "Find your commander, swipe your way to a deck and goldfish it — a free deckbuilding companion for Magic: The Gathering Commander.",
-  themeColor: "#0a0705",
+  themeColor: "#0b0e13",
 } as const;
 
 /**

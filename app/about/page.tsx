@@ -5,13 +5,13 @@ import Link from "next/link";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@/components/icons";
 import { ExternalLink, Prose } from "@/components/legal/prose";
 import { Button } from "@/components/ui/button";
-import { OPERATOR } from "@/lib/site";
+import { OPERATOR, SITE } from "@/lib/site";
 import portrait from "@/public/about/leonard-zeutschler.jpg";
 
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Commander Tinder is built by Leonard Zeutschler, a full-stack developer and AI engineer from the Ruhr area, Germany.",
+    `${SITE.name} is built by Leonard Zeutschler, a full-stack developer and AI engineer from the Ruhr area, Germany.`,
   alternates: { canonical: "/about" },
 };
 
@@ -34,10 +34,9 @@ export default function AboutPage() {
           className="size-36 shrink-0 rotate-[-3deg] rounded-xl border-[5px] border-ink object-cover object-top shadow-xl ring-1 ring-border sm:size-40"
         />
         <div className="space-y-3">
-          <p className="eyebrow text-ember">About</p>
           <h1 className="text-4xl leading-none font-extrabold sm:text-5xl">Hi, I&apos;m Leonard</h1>
           <p className="text-muted-foreground">
-            Full-stack developer and AI engineer from the Ruhr area, Germany — and the person behind Commander Tinder.
+            Full-stack developer and AI engineer from the Ruhr area, Germany — and the person behind {SITE.name}.
           </p>
           <ul className="flex flex-wrap justify-center gap-2 sm:justify-start" aria-label="Leonard on the web">
             {LINKS.map(({ label, href }) => (
@@ -65,7 +64,7 @@ export default function AboutPage() {
           Nothing makes me happier than taking a cool idea and actually bringing it to life.
         </p>
 
-        <h2>Why Commander Tinder?</h2>
+        <h2>Why {SITE.name}?</h2>
         <p>
           I&apos;ve been playing Commander for a few months now. <ExternalLink href="https://edhrec.com">EDHREC</ExternalLink>{" "}
           is my favourite place for inspiration, but scrolling through hundreds of suggestions is not the most fun way
@@ -105,7 +104,7 @@ export default function AboutPage() {
             License or MIT.
           </li>
           <li>
-            Commander Tinder is unofficial Fan Content permitted under the{" "}
+            {SITE.name} is unofficial Fan Content permitted under the{" "}
             <ExternalLink href="https://company.wizards.com/en/legal/fancontentpolicy">Fan Content Policy</ExternalLink>.
             Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast.
             ©Wizards of the Coast LLC.

@@ -30,7 +30,6 @@ import {
   ShuffleIcon as ShuffleBase,
   SidebarSimpleIcon as SidebarSimpleBase,
   SkipForwardIcon as SkipForwardBase,
-  SparkleIcon as SparkleBase,
   StackIcon as StackBase,
   StarIcon as StarBase,
   SwordIcon as SwordBase,
@@ -82,7 +81,6 @@ export const PlusIcon = bold(PlusBase, "PlusIcon");
 export const ShuffleIcon = bold(ShuffleBase, "ShuffleIcon");
 export const SidebarSimpleIcon = bold(SidebarSimpleBase, "SidebarSimpleIcon");
 export const SkipForwardIcon = bold(SkipForwardBase, "SkipForwardIcon");
-export const SparkleIcon = bold(SparkleBase, "SparkleIcon");
 export const StackIcon = bold(StackBase, "StackIcon");
 export const StarIcon = bold(StarBase, "StarIcon");
 export const SwordIcon = bold(SwordBase, "SwordIcon");
@@ -125,12 +123,12 @@ export function ManaGlyph({ name, className, label }: { name: ManaGlyphName; cla
   );
 }
 
-/** The Commander Tinder mark: two fanned cards with a heart on the front one. */
+/** The brand mark: two fanned cards with a heart. No lettering, so a rename only touches `SITE.name`. */
 export function BrandMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
-      <rect x="5" y="5" width="15" height="21" rx="1.6" transform="rotate(-14 12.5 15.5)" fill="var(--ember)" opacity="0.45" />
-      <rect x="11" y="5" width="15" height="21" rx="1.6" transform="rotate(8 18.5 15.5)" fill="var(--ember)" stroke="var(--ink)" strokeWidth="1.5" />
+      <rect x="5" y="5" width="15" height="21" rx="1.6" transform="rotate(-14 12.5 15.5)" fill="var(--brand)" opacity="0.45" />
+      <rect x="11" y="5" width="15" height="21" rx="1.6" transform="rotate(8 18.5 15.5)" fill="var(--brand)" stroke="var(--ink)" strokeWidth="1.5" />
       <path
         d="M18.6 20.2c-.2 0-3.9-2.4-3.9-5 0-1.3 1-2.3 2.2-2.3.7 0 1.3.4 1.7 1 .4-.6 1-1 1.7-1 1.2 0 2.2 1 2.2 2.3 0 2.6-3.7 5-3.9 5Z"
         transform="rotate(8 18.5 15.5)"

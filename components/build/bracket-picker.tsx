@@ -27,11 +27,11 @@ export function BracketPicker({
             onClick={() => onChange(bracket)}
             className={cn(
               "flex min-h-10 flex-col gap-1 rounded-lg border border-border bg-card p-3 text-left shadow-sm transition hover:border-input hover:bg-accent",
-              active && "border-ember bg-ember/12 shadow-[inset_0_0_0_1px_var(--ember),0_2px_0_0_oklch(0_0_0/45%)] hover:border-ember hover:bg-ember/12",
+              active && "border-brand bg-brand/12 shadow-[inset_0_0_0_1px_var(--brand),0_2px_0_0_oklch(0_0_0/45%)] hover:border-brand hover:bg-brand/12",
             )}
           >
             <span className="flex items-baseline gap-2">
-              <span className={cn("numeral text-3xl", active ? "text-ember" : "text-muted-foreground")}>{bracket}</span>
+              <span className={cn("numeral text-3xl", active ? "text-brand" : "text-muted-foreground")}>{bracket}</span>
               <span className="font-semibold leading-tight">{info.name}</span>
             </span>
             <span className="text-xs text-muted-foreground">{info.tagline}</span>

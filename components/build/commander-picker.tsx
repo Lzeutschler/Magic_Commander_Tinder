@@ -86,7 +86,7 @@ export function CommanderPicker({
               aria-label={`Filter by `}
               className={cn(
                 "grid size-10 place-items-center rounded-md border border-transparent opacity-45 grayscale-[60%] transition hover:bg-accent hover:opacity-90",
-                colors.includes(color) && "border-ember bg-ember/12 opacity-100 grayscale-0",
+                colors.includes(color) && "border-brand bg-brand/12 opacity-100 grayscale-0",
               )}
             >
               <ManaSymbol symbol={color} className="size-6" />
@@ -111,7 +111,7 @@ export function CommanderPicker({
             onClick={() => onSelect(commander)}
             className={cn(
               "rounded-[5%] text-left transition duration-200 hover:-translate-y-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-              selected?.id === commander.id && "ring-3 ring-ember ring-offset-2 ring-offset-background",
+              selected?.id === commander.id && "ring-3 ring-brand ring-offset-2 ring-offset-background",
             )}
             title={commander.name}
           >

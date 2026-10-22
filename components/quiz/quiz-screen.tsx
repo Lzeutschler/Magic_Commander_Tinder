@@ -22,7 +22,7 @@ export function QuizScreen() {
   if (!hydrated) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <CircleNotchIcon className="size-8 animate-spin text-ember" />
+        <CircleNotchIcon className="size-8 animate-spin text-brand" />
       </div>
     );
   }

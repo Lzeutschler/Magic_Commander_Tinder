@@ -25,9 +25,9 @@ export function Nav({ pathname }: { pathname: string | null }) {
           href={item.href}
           aria-current={pathname?.startsWith(item.href) ? "page" : undefined}
           className={cn(
-            "eyebrow relative flex items-center px-1.5 text-[0.8125rem] whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground min-[400px]:px-2 sm:px-3",
+            "ui-label relative flex items-center px-1.5 text-[0.8125rem] whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground min-[400px]:px-2 sm:px-3",
             "after:absolute after:inset-x-1.5 after:bottom-0 after:h-[3px] after:bg-transparent min-[400px]:after:inset-x-2 sm:after:inset-x-3",
-            pathname?.startsWith(item.href) && "text-foreground after:bg-ember",
+            pathname?.startsWith(item.href) && "text-foreground after:bg-brand",
           )}
         >
           {item.label}

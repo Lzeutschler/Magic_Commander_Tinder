@@ -65,7 +65,7 @@ function DeckTile({ deck, inProgress }: { deck: Deck; inProgress: boolean }) {
   return (
     <Link
       href={inProgress ? `/build/${deck.id}` : `/decks/${deck.id}`}
-      className="group panel flex flex-col overflow-hidden p-1.5 transition hover:-translate-y-0.5 hover:border-ember/70"
+      className="group panel flex flex-col overflow-hidden p-1.5 transition hover:-translate-y-0.5 hover:border-brand/70"
     >
       <div className="relative h-32 overflow-hidden rounded-md bg-muted">
         {art && (

@@ -23,7 +23,7 @@ export function GoldfishDeckPicker() {
       {decks.length === 0 && (
         <p className="panel-inset p-6 text-center text-muted-foreground">
           No decks yet.{" "}
-          <Link href="/build" className="text-ember underline underline-offset-4">
+          <Link href="/build" className="text-brand underline underline-offset-4">
             Build one
           </Link>{" "}
           or import a list.
@@ -37,7 +37,7 @@ export function GoldfishDeckPicker() {
             <Link
               key={deck.id}
               href={`/goldfish/${deck.id}`}
-              className="group panel flex items-center gap-3 overflow-hidden p-2 pr-4 transition hover:-translate-y-0.5 hover:border-ember/70"
+              className="group panel flex items-center gap-3 overflow-hidden p-2 pr-4 transition hover:-translate-y-0.5 hover:border-brand/70"
             >
               <div
                 className="h-16 w-20 shrink-0 rounded-md bg-muted bg-cover bg-center"
@@ -47,12 +47,12 @@ export function GoldfishDeckPicker() {
                 <div className="truncate text-lg leading-tight font-bold [font-family:var(--font-heading)]">{deck.name}</div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <ColorIdentity colors={deck.commander.colorIdentity} />
-                  <span className={count === DECK_SIZE ? "tabular-nums" : "text-ember tabular-nums"}>
+                  <span className={count === DECK_SIZE ? "tabular-nums" : "text-brand tabular-nums"}>
                     {count}/{DECK_SIZE} cards
                   </span>
                 </div>
               </div>
-              <PlayIcon className="size-5 text-muted-foreground transition group-hover:text-ember" />
+              <PlayIcon className="size-5 text-muted-foreground transition group-hover:text-brand" />
             </Link>
           );
         })}

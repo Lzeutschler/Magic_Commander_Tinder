@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { SITE } from "@/lib/site";
+
 import { BrandMark } from "./icons";
 import { ActiveNav, Nav } from "./site-nav";
 
@@ -10,14 +12,12 @@ export function SiteHeader() {
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:gap-8">
         <Link
           href="/"
-          aria-label="Commander Tinder"
+          aria-label={SITE.name}
           className="-ml-1 flex shrink-0 items-center gap-2 rounded-md px-1 py-1 font-heading text-lg leading-none font-extrabold whitespace-nowrap sm:text-xl"
         >
           <BrandMark className="size-7" />
           {/* Phones only have room for the logo next to the four nav links. */}
-          <span className="max-sm:hidden">
-            Commander <span className="text-ember">Tinder</span>
-          </span>
+          <span className="max-sm:hidden">{SITE.name}</span>
         </Link>
         {/* The active link depends on the URL, which is only known at request time. */}
         <Suspense fallback={<Nav pathname={null} />}>

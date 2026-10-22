@@ -13,7 +13,7 @@ export default function NotFound() {
       <div className="relative mb-2 flex items-center justify-center" aria-hidden>
         <CardBack className="w-24 -rotate-12 opacity-60" />
         <CardBack className="-ml-12 w-28 rotate-6" />
-        <span className="numeral absolute -bottom-4 rounded-sm bg-ember px-2 py-1 text-3xl text-ink shadow-md">404</span>
+        <span className="numeral absolute -bottom-4 rounded-sm bg-brand px-2 py-1 text-3xl text-ink shadow-md">404</span>
       </div>
       <h1 className="text-4xl leading-tight font-extrabold">This card isn&apos;t in the library</h1>
       <p className="text-muted-foreground">

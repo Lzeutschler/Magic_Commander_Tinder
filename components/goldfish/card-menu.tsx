@@ -111,7 +111,7 @@ export function CardMenu({
       className="fixed z-50 w-60 rounded-xl border border-border bg-popover p-1 text-sm shadow-xl"
       style={{ left, top: Math.max(8, top) }}
     >
-      <div className="eyebrow truncate px-2.5 py-1.5 text-muted-foreground">
+      <div className="ui-label truncate px-2.5 py-1.5 text-muted-foreground">
         {menu.card.faceDown ? "Face-down card" : menu.card.card.name}
       </div>
       {groups.map((group, i) => (
@@ -121,7 +121,7 @@ export function CardMenu({
               key={item.label}
               type="button"
               role="menuitem"
-              className="flex min-h-9 w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left hover:bg-accent hover:shadow-[inset_2px_0_0_0_var(--ember)] focus-visible:bg-accent"
+              className="flex min-h-9 w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left hover:bg-accent hover:shadow-[inset_2px_0_0_0_var(--brand)] focus-visible:bg-accent"
               onClick={() => {
                 onAction(item.action);
                 onClose();

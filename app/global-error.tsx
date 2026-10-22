@@ -1,5 +1,7 @@
 "use client";
 
+import { SITE } from "@/lib/site";
+
 import { fontVariables } from "./fonts";
 import "./globals.css";
 
@@ -8,8 +10,8 @@ export default function GlobalError({ retry }: { error: unknown; retry: () => vo
   return (
     <html lang="en" className={`dark ${fontVariables} h-full antialiased`}>
       <body className="flex min-h-full flex-col items-center justify-center gap-5 px-4 text-center font-sans">
-        <title>Something went wrong · Commander Tinder</title>
-        <h1 className="text-4xl leading-tight font-extrabold">Commander Tinder hit a snag</h1>
+        <title>{`Something went wrong · ${SITE.name}`}</title>
+        <h1 className="text-4xl leading-tight font-extrabold">{SITE.name} hit a snag</h1>
         <p className="max-w-md text-muted-foreground">
           The app could not load. Your decks are stored in your browser and are safe. Please try again in a moment.
         </p>
@@ -17,7 +19,7 @@ export default function GlobalError({ retry }: { error: unknown; retry: () => vo
           <button
             type="button"
             onClick={() => retry()}
-            className="h-10 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[inset_0_1px_0_0_oklch(1_0_0/30%),0_2px_0_0_oklch(0.42_0.12_40)] hover:bg-[oklch(0.77_0.16_52)]"
+            className="h-10 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[inset_0_1px_0_0_oklch(1_0_0/30%),0_2px_0_0_var(--brand-edge)] hover:bg-[var(--brand-hover)]"
           >
             Try again
           </button>

@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { SITE } from "@/lib/site";
+
 const FOOTER_LINKS = [
   { href: "/about", label: "About" },
   { href: "/impressum", label: "Impressum" },
@@ -41,7 +43,7 @@ export function SiteFooter() {
           .
         </p>
         <p>
-          Commander Tinder is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by
+          {SITE.name} is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by
           Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.
         </p>
       </div>

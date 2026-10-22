@@ -22,7 +22,7 @@ export function MulliganOverlay({ game, act }: { game: GameState; act: (fn: (g: 
     );
 
   return (
-    <div className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-6 bg-[oklch(0.1_0.006_55/86%)] p-6">
+    <div className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-6 bg-ink/85 p-6">
       <div className="text-center">
         <h2 className="text-4xl font-extrabold">{choosing ? `Put ${toBottom} on the bottom` : "Opening hand"}</h2>
         <p className="text-sm text-muted-foreground">

@@ -44,7 +44,7 @@ export function CardImage({ card, size = "normal", className, flippable, eager, 
             e.stopPropagation();
             setFace((f) => (f === "front" ? "back" : "front"));
           }}
-          className="absolute top-[9%] right-[6%] grid size-10 place-items-center rounded-full border border-white/25 bg-ink/80 text-foreground shadow-md transition hover:bg-ink hover:text-ember"
+          className="absolute top-[9%] right-[6%] grid size-10 place-items-center rounded-full border border-white/25 bg-ink/80 text-foreground shadow-md transition hover:bg-ink hover:text-brand"
           aria-label="Flip card"
         >
           <ArrowsClockwiseIcon className="size-5" />
@@ -56,7 +56,7 @@ export function CardImage({ card, size = "normal", className, flippable, eager, 
 
 function TextCard({ card, className }: Pick<CardImageProps, "card" | "className">) {
   return (
-    <div className={cn("card-aspect flex flex-col gap-2 overflow-hidden rounded-[4.75%] border-[5px] border-ink bg-[oklch(0.86_0.03_85)] p-3 text-xs text-ink", className)}>
+    <div className={cn("card-aspect flex flex-col gap-2 overflow-hidden rounded-[4.75%] border-[5px] border-ink bg-[#d9dde6] p-3 text-xs text-ink", className)}>
       <div className="flex items-start justify-between gap-2 font-semibold">
         <span>{card.name}</span>
         <ManaCost cost={card.manaCost} />

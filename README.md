@@ -46,14 +46,20 @@ server on another port), `pnpm lint`, `pnpm typecheck`.
 
 ## Design
 
-A tabletop look rather than stock shadcn: warm ink surfaces, parchment text, an ember accent and a green
-felt playmat for the goldfish table. Tokens live in `app/globals.css`.
+"Arcane Slate", a tabletop look rather than stock shadcn: cool graphite surfaces, periwinkle as the brand
+accent (`brand`, blue mana / planeswalker spark) and teal for secondary highlights (`teal`, also the maybe
+pile). Text and accents meet WCAG AA (text 15.6:1, brand 7.7:1 on the background). Tokens live in
+`app/globals.css`; `lib/brand.tsx` mirrors them as hex for the generated icons and Open Graph image.
 
-- **Type:** Alegreya for headings, Archivo (with its width axis) for UI and body text. The `.eyebrow`
-  utility gives condensed upper-case labels, `.numeral` big tabular counters.
+- **Name:** the site name lives only in `SITE.name` (`lib/site.ts`); header, footer, metadata, legal pages
+  and the Open Graph image read it from there, and the logo mark has no lettering.
+- **Type:** Alegreya for headings, Archivo (with its width axis) for UI and body text. `ui-label` gives
+  semi-condensed labels in sentence case, `numeral` big tabular counters. No upper-case eyebrows over
+  headings, no gradient text.
 - **Shape:** small radii (3px controls, 6px panels, 8px dialogs); cards keep their printed 4.75% corner.
   Shadows are hard ink edges plus a short drop (`shadow-sm` … `shadow-2xl` are redefined), no glows.
-- **Surfaces:** `.panel` (raised), `.panel-inset` (recessed well), `.felt` (goldfish table).
+- **Surfaces:** `panel` (raised), `panel-inset` (recessed well), `playmat` (goldfish table). These are
+  `@utility` classes, so variants such as `hover:` or `[&_h3]:` work on them.
 - **Icons:** [Phosphor](https://phosphoricons.com) in the bold weight via `components/icons.tsx`, plus
   the [Mana](https://mana.andrewgioia.com) font (SIL OFL) for tap and card type symbols (`ManaGlyph`).
   Mana costs stay Scryfall's SVGs. Import icons from `@/components/icons`, not from an icon package.

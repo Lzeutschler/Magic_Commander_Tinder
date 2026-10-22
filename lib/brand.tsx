@@ -3,13 +3,12 @@ import { join } from "node:path";
 
 /** The design tokens from `app/globals.css` as hex, for generated icons and social images. */
 export const BRAND_COLORS = {
-  ink: "#0a0705",
-  background: "#110d0b",
-  surface: "#1b1613",
-  ember: "#f57f3a",
-  text: "#f1ebde",
-  muted: "#b9b0a3",
-  felt: "#0d251b",
+  ink: "#0b0e13",
+  background: "#11141a",
+  surface: "#1a1f28",
+  brand: "#8ea2ff",
+  text: "#e8ecf3",
+  muted: "#a3acba",
 } as const;
 
 const HEART_PATH =
@@ -22,8 +21,8 @@ const HEART_PATH =
 export function BrandMarkImage({ size }: { size: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32">
-      <rect x="5" y="5" width="15" height="21" rx="1.6" transform="rotate(-14 12.5 15.5)" fill={BRAND_COLORS.ember} opacity="0.45" />
-      <rect x="11" y="5" width="15" height="21" rx="1.6" transform="rotate(8 18.5 15.5)" fill={BRAND_COLORS.ember} stroke={BRAND_COLORS.ink} strokeWidth="1.5" />
+      <rect x="5" y="5" width="15" height="21" rx="1.6" transform="rotate(-14 12.5 15.5)" fill={BRAND_COLORS.brand} opacity="0.45" />
+      <rect x="11" y="5" width="15" height="21" rx="1.6" transform="rotate(8 18.5 15.5)" fill={BRAND_COLORS.brand} stroke={BRAND_COLORS.ink} strokeWidth="1.5" />
       <path d={HEART_PATH} transform="rotate(8 18.5 15.5)" fill={BRAND_COLORS.ink} />
     </svg>
   );

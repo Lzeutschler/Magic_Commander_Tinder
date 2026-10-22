@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { CommanderSetup } from "@/components/build/commander-setup";
 import { CardImage } from "@/components/card/card-image";
-import { ArrowLeftIcon, CircleNotchIcon, SparkleIcon, StarIcon, XIcon } from "@/components/icons";
+import { ArrowLeftIcon, CheckIcon, CircleNotchIcon, StarIcon, XIcon } from "@/components/icons";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import type { ScoredCommander, Track } from "@/lib/quiz/types";
@@ -28,7 +28,7 @@ export function Shortlist({ track }: { track: Track }) {
   if (isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <CircleNotchIcon className="size-8 animate-spin text-ember" />
+        <CircleNotchIcon className="size-8 animate-spin text-brand" />
       </div>
     );
   }
@@ -36,7 +36,6 @@ export function Shortlist({ track }: { track: Track }) {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-8">
       <PageHeader
-        eyebrow="Find your commander"
         title="Your shortlist"
         description="Choose your commander, set a power level and start swiping cards for its 99."
         actions={
@@ -54,12 +53,12 @@ export function Shortlist({ track }: { track: Track }) {
           closeLabel="Remove from shortlist"
         >
           <ul className="space-y-1.5 text-sm">
-            <li className="eyebrow text-ember">
+            <li className="font-semibold text-brand">
               {matchPercent(selected.score, topScore)}% match
             </li>
             {selected.reasons.map((reason) => (
               <li key={reason.text} className="flex gap-2">
-                <SparkleIcon className="mt-0.5 size-3.5 shrink-0 text-ember" />
+                <CheckIcon className="mt-0.5 size-4 shrink-0 text-teal" aria-hidden />
                 {reason.text}
               </li>
             ))}
@@ -91,7 +90,7 @@ export function Shortlist({ track }: { track: Track }) {
                     aria-label={commander.name}
                     className={cn(
                       "block w-full rounded-[5%] ring-3 ring-transparent ring-offset-2 ring-offset-background transition hover:-translate-y-1",
-                      active && "ring-ember",
+                      active && "ring-brand",
                     )}
                   >
                     <CardImage card={commander} size="normal" />

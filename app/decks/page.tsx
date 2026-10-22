@@ -13,7 +13,6 @@ export default function DecksPage() {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-10">
       <PageHeader
-        eyebrow="Your library"
         title="My decks"
         description="Saved in this browser."
         actions={

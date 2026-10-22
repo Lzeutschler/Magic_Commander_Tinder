@@ -45,7 +45,7 @@ export function DeckStatsPanel({ deck }: { deck: Deck }) {
       </section>
 
       <section className="panel space-y-2 p-4">
-        <h3 className="eyebrow text-muted-foreground">Mana curve</h3>
+        <h3 className="ui-label text-muted-foreground">Mana curve</h3>
         <div className="h-36">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={curveData} margin={{ top: 8, right: 4, bottom: 0, left: -28 }}>
@@ -56,20 +56,20 @@ export function DeckStatsPanel({ deck }: { deck: Deck }) {
                 contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 4, fontSize: 12, boxShadow: "var(--shadow-lg)" }}
                 formatter={(value) => [value, "cards"]}
               />
-              <Bar dataKey="count" fill="var(--ember)" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="count" fill="var(--brand)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </section>
 
       <section className="panel space-y-3 p-4">
-        <h3 className="eyebrow text-muted-foreground">Roles</h3>
+        <h3 className="ui-label text-muted-foreground">Roles</h3>
         <RoleMeters stats={stats} template={template} />
       </section>
 
       {colors.length > 0 && (
         <section className="panel space-y-2 p-4">
-          <h3 className="eyebrow text-muted-foreground">Colors: pips vs. land sources</h3>
+          <h3 className="ui-label text-muted-foreground">Colors: pips vs. land sources</h3>
           <table className="w-full text-sm">
             <tbody>
               {colors.map((color) => (
@@ -89,7 +89,7 @@ export function DeckStatsPanel({ deck }: { deck: Deck }) {
       )}
 
       <section className="panel space-y-2 p-4">
-        <h3 className="eyebrow text-muted-foreground">Card types</h3>
+        <h3 className="ui-label text-muted-foreground">Card types</h3>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
           {CARD_TYPES.filter((type) => stats.types[type]).map((type) => (
             <div key={type} className="flex justify-between">
@@ -106,7 +106,7 @@ export function DeckStatsPanel({ deck }: { deck: Deck }) {
 function StatusLine({ ok, children }: { ok: boolean; children: React.ReactNode }) {
   const Icon = ok ? CheckCircleIcon : WarningIcon;
   return (
-    <p className={cn("flex items-start gap-2 text-sm", ok ? "text-pick" : "text-ember")}>
+    <p className={cn("flex items-start gap-2 text-sm", ok ? "text-pick" : "text-brand")}>
       <Icon className="mt-0.5 size-4 shrink-0" />
       <span>{children}</span>
     </p>

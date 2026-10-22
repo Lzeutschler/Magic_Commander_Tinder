@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Address, ExternalLink, PageHeader, Prose } from "@/components/legal/prose";
-import { LEGAL_LAST_UPDATED, OPERATOR } from "@/lib/site";
+import { LEGAL_LAST_UPDATED, OPERATOR, SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Datenschutz / Privacy",
-  description: "Privacy policy of Commander Tinder: no accounts, no cookies, no tracking — what happens to your data.",
+  description: `Privacy policy of ${SITE.name}: no accounts, no cookies, no tracking — what happens to your data.`,
   alternates: { canonical: "/datenschutz" },
 };
 
@@ -43,7 +43,7 @@ function PrivacyDe() {
     <Prose id="de" lang="de" aria-label="Datenschutzerklärung (Deutsch)">
       <h2>Das Wichtigste in Kürze</h2>
       <p>
-        Commander Tinder ist ein privates, kostenloses Hobbyprojekt ohne kommerzielle Interessen. Ich möchte so wenig
+        {SITE.name} ist ein privates, kostenloses Hobbyprojekt ohne kommerzielle Interessen. Ich möchte so wenig
         Daten wie möglich verarbeiten:
       </p>
       <ul>
@@ -168,7 +168,7 @@ function PrivacyEn() {
 
       <h3>Summary</h3>
       <p>
-        Commander Tinder is a private, free hobby project with no commercial interest, and I want to process as little
+        {SITE.name} is a private, free hobby project with no commercial interest, and I want to process as little
         data as possible:
       </p>
       <ul>

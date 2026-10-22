@@ -18,7 +18,7 @@ export default function ErrorPage({ error, retry }: { error: unknown; retry: () 
       role="alert"
       className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center gap-5 px-4 py-20 text-center"
     >
-      <ManaGlyph name="instant" className="text-5xl text-ember" />
+      <ManaGlyph name="instant" className="text-5xl text-brand" />
       <h1 className="text-4xl leading-tight font-extrabold">Something fizzled</h1>
       <p className="text-muted-foreground">
         An unexpected error interrupted this page. Your decks are stored in your browser and are safe. Try again, or
