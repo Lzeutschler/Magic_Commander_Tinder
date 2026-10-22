@@ -94,8 +94,8 @@ export default function AboutPage() {
             <ExternalLink href="https://scryfall.com/docs/api/images">image guidelines</ExternalLink>.
           </li>
           <li>
-            Card suggestions based on data from <ExternalLink href="https://edhrec.com">EDHREC</ExternalLink>. Commander
-            Tinder is not affiliated with EDHREC or Scryfall.
+            Card suggestions based on data from <ExternalLink href="https://edhrec.com">EDHREC</ExternalLink>.{" "}
+            {SITE.name} is not affiliated with EDHREC or Scryfall.
           </li>
           <li>
             Tap and card type symbols from the <ExternalLink href="https://mana.andrewgioia.com">Mana</ExternalLink> font

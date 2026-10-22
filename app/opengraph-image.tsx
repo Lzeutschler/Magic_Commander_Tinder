@@ -3,7 +3,7 @@ import { ImageResponse } from "next/og";
 import { BRAND_COLORS, BrandMarkImage, brandFonts } from "@/lib/brand";
 import { SITE } from "@/lib/site";
 
-export const alt = `${SITE.name} — swipe your way to a Commander deck`;
+export const alt = `${SITE.name} — ${SITE.tagline}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -34,7 +34,7 @@ export default function OpengraphImage() {
           <div style={{ display: "flex", fontFamily: "Alegreya", fontSize: 64, fontWeight: 800 }}>{SITE.name}</div>
         </div>
         <div style={{ display: "flex", fontFamily: "Alegreya", fontSize: 76, fontWeight: 800, lineHeight: 1.02, maxWidth: 980 }}>
-          Swipe your way to a Commander deck.
+          {`${SITE.tagline}.`}
         </div>
         <div
           style={{

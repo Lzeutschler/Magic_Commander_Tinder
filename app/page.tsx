@@ -4,6 +4,7 @@ import { DeckList } from "@/components/deck/deck-list";
 import { ArrowRightIcon, ManaGlyph, type ManaGlyphName } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { SITE } from "@/lib/site";
 
 /** Each feature is drawn like a card: a name bar with its symbol, a rules box and a type line with the action. */
 const FEATURES: { title: string; text: string; href: string; glyph: ManaGlyphName; action: string }[] = [
@@ -15,7 +16,7 @@ const FEATURES: { title: string; text: string; href: string; glyph: ManaGlyphNam
     action: "Take the quiz",
   },
   {
-    title: "Deckbuilding Tinder",
+    title: "Deck Matchmaker",
     text: "Pick a commander and bracket, then swipe through cards. Curve, ramp, draw and removal stay balanced.",
     href: "/build",
     glyph: "creature",
@@ -42,7 +43,7 @@ export default function HomePage() {
     <div className="mx-auto w-full max-w-6xl space-y-16 px-4 py-12 sm:py-16">
       <section className="grid items-center gap-10 md:grid-cols-[1.2fr_1fr]">
         <div className="space-y-6">
-          <h1 className="text-5xl leading-[0.95] font-extrabold sm:text-7xl">Swipe your way to a Commander deck</h1>
+          <h1 className="text-5xl leading-[0.95] font-extrabold sm:text-7xl">{SITE.tagline}</h1>
           <p className="max-w-xl text-lg text-muted-foreground">
             A deckbuilding companion for Magic: The Gathering Commander. Choose a commander and a power level, then
             swipe right on the cards you love — we keep the deck playable while you have fun.

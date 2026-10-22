@@ -116,6 +116,8 @@
   --brand-hover: #a6b6ff;
   --brand-edge: #4553a8;
   --teal: #5ad1c8;
+  /* Only the heart in the brand mark. */
+  --heart: #f28fb8;
   --table: #141b25;
   --pick: #6fd08c;
   --pass: #f2716b;

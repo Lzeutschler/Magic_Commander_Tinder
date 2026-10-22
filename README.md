@@ -1,8 +1,8 @@
-# Commander Tinder
+# Brewmance
 
 A web app for Magic: The Gathering Commander players:
 
-1. **Deckbuilding Tinder** (live): pick a commander and a bracket, then swipe through cards that fit.
+1. **Deck Matchmaker** (live): pick a commander and a bracket, then swipe through cards that fit.
    The deck keeps its mana curve, ramp, draw, interaction and board wipes in balance and respects the
    bracket's Game Changer, mass land denial and extra-turn limits. Finish with basics, edit, import and export.
 2. **Goldfish** (live): an MTG Arena-style sandbox to test a deck. Drag cards between zones, click to
@@ -53,6 +53,8 @@ pile). Text and accents meet WCAG AA (text 15.6:1, brand 7.7:1 on the background
 
 - **Name:** the site name lives only in `SITE.name` (`lib/site.ts`); header, footer, metadata, legal pages
   and the Open Graph image read it from there, and the logo mark has no lettering.
+  The browser storage keys `commander-tinder` and `commander-tinder-quiz` keep the old name on purpose:
+  renaming them would drop every saved deck and quiz.
 - **Type:** Alegreya for headings, Archivo (with its width axis) for UI and body text. `ui-label` gives
   semi-condensed labels in sentence case, `numeral` big tabular counters. No upper-case eyebrows over
   headings, no gradient text.
@@ -105,7 +107,7 @@ build command (`pnpm build`, which first downloads the Scryfall bulk data).
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | recommended | Public origin without trailing slash, e.g. `https://commander-tinder.com`. Used for `metadataBase` (canonical and Open Graph URLs), `robots.txt` and `sitemap.xml`. |
+| `NEXT_PUBLIC_SITE_URL` | recommended | Public origin without trailing slash, e.g. `https://brewmance.com`. Used for `metadataBase` (canonical and Open Graph URLs), `robots.txt` and `sitemap.xml`. |
 
 Without `NEXT_PUBLIC_SITE_URL`, `lib/site.ts` falls back to Vercel's `VERCEL_PROJECT_PRODUCTION_URL`
 (the production domain, set automatically) and then to `http://localhost:3000`. Set it for Production
@@ -137,7 +139,7 @@ extend the CSP there and update the privacy policy (`app/datenschutz/page.tsx`).
 
 ### Before going live
 
-- Commander Tinder runs as Leonard's private, non-commercial hobby project, which fits Vercel's Hobby plan.
+- Brewmance runs as Leonard's private, non-commercial hobby project, which fits Vercel's Hobby plan.
   Provider details for `/impressum` and `/datenschutz` live in `lib/site.ts` (`OPERATOR`).
 - If the project ever earns money (ads, donations, paid features) or moves to a company, revisit the
   Impressum, the privacy policy and the Vercel plan.
@@ -151,5 +153,5 @@ the web app manifest are generated from `app/`.
 
 ## Legal
 
-Commander Tinder is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed
+Brewmance is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed
 by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.

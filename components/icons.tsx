@@ -40,6 +40,7 @@ import {
   XIcon as XBase,
 } from "@phosphor-icons/react/ssr";
 
+import { BrandMarkSvg } from "@/lib/brand-mark";
 import { cn } from "@/lib/utils";
 
 /** Phosphor icons default to the bold weight here: it holds up at 16px next to condensed labels. */
@@ -123,17 +124,12 @@ export function ManaGlyph({ name, className, label }: { name: ManaGlyphName; cla
   );
 }
 
-/** The brand mark: two fanned cards with a heart. No lettering, so a rename only touches `SITE.name`. */
+/** The brand mark (a cauldron with a heart), coloured by the theme tokens. */
 export function BrandMark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
-      <rect x="5" y="5" width="15" height="21" rx="1.6" transform="rotate(-14 12.5 15.5)" fill="var(--brand)" opacity="0.45" />
-      <rect x="11" y="5" width="15" height="21" rx="1.6" transform="rotate(8 18.5 15.5)" fill="var(--brand)" stroke="var(--ink)" strokeWidth="1.5" />
-      <path
-        d="M18.6 20.2c-.2 0-3.9-2.4-3.9-5 0-1.3 1-2.3 2.2-2.3.7 0 1.3.4 1.7 1 .4-.6 1-1 1.7-1 1.2 0 2.2 1 2.2 2.3 0 2.6-3.7 5-3.9 5Z"
-        transform="rotate(8 18.5 15.5)"
-        fill="var(--ink)"
-      />
-    </svg>
+    <BrandMarkSvg
+      className={className}
+      colors={{ brew: "var(--brand)", rim: "var(--brand-hover)", legs: "var(--brand-edge)", heart: "var(--heart)" }}
+    />
   );
 }

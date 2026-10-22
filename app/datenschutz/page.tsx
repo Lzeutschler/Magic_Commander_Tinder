@@ -19,6 +19,7 @@ const AUTHORITY = [
   "40213 Düsseldorf",
 ];
 
+// Keeps the app's original name: renaming the persisted key would drop every saved deck.
 const STORAGE_KEY = "commander-tinder";
 
 export default function DatenschutzPage() {
