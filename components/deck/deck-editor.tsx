@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Download, Layers, List, Minus, Plus, Star, Swords, Trash2 } from "lucide-react";
+import { ArrowLeft, Download, Layers, List, Minus, Play, Plus, Star, Swords, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -147,8 +147,8 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
                 <Download /> Export
               </Button>
             </ExportDialog>
-            <Button variant="outline" disabled title="Goldfishing is coming next">
-              Goldfish (soon)
+            <Button variant="outline" nativeButton={false} render={<Link href={`/goldfish/${deck.id}`} />}>
+              <Play /> Goldfish
             </Button>
             <Button variant="ghost" className="text-destructive" onClick={remove}>
               <Trash2 /> Delete

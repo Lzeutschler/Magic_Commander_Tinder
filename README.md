@@ -5,7 +5,10 @@ A web app for Magic: The Gathering Commander players:
 1. **Deckbuilding Tinder** (live): pick a commander and a bracket, then swipe through cards that fit.
    The deck keeps its mana curve, ramp, draw, interaction and board wipes in balance and respects the
    bracket's Game Changer, mass land denial and extra-turn limits. Finish with basics, edit, import and export.
-2. **Goldfish** (next): an MTG Arena-style sandbox to test a deck.
+2. **Goldfish** (live): an MTG Arena-style sandbox to test a deck. Drag cards between zones, click to
+   play or tap, right-click for counters, tokens, flip and zone moves. London mulligan (first one free),
+   scry/surveil/mill/search, commander tax, undo, keyboard shortcuts (D, U, N, S, M, ⌘Z) and an
+   opening-hand simulator.
 3. **Playstyle quiz** (later): find commanders that match your colors, creatures and play style.
 
 Decks are stored in the browser (localStorage); there are no accounts.
@@ -13,7 +16,7 @@ Decks are stored in the browser (localStorage); there are no accounts.
 ## Stack
 
 Next.js 16 (App Router, Cache Components) · TypeScript · Tailwind CSS v4 · shadcn/ui (Base UI) ·
-Motion · Zustand · TanStack Query · Zod · Recharts · Vitest. Deploys to Vercel as is.
+Motion · dnd-kit · Zustand · TanStack Query · Zod · Recharts · Vitest · Playwright. Deploys to Vercel as is.
 
 ## Getting started
 
@@ -28,12 +31,13 @@ pnpm dev
 | File | Used by |
 | --- | --- |
 | `data/cards.json` | API routes: every Commander-legal card with roles (ramp, draw, removal, …) |
-| `data/tokens.json` | API routes: tokens for the goldfish sandbox |
+| `data/tokens.json` | API routes: tokens for the goldfish sandbox (`/api/tokens`) |
 | `public/data/commanders.json` | Client: all legal commanders with themes and tribes |
 
 The data is rebuilt when it is older than a week; `pnpm data --force` rebuilds it now.
 
-Other scripts: `pnpm test`, `pnpm lint`, `pnpm typecheck`.
+Other scripts: `pnpm test` (Vitest), `pnpm test:e2e` (Playwright smoke test; needs network for EDHREC and
+Scryfall, run `pnpm exec playwright install chromium` once), `pnpm lint`, `pnpm typecheck`.
 
 ## Data sources
 
@@ -48,13 +52,14 @@ Other scripts: `pnpm test`, `pnpm lint`, `pnpm typecheck`.
 
 ```
 app/                 pages and API routes (api/candidates, api/commander-insights, api/cards/*)
-components/          UI: build/ (commander + bracket picker), swipe/, deck/ (editor), card/, ui/ (shadcn)
+components/          UI: build/ (commander + bracket picker), swipe/, deck/ (editor), goldfish/, card/, ui/ (shadcn)
 lib/cards/           card types, names/slugs, mana helpers, image URLs
 lib/tagging/         roles (Tagger tags), commander themes and tribes
 lib/deckbuilder/     deck template, bracket rules, scoring, swipe session, basic land fill
 lib/deck-io/         deck list import/export
+lib/goldfish/        pure game actions (zones, mulligan, tokens, …) and the opening-hand simulator
 lib/server/          server-only card database and candidate pool
-stores/decks.ts      persisted deck and swipe-session store
+stores/              decks.ts (persisted decks and swipe sessions), game.ts (goldfish game with undo)
 scripts/             card database build
 ```
 

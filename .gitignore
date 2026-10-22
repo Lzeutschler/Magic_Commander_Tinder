@@ -44,3 +44,7 @@ next-env.d.ts
 /data/
 /public/data/
 /.cache/
+
+# playwright
+/test-results/
+/playwright-report/

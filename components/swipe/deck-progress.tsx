@@ -67,7 +67,7 @@ export function DeckCounter({ deck, stats, template }: { deck: Deck; stats: Deck
     <div className="space-y-3">
       <div className="flex items-end justify-between">
         <div>
-          <div className="font-heading text-4xl font-bold tabular-nums">
+          <div className="font-heading text-4xl font-bold tabular-nums" data-testid="picked-count">
             {stats.total}
             <span className="text-lg text-muted-foreground">/{DECK_SIZE}</span>
           </div>

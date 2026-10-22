@@ -22,7 +22,7 @@ const FEATURES = [
     title: "Goldfish",
     text: "Test your deck in an Arena-style sandbox: draw, play, tap and mulligan without the clunky UI.",
     icon: Swords,
-    href: null,
+    href: "/goldfish",
   },
 ];
 

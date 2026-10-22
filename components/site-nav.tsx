@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { href: "/build", label: "Build" },
   { href: "/decks", label: "My Decks" },
-  { href: "/goldfish", label: "Goldfish", soon: true },
+  { href: "/goldfish", label: "Goldfish" },
   { href: "/quiz", label: "Quiz", soon: true },
 ];
 
