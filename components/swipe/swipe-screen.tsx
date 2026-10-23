@@ -35,8 +35,9 @@ import {
   type SwipeSession,
 } from "@/lib/deckbuilder/session";
 import { deckTemplate } from "@/lib/deckbuilder/settings";
+import type { DeckTemplate } from "@/lib/deckbuilder/template";
 import type { Candidate } from "@/lib/deckbuilder/types";
-import { deckStats } from "@/lib/decks/stats";
+import { deckStats, type DeckStats } from "@/lib/decks/stats";
 import { edhrecCardUrl, edhrecCommanderUrl } from "@/lib/edhrec/links";
 import { DECK_SIZE, type Deck } from "@/lib/decks/types";
 import { randomSeed } from "@/lib/random";
@@ -138,7 +139,9 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
     undoSwipe(deck.id);
   };
   const finish = () => {
+    const openSpells = DECK_SIZE - template.lands - stats.nonlands;
     finishSwipe(deck.id);
+    if (openSpells > 0) toast(`Filled ${openSpells} open spell slot${openSpells === 1 ? "" : "s"} with top suggestions. Review them in the editor.`);
     router.push(`/decks/${deck.id}`);
   };
 
@@ -182,7 +185,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
             </Button>
           )}
           <Button variant="outline" onClick={finish}>
-            Finish with basics &amp; edit
+            Auto-complete &amp; edit
           </Button>
         </div>
         <p className="text-[11px] text-muted-foreground">
@@ -228,7 +231,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
         </div>
 
         {session.phase === "done" || !current ? (
-          <DonePanel deck={deck} onFinish={finish} onUndo={undo} canUndo={session.history.length > 0} />
+          <DonePanel stats={stats} template={template} onFinish={finish} onUndo={undo} canUndo={session.history.length > 0} />
         ) : (
           <>
             <div className="w-full max-w-md lg:hidden">
@@ -383,31 +386,37 @@ function FitMeters({ candidate, deckCount }: { candidate: Candidate; deckCount: 
       </div>
       <div className="panel-inset rounded-lg p-2.5">
         <div className="numeral text-3xl">{inclusion}%</div>
-        <div className="ui-label mt-1 text-xs text-muted-foreground">{deckCount ? `of ${deckCount.toLocaleString()} decks` : "popularity"}</div>
+        <div className="ui-label mt-1 text-xs text-muted-foreground">
+          {deckCount ? `in ${Math.round(candidate.inclusion * deckCount).toLocaleString()} of ${deckCount.toLocaleString()} decks` : "popularity"}
+        </div>
       </div>
     </div>
   );
 }
 
 function DonePanel({
-  deck,
+  stats,
+  template,
   onFinish,
   onUndo,
   canUndo,
 }: {
-  deck: Deck;
+  stats: DeckStats;
+  template: DeckTemplate;
   onFinish: () => void;
   onUndo: () => void;
   canUndo: boolean;
 }) {
-  const stats = deckStats(deck);
+  const openSpells = Math.max(0, DECK_SIZE - template.lands - stats.nonlands);
+  const basics = Math.max(0, template.lands - stats.lands);
   return (
     <div className="panel flex w-full max-w-md flex-col items-center gap-4 p-8 text-center">
       <CelebrationCauldron className="-mt-2 text-[4.5px]" />
       <h2 className="text-2xl font-bold">Your brew is ready</h2>
       <p className="text-muted-foreground">
         {stats.nonlands} spells and {stats.lands} lands picked.{" "}
-        {DECK_SIZE - stats.total > 0 && `${DECK_SIZE - stats.total} basic lands will complete the 99.`}
+        {openSpells > 0 && `Top suggestions will fill the ${openSpells} open spell slots. `}
+        {basics > 0 && `${basics} basic lands will fill the land slots.`}
       </p>
       <div className="flex gap-2">
         <Button variant="outline" onClick={onUndo} disabled={!canUndo}>

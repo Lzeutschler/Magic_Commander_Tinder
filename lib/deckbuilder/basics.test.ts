@@ -19,13 +19,24 @@ function basicsOf(entries: DeckEntry[]) {
 
 describe("fillBasics", () => {
   it("fills the deck to 99 cards", () => {
-    const entries = fillBasics(spells("{1}{B}", 62, ["B"]), ["B"], BASICS);
+    const entries = fillBasics(spells("{1}{B}", 62, ["B"]), ["B"], BASICS, 37);
     expect(deckCount(entries)).toBe(DECK_SIZE);
     expect(basicsOf(entries)).toEqual({ Swamp: 37 });
   });
 
+  it("stops at the land target when spell slots are still open", () => {
+    const entries = fillBasics(spells("{1}{B}", 47, ["B"]), ["B"], BASICS, 37);
+    expect(deckCount(entries)).toBe(47 + 37);
+    expect(basicsOf(entries)).toEqual({ Swamp: 37 });
+  });
+
+  it("never goes past 99 cards", () => {
+    const entries = fillBasics(spells("{1}{B}", 70, ["B"]), ["B"], BASICS, 37);
+    expect(deckCount(entries)).toBe(DECK_SIZE);
+  });
+
   it("still gives a light splash a fair number of sources", () => {
-    const entries = fillBasics([...spells("{B}{B}", 55, ["B"]), ...spells("{1}{R}", 7, ["R"])], ["B", "R"], BASICS);
+    const entries = fillBasics([...spells("{B}{B}", 55, ["B"]), ...spells("{1}{R}", 7, ["R"])], ["B", "R"], BASICS, 37);
     const basics = basicsOf(entries);
     expect(basics.Mountain).toBeGreaterThanOrEqual(9);
     expect(basics.Swamp).toBeGreaterThan(basics.Mountain);
@@ -33,7 +44,7 @@ describe("fillBasics", () => {
 
   it("gives fewer basics to colors the nonbasic lands already make", () => {
     const duals = Array.from({ length: 10 }, (_, i) => ({ card: land(`W/B Dual ${i}`, ["W", "B"]), quantity: 1 }));
-    const entries = fillBasics([...spells("{1}{W}", 31, ["W"]), ...spells("{1}{R}", 31, ["R"]), ...duals], ["W", "B", "R"], BASICS);
+    const entries = fillBasics([...spells("{1}{W}", 31, ["W"]), ...spells("{1}{R}", 31, ["R"]), ...duals], ["W", "B", "R"], BASICS, 37);
     const basics = basicsOf(entries);
     expect(basics.Swamp ?? 0).toBe(0);
     expect(basics.Mountain).toBeGreaterThan(basics.Plains);

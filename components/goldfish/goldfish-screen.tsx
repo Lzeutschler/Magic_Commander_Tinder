@@ -403,12 +403,17 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
             </aside>
           )}
 
-          {/* Large preview of the hovered card, floating over the table on the side away from the pointer. */}
+          {/* Large preview of the hovered card, floating over the battlefield on the side away from the pointer,
+              clear of the piles and the side panel so turn and life stay visible. */}
           {hovered && !dragging && (
             <div
               className={cn(
                 "pointer-events-none absolute top-3 z-40 w-[clamp(240px,min(22vw,48vh),380px)] drop-shadow-[0_18px_28px_oklch(0_0_0/70%)]",
-                previewSide === "right" ? "right-3" : "left-3",
+                previewSide === "left"
+                  ? "left-[calc(var(--pile-w)+1.75rem)]"
+                  : rail
+                    ? "right-3 lg:right-[calc(13rem+1.25rem)]"
+                    : "right-3",
               )}
               aria-hidden="true"
             >

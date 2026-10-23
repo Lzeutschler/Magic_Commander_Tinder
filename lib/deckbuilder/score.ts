@@ -26,15 +26,20 @@ const WEIGHTS = {
   colorlessLand: 0.2,
 };
 
-/** Penalty per card above a role's target: too many wipes hurt most, extra protection least. */
+/**
+ * Penalty per card above a role's target: too many wipes hurt most, extra protection least. Strong
+ * enough that a full role stops getting cards that merely fit a little better than off-role ones.
+ */
 const ROLE_EXCESS: Record<TemplateRole, number> = {
-  ramp: 0.3,
-  draw: 0.25,
-  interaction: 0.2,
-  boardwipe: 0.5,
-  protection: 0.2,
-  wincon: 0.25,
+  ramp: 0.45,
+  draw: 0.4,
+  interaction: 0.45,
+  boardwipe: 0.8,
+  protection: 0.35,
+  wincon: 0.4,
 };
+/** Most a full role can cost a card, so near-universal staples still come through. */
+const MAX_ROLE_EXCESS = 2;
 
 export interface ScoreContext {
   stats: DeckStats;
@@ -80,7 +85,7 @@ export function scoreCandidate(card: Candidate, ctx: ScoreContext): number {
   } else {
     if (roles.length) {
       const excess = Math.max(...roles.map((role) => ROLE_EXCESS[role] * (stats.roles[role] - template.roles[role] + 1)));
-      score -= Math.min(1.5, excess) * dampen;
+      score -= Math.min(MAX_ROLE_EXCESS, excess) * dampen;
     }
     score -= WEIGHTS.offRole * urgency ** 2 * dampen;
   }

@@ -221,7 +221,10 @@ export function scoreCommander(
   // Creature types.
   const leads = commander.tribes.filter((t) => profile.tribes.includes(t));
   const isOne = commander.creatureTypes.filter((t) => profile.tribes.includes(t) && !leads.includes(t));
-  if (leads.length) add("tribe", WEIGHTS.tribe, `Leads ${plural(leads[0])}`);
+  // A commander that is not of the type it rewards (an Elf that cares about Dragons) does not "lead" it.
+  if (leads.length) {
+    add("tribe", WEIGHTS.tribe, `${commander.creatureTypes.includes(leads[0]) ? "Leads" : "Rewards"} ${plural(leads[0])}`);
+  }
   else if (isOne.length) add("tribe", WEIGHTS.tribeMember, `A ${isOne[0]} itself`);
   if (profile.noTribe && commander.tribes.length) add("tribe", -WEIGHTS.noTribe);
   const vibeTypes = [...new Set([...commander.creatureTypes, ...commander.tribes])].filter((t) => profile.creatureLean.includes(t));

@@ -131,12 +131,23 @@ describe("swipe session", () => {
     expect(state.deck.maybe.map((c) => c.id)).toEqual([next.id]);
   });
 
-  it("can skip straight to lands and finish with basics", () => {
-    const started = start(3, makePool(), 9);
-    const session = skipToLands(started.session, started.deck);
-    expect(session.phase).toBe("lands");
-    const finished = finish(session, started.deck);
-    expect(deckCount(finished.entries)).toBe(DECK_SIZE);
+  it("finishing early fills open spell slots with suggestions and lands only up to the target", () => {
+    let state = start(3, makePool(), 9);
+    for (let i = 0; i < 20; i++) state = decide(state.session, state.deck, nextCandidate(state.session, state.deck)!, i % 4 ? "pick" : "pass");
+    const passed = state.session.history.filter((h) => h.decision === "pass").map((h) => h.cardId);
+
+    const finished = finish(skipToLands(state.session, state.deck), state.deck);
+    const template = deckTemplate(finished);
+    const stats = deckStats(finished);
+    expect(stats.total).toBe(DECK_SIZE);
+    expect(stats.lands).toBe(template.lands);
+    expect(finished.entries.some((e) => passed.includes(e.card.id))).toBe(false);
+  });
+
+  it("leaves spell slots open when no suggestions are left", () => {
+    const started = start(3, makePool().filter(isLand), 9);
+    const finished = finish(started.session, started.deck);
+    expect(deckCount(finished.entries)).toBe(deckTemplate(started.deck).lands);
     expect(finished.entries[0].card.name).toBe("Mountain");
   });
 });

@@ -217,7 +217,7 @@ export function Hand({ game, handlers }: { game: GameState; handlers: CardHandle
       data-zone="hand"
       // With a mouse the hand peeks up and a hovered card rises; touch screens cannot hover, so they show whole cards.
       className={cn(
-        "relative z-20 flex h-[calc(var(--hand-w)*0.86)] shrink-0 items-start justify-center px-4 pt-2 transition-colors pointer-coarse:h-[calc(var(--hand-w)*1.393+1.75rem)]",
+        "relative z-20 flex h-[calc(var(--hand-w)*1.08)] shrink-0 items-start justify-center px-4 pt-2 transition-colors pointer-coarse:h-[calc(var(--hand-w)*1.393+1.75rem)]",
         isOver && "bg-brand/8",
       )}
     >
@@ -234,7 +234,7 @@ export function Hand({ game, handlers }: { game: GameState; handlers: CardHandle
             "--z": i,
           } as React.CSSProperties}
         >
-          <div className="transition-transform duration-150 ease-out origin-bottom group-hover/hand:-translate-y-[47%] group-hover/hand:scale-[1.2]">
+          <div className="transition-transform duration-150 ease-out origin-bottom group-hover/hand:-translate-y-[30%] group-hover/hand:scale-[1.2]">
             <GameCardView card={card} handlers={handlers} enterFrom="library" />
           </div>
         </div>

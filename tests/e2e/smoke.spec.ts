@@ -15,7 +15,7 @@ test("build, export and goldfish a deck", async ({ page }) => {
   }
   await expect(page.getByTestId("picked-count")).toHaveText("20/99");
 
-  await page.getByRole("button", { name: "Finish with basics & edit" }).click();
+  await page.getByRole("button", { name: "Auto-complete & edit" }).click();
   await expect(page.getByText("Deck size is legal")).toBeVisible();
 
   await page.getByRole("button", { name: "Export" }).click();
@@ -143,8 +143,8 @@ test("share a deck by link and goldfish it elsewhere", async ({ page, browser })
     await page.keyboard.press("ArrowRight");
     await page.waitForTimeout(80);
   }
-  await page.getByRole("button", { name: "Finish with basics & edit" }).click();
-  await page.getByRole("button", { name: "Share" }).click();
+  await page.getByRole("button", { name: "Auto-complete & edit" }).click();
+  await page.getByRole("button", { name: "Share", exact: true }).click();
   await expect(page.getByText("Link copied")).toBeVisible();
   const link = await page.evaluate(() => (window as unknown as { copied: string }).copied);
   expect(link).toMatch(/\/d\/[\w-]+$/);
@@ -202,7 +202,7 @@ test.describe("on a phone", () => {
       await page.keyboard.press("ArrowRight");
       await page.waitForTimeout(80);
     }
-    await page.getByRole("button", { name: "Finish with basics & edit" }).click();
+    await page.getByRole("button", { name: "Auto-complete & edit" }).click();
 
     // No hover on a phone: tapping a card in the list opens it big, with its actions.
     const firstCard = page.locator("main li > button").first();

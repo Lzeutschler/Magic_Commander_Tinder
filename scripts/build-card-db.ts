@@ -40,7 +40,7 @@ import {
   confirmedTribes,
   type ArchetypeId,
 } from "@/lib/tagging/archetypes";
-import { ROLES, ROLE_TAGS, rolesFromText } from "@/lib/tagging/roles";
+import { ROLES, ROLE_TAGS, extraRolesFromText, rolesFromText } from "@/lib/tagging/roles";
 import { detectThemes } from "@/lib/tagging/themes";
 import { creatureTypes, detectTribes } from "@/lib/tagging/tribes";
 
@@ -370,12 +370,16 @@ function toCard(raw: ScryfallCard, rolesByOracleId: Map<string, Set<Role>>): Car
   const text = oracleText(raw);
   const isLand = frontTypeLine(raw).includes("Land");
   const tagged = raw.oracle_id ? rolesByOracleId.get(raw.oracle_id) : undefined;
-  let roles = tagged ? [...tagged] : rolesFromText(text, isLand);
+  let roles = tagged ? [...new Set([...tagged, ...extraRolesFromText(text)])] : rolesFromText(text, isLand);
   // Mana-producing lands are tagged as ramp by Tagger, but they belong to the land count.
   if (isLand) roles = roles.filter((r) => r !== "ramp");
   // A sweeper is not spot removal, and Armageddon is neither: count each card in one slot.
   if (roles.includes("mld")) roles = roles.filter((r) => r !== "removal" && r !== "boardwipe");
   if (roles.includes("boardwipe")) roles = roles.filter((r) => r !== "removal");
+  // Deadly Dispute and Big Score draw cards and leave one Treasure: card draw, not a ramp slot.
+  if (/\b(Instant|Sorcery)\b/.test(frontTypeLine(raw)) && roles.includes("draw") && /\btreasure\b/i.test(text)) {
+    roles = roles.filter((r) => r !== "ramp");
+  }
 
   return {
     id: raw.id,

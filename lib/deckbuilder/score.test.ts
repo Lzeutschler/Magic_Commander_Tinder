@@ -40,6 +40,13 @@ describe("scoreCandidate", () => {
     expect(wayOver).toBeLessThan(atTarget);
   });
 
+  it("prefers an off-role card once a role is full, even when the role card fits a bit better", () => {
+    const ctx = context(filler(template.roles.interaction + 1, 2, ["removal"]));
+    const removal = spell("Doom Blade", 2, ["removal"], { synergy: 0.25, inclusion: 0.6 });
+    const synergy = spell("Synergy Creature", 2, [], { synergy: 0.15, inclusion: 0.3 });
+    expect(scoreCandidate(synergy, ctx)).toBeGreaterThan(scoreCandidate(removal, ctx));
+  });
+
   it("makes missing roles urgent when the spell slots run out", () => {
     const slots = 99 - template.lands;
     const early = context([]);

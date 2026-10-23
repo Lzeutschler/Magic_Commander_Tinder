@@ -109,6 +109,14 @@ describe("scoring", () => {
     expect(rank([krenko, vanilla], { noTribe: true })[0]).toBe("Vanilla Legend");
   });
 
+  it("says a commander leads a type only when it is one", () => {
+    const profile = { ...emptyProfile("advanced"), tribes: ["Dragon"] };
+    const reason = (c: CommanderSummary) =>
+      rankCommanders([c], profile, "balanced")[0].reasons.find((r) => r.kind === "tribe")?.text;
+    expect(reason(commander({ name: "Dragon Lord", creatureTypes: ["Dragon"], tribes: ["Dragon"] }))).toBe("Leads Dragons");
+    expect(reason(commander({ name: "Estinien Varlineau", creatureTypes: ["Elf", "Warrior"], tribes: ["Dragon"] }))).toBe("Rewards Dragons");
+  });
+
   it("boosts the chosen franchises and lowers other worlds", () => {
     const frodo = commander({ name: "Frodo", set: "ltr" });
     const spidey = commander({ name: "Spider-Man", set: "spm" });

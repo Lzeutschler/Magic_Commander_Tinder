@@ -192,11 +192,23 @@ export function skipToLands(session: SwipeSession, deck: Deck): SwipeSession {
   return { ...skipped, phase: currentPhase(skipped, deck) };
 }
 
-/** Completes the deck with basic lands. */
+/**
+ * Completes the deck: open spell slots get the best-scored suggestions still on offer, one at a time so
+ * each pick sees the roles the previous ones filled, then basics fill the land slots. Stopping early
+ * therefore never turns the rest of the deck into basic lands.
+ */
 export function finish(session: SwipeSession, deck: Deck): Deck {
+  const template = deckTemplate(deck);
+  const spells: SwipeSession = { ...session, phase: "spells" };
+  let entries = deck.entries;
+  while (deckStats({ entries }).nonlands < DECK_SIZE - template.lands) {
+    const best = rankCandidates(spells, { ...deck, entries })[0];
+    if (!best) break;
+    entries = [...entries, { card: stripCandidate(best.candidate), quantity: 1 }];
+  }
   return {
     ...deck,
-    entries: fillBasics(deck.entries, deck.commander.colorIdentity, session.basicLands),
+    entries: fillBasics(entries, deck.commander.colorIdentity, session.basicLands, template.lands),
     updatedAt: Date.now(),
   };
 }

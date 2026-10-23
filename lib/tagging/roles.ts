@@ -37,6 +37,7 @@ export const ROLE_LABELS: Record<Role, string> = {
  *   themselves, while Fact or Fiction-style effects sit under `card-advantage`, not `draw`.
  * - tutor skips land tutors (Cultivate) and the destination tags (`tutor-to-hand`) that land tutors share.
  * - ramp skips one-shot rituals and Path to Exile-style removal that ramps the opponent.
+ * - removal skips Goblin Bombardment-style outlets that sacrifice your own creatures to ping.
  */
 export const ROLE_TAGS: Record<Role, { include: string[]; exclude?: string[]; veto?: string[] }> = {
   ramp: { include: ["ramp", "mana-rock", "mana-dork"], exclude: ["ritual"], veto: ["donate-rampant-growth"] },
@@ -45,7 +46,7 @@ export const ROLE_TAGS: Record<Role, { include: string[]; exclude?: string[]; ve
     exclude: ["cantrip", "delayed-cantrip", "loot", "rummage", "brainstorm", "regrowth", "land-or-hand"],
     veto: ["egg"],
   },
-  removal: { include: ["removal"], exclude: ["sweeper"] },
+  removal: { include: ["removal"], exclude: ["sweeper"], veto: ["bombard"] },
   boardwipe: { include: ["sweeper"] },
   counterspell: { include: ["counterspell"] },
   tutor: { include: ["tutor"], exclude: ["tutor-land", "tutor-to"] },
@@ -55,6 +56,23 @@ export const ROLE_TAGS: Record<Role, { include: string[]; exclude?: string[]; ve
   mld: { include: ["mass-land-denial"] },
   extraturn: { include: ["extra-turn"] },
 };
+
+/**
+ * Drain and burn that scales and hits every opponent, like Gray Merchant or Exsanguinate. Tagger has
+ * no finisher tag for these (its drain tags also cover Blood Artist-style pings), so text decides.
+ */
+const SCALING_DRAIN: RegExp[] = [
+  /\beach opponent loses (x|two times x) life\b/,
+  /\beach opponent loses life equal to\b/,
+  /\bdeals x damage to each opponent\b/,
+  /\bdeals damage to each opponent equal to\b/,
+];
+
+/** Roles text grants on top of Tagger's. */
+export function extraRolesFromText(oracleText: string): Role[] {
+  const text = oracleText.toLowerCase();
+  return SCALING_DRAIN.some((re) => re.test(text)) ? ["wincon"] : [];
+}
 
 /** Fallback for cards Tagger has not tagged yet (usually brand-new sets). */
 const ROLE_PATTERNS: Record<Role, RegExp[]> = {
@@ -66,7 +84,7 @@ const ROLE_PATTERNS: Record<Role, RegExp[]> = {
   tutor: [/search your library for an? (card|creature|instant|sorcery|artifact|enchantment)\b/],
   protection: [/\b(hexproof|indestructible) until end of turn\b/],
   recursion: [/\breturn target [^.]*card from your graveyard\b/],
-  wincon: [/\byou win the game\b/, /\bcreatures you control get \+\w+\/\+\w+ and gain trample\b/, /\badditional combat phase\b/],
+  wincon: [/\byou win the game\b/, /\bcreatures you control get \+\w+\/\+\w+ and gain trample\b/, /\badditional combat phase\b/, ...SCALING_DRAIN],
   mld: [/\bdestroy all lands\b/],
   extraturn: [/\btake an extra turn\b/],
 };
