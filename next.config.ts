@@ -43,11 +43,12 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   poweredByHeader: false,
   // Route handlers and shared deck and quiz pages read the generated card database from disk at runtime;
-  // their preview images also read the Open Graph fonts.
+  // their preview images also read the Open Graph fonts. Only route handlers suggest cards, so only they
+  // carry the EDHREC bulk data snapshot (data/recs-snapshot/).
   outputFileTracingIncludes: {
     "/api/**": ["./data/**/*.json"],
-    "/d/**": ["./data/**/*.json", "./app/fonts/og/*"],
-    "/q/**": ["./data/**/*.json", "./app/fonts/og/*"],
+    "/d/**": ["./data/*.json", "./app/fonts/og/*"],
+    "/q/**": ["./data/*.json", "./app/fonts/og/*"],
   },
   turbopack: {
     rules: {

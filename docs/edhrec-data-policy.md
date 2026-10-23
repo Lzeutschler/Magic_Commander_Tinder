@@ -19,7 +19,7 @@ zusammen kurz mehr als 1 Anfrage pro Sekunde rausgehen. Dagegen helfen der CDN-C
 (einen Tag) und `"use cache"`. Hart garantieren ließe sich das Limit nur mit einem geteilten Zähler oder
 `"use cache: remote"` (siehe `docs/reddit-launch-polish.md`, Punkt 10).
 
-**Bulk-Daten:** `https://edhrec.com/data/data.tgz` (275 MB komprimiert, Stand 23.10.2026) enthält `edhrec.csv`
+**Bulk-Daten (genutzt als Ersatz):** `https://edhrec.com/data/data.tgz` (275 MB komprimiert, Stand 23.10.2026) enthält `edhrec.csv`
 (672 MB) und eine `LICENSE.txt`. Die Lizenz erlaubt die Nutzung in Community-Projekten, aber **keine kommerzielle
 Nutzung**. Brewmance ist nicht kommerziell. Mit Werbung oder Bezahlfunktionen wäre das neu zu prüfen.
 
@@ -37,3 +37,10 @@ Ausgewertet am 23.10.2026:
   rund 5 KB pro Commander (2,5 KB gzip). Top 100: 8,9 MB, Top 300: 26 MB.
 - Von den 220 Karten der Krenko-Live-Seite stecken 179 in den CSV-Top-200. Die fehlenden sind seltene Karten mit
   hoher Synergy, die eine Auswahl nach Synergy zusätzlich hereinholen würde.
+
+Umgesetzt (23.10.2026): `scripts/build-recs-snapshot.ts` lädt das Archiv beim Build (eine Anfrage, eine Woche
+gecacht) und dampft es auf eine Datei pro Commander in `data/recs-snapshot/` ein: die 200 meistgespielten Karten
+und bis zu 60 weitere mit hoher Synergy. Fallen EDHRECs Seiten aus, liest `lib/recs/provider.ts` diese Dateien,
+statt nur nach allgemeiner Beliebtheit zu raten. Die selbst berechnete Synergy liegt bei Krenko im Median 0,017
+neben EDHRECs Wert. Schreibweisen derselben Karte (Großbuchstaben, Anführungszeichen) werden zusammengeführt.
+`RECS_SOURCE=off` lädt nichts und löscht den Snapshot.

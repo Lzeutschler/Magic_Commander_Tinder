@@ -44,7 +44,13 @@ pnpm dev
 | `data/tokens.json` | API routes: tokens for the goldfish sandbox (`/api/tokens`) |
 | `public/data/commanders.json` | Client: all legal commanders with themes, tribes, archetypes and set |
 
-The data is rebuilt when it is older than a week; `pnpm data --force` rebuilds it now.
+Then `scripts/build-recs-snapshot.ts` downloads EDHREC's bulk data (`edhrec.com/data/data.tgz`, about
+275 MB, cached in `.cache/edhrec-bulk/`) and condenses it into `data/recs-snapshot/{commander}.json`
+(about 3,300 files, 26 MB): each commander's deck count, its 200 most played cards and up to 60 more with
+high synergy. API routes read these when EDHREC's pages cannot be asked. The step takes about 20 seconds;
+if it fails, the build goes on without the snapshot.
+
+The data is rebuilt when it is older than a week; `pnpm data` rebuilds it now.
 
 Other scripts: `pnpm test` (Vitest), `pnpm test:e2e` (Playwright smoke test; needs network for EDHREC and
 Scryfall, run `pnpm exec playwright install chromium` once; `PORT=3001 pnpm test:e2e` runs it against a dev
@@ -79,7 +85,9 @@ pile). Text and accents meet WCAG AA (text 15.6:1, brand 7.7:1 on the background
 - **[EDHREC](https://edhrec.com)**: per-commander card suggestions with synergy and inclusion,
   filtered by bracket and theme. EDHREC has no official API; the app reads the JSON its own site uses
   (`json.edhrec.com/pages/commanders/{slug}[/{bracket}][/{theme}].json`) through a cached server
-  route and falls back to its own popularity/theme scoring when EDHREC has no data.
+  route. When EDHREC cannot be asked (down, busy or rate limiting us), the suggestions come from a
+  snapshot of EDHREC's bulk data instead (across all brackets, without themes); commanders EDHREC has
+  no data on get the app's own popularity/theme scoring.
   EDHREC allows this under its data policy (at most one request per second, a User-Agent with a contact
   email; see `docs/edhrec-data-policy.md`). Requests to EDHREC are spaced one second apart per server
   instance and during the card database build.
@@ -117,7 +125,7 @@ build command (`pnpm build`, which first downloads the Scryfall bulk data).
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | recommended | Public origin without trailing slash, e.g. `https://brewmance.com`. Used for `metadataBase` (canonical and Open Graph URLs), `robots.txt` and `sitemap.xml`. |
-| `RECS_SOURCE` | no | Where deck statistics come from: `edhrec` (default) or `off`. `off` sends no request to EDHREC, neither at runtime nor in the build, and suggestions fall back to Scryfall popularity, themes and roles. Unknown values count as `off`. |
+| `RECS_SOURCE` | no | Where deck statistics come from: `edhrec` (default) or `off`. `off` sends no request to EDHREC, neither at runtime nor in the build, removes the bulk data snapshot, and suggestions fall back to Scryfall popularity, themes and roles. Unknown values count as `off`. |
 
 Without `NEXT_PUBLIC_SITE_URL`, `lib/site.ts` falls back to Vercel's `VERCEL_PROJECT_PRODUCTION_URL`
 (the production domain, set automatically) and then to `http://localhost:3000`. Set it for Production
