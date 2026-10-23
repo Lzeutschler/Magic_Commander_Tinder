@@ -1,10 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { DeckList } from "@/components/deck/deck-list";
 import { BrewScene } from "@/components/home/brew-scene";
 import { ArrowRightIcon, ManaGlyph, type ManaGlyphName } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import { canonical } from "@/lib/metadata";
 import { SITE } from "@/lib/site";
+
+export const metadata: Metadata = canonical("/");
 
 /** Each feature is drawn like a card: a name bar with its symbol, a rules box and a type line with the action. */
 const FEATURES: { title: string; text: string; href: string; glyph: ManaGlyphName; action: string }[] = [

@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Address, ExternalLink, PageHeader, Prose } from "@/components/legal/prose";
+import { canonical } from "@/lib/metadata";
 import { LEGAL_LAST_UPDATED, OPERATOR, SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Datenschutz / Privacy",
   description: `Privacy policy of ${SITE.name}: no accounts, no cookies, no tracking — what happens to your data.`,
-  alternates: { canonical: "/datenschutz" },
+  ...canonical("/datenschutz"),
 };
 
 const mail = <a href={`mailto:${OPERATOR.email}`}>{OPERATOR.email}</a>;

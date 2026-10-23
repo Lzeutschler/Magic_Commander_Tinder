@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { SwipeScreen } from "@/components/swipe/swipe-screen";
+import { canonical } from "@/lib/metadata";
 
-export const metadata: Metadata = { title: "Swipe" };
+export async function generateMetadata({ params }: PageProps<"/build/[deckId]">): Promise<Metadata> {
+  return { title: "Swipe", ...canonical(`/build/${(await params).deckId}`) };
+}
 
 export default function SwipePage({ params }: PageProps<"/build/[deckId]">) {
   return (

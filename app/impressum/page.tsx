@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Address, ExternalLink, PageHeader, Prose } from "@/components/legal/prose";
+import { canonical } from "@/lib/metadata";
 import { LEGAL_LAST_UPDATED, OPERATOR, SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Impressum",
   description: `Impressum / legal notice of ${SITE.name}, a private non-commercial fan project.`,
-  alternates: { canonical: "/impressum" },
+  ...canonical("/impressum"),
 };
 
 const mail = <a href={`mailto:${OPERATOR.email}`}>{OPERATOR.email}</a>;
