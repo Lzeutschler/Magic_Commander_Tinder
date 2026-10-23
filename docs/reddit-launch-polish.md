@@ -93,7 +93,7 @@ System-Teilen-Menü konnte ich nicht prüfen.
 
 ## P1: den Unterschied zeigen
 
-### 5. Startseite und Vorschaubild: mit dem Unterschied aufmachen (S)
+### 5. Startseite und Vorschaubild: mit dem Unterschied aufmachen (S) ✅
 
 Die Überschrift „Swipe right on your next Commander deck“ und das Open-Graph-Bild (nur Text) erzählen genau
 die Geschichte, die Zwipe schon hat. Vorschlag:
@@ -104,11 +104,20 @@ die Geschichte, die Zwipe schon hat. Vorschlag:
 - **OG-Bild:** Karten-Fächer oder Kessel plus drei kurze Punkte (Balanced · Bracket-aware · Goldfish).
   Auf Reddit ist das Vorschaubild oft das Erste, was jemand sieht.
 
-### 6. Commander-Wahl auf dem Handy: „Start swiping“ liegt zu tief (S)
+Umgesetzt: `SITE.tagline` ist jetzt „Swipe your way to a balanced, bracket-legal Commander deck“ und steht so in
+der Überschrift, im Vorschaubild und im Alt-Text. Unterzeile und `SITE.description` nennen Rollen, Kurve und
+Bracket. Das Vorschaubild hat links Slogan und drei Stichpunkte, rechts einen Fächer aus Atraxa, The Ur-Dragon und
+Edgar Markov. Es wird beim Build einmal gerendert. Die Karten kommen über `scryfallImageDataUrl` mit eigenem
+User-Agent, weil Scryfall Anfragen mit generischem User-Agent ablehnt.
+
+### 6. Commander-Wahl auf dem Handy: „Start swiping“ liegt zu tief (S) ✅
 
 Nach der Wahl des Commanders steht der Start-Button bei etwa 1.900 px, also nach rund 2,3 Bildschirmen
 Scrollen über Kartenbild, fünf Brackets und Themes. Auf dem Handy den Button unten fixieren und das
 Kartenbild kleiner machen.
+
+Umgesetzt: Unterhalb von `sm` ist der Button eine fixierte Leiste am unteren Rand, und das Kartenbild ist 160 statt
+224 px breit. Das gilt auch für den Deckstart aus der Quiz-Shortlist.
 
 ### 7. Quiz-Ergebnis teilbar machen (M)
 
@@ -116,11 +125,15 @@ Kein anderes Quiz hat den Einsteiger-Weg mit Franchises (Herr der Ringe, Final F
 direkte Weiterswipen ins Deck. Ein „My commander match: Sauron, the Dark Lord (96 %)“ mit Bild und Link zum
 Quiz wäre der einfachste Weg, dass Leute es in ihre Pod-Chats weitergeben.
 
-### 8. Feedback-Kanal sichtbar machen (S)
+### 8. Feedback-Kanal sichtbar machen (S) ✅
 
 Feedback geht heute nur per E-Mail, und die Adresse steht versteckt auf der About-Seite. Für den Launch einen
 „Feedback“-Link in Header oder Footer setzen, der zum Reddit-Thread, zu GitHub Issues oder zu einem einfachen
 Formular führt. In der ersten Woche kommt dort das wertvollste Material an.
+
+Umgesetzt: „Feedback“ steht im Header (ab `sm`) und im Footer und öffnet einen Dialog mit „Open an issue on GitHub“
+und „Send an email“. **Nach dem Post** in `lib/site.ts` die Thread-URL bei `FEEDBACK.reddit` eintragen. Dann bietet
+der Dialog „Comment on Reddit“ als ersten Weg an.
 
 ---
 

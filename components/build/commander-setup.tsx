@@ -87,7 +87,7 @@ export function CommanderSetup({
 
   return (
     <section className="panel grid gap-6 p-4 sm:p-6 md:grid-cols-[260px_1fr]">
-      <div className="mx-auto w-56 md:w-full">
+      <div className="mx-auto w-40 sm:w-56 md:w-full">
         <CardImage card={commander} flippable eager />
       </div>
       <div className="space-y-6">
@@ -171,12 +171,15 @@ export function CommanderSetup({
           )}
         </div>
 
-        <Button size="lg" className="w-full sm:w-auto" onClick={start} disabled={!insights.data || starting}>
-          {starting || insights.isLoading ? <CircleNotchIcon className="animate-spin" /> : null}
-          Start swiping
-          <ArrowRightIcon />
-        </Button>
-        {insights.error && <p className="text-sm text-destructive">{insights.error.message}</p>}
+        {/* Phones keep the button at the bottom of the screen while scrolling through brackets and themes. */}
+        <div className="space-y-3 max-sm:sticky max-sm:bottom-0 max-sm:z-10 max-sm:-mx-4 max-sm:border-t max-sm:border-border max-sm:bg-card max-sm:px-4 max-sm:py-3 max-sm:shadow-[0_-6px_16px_oklch(0_0_0/45%)]">
+          <Button size="lg" className="w-full sm:w-auto" onClick={start} disabled={!insights.data || starting}>
+            {starting || insights.isLoading ? <CircleNotchIcon className="animate-spin" /> : null}
+            Start swiping
+            <ArrowRightIcon />
+          </Button>
+          {insights.error && <p className="text-sm text-destructive">{insights.error.message}</p>}
+        </div>
       </div>
     </section>
   );

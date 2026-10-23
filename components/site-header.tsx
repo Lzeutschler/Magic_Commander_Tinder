@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { Button } from "@/components/ui/button";
 import { SITE } from "@/lib/site";
 
-import { BrandMark } from "./icons";
+import { FeedbackDialog } from "./feedback-dialog";
+import { BrandMark, ChatCircleTextIcon } from "./icons";
 import { ActiveNav, Nav } from "./site-nav";
 
 export function SiteHeader() {
@@ -23,6 +25,12 @@ export function SiteHeader() {
         <Suspense fallback={<Nav pathname={null} />}>
           <ActiveNav />
         </Suspense>
+        {/* Phones find it in the footer; the header has no room next to the four nav links. */}
+        <FeedbackDialog>
+          <Button variant="ghost" size="sm" className="ml-auto text-muted-foreground max-sm:hidden">
+            <ChatCircleTextIcon /> Feedback
+          </Button>
+        </FeedbackDialog>
       </div>
     </header>
   );

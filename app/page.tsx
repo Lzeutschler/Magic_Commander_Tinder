@@ -21,7 +21,7 @@ const FEATURES: { title: string; text: string; href: string; glyph: ManaGlyphNam
   },
   {
     title: "Deck Matchmaker",
-    text: "Pick a commander and bracket, then swipe through cards. Curve, ramp, draw and removal stay balanced.",
+    text: "Pick a commander and bracket, then swipe through cards. Curve, ramp, draw and removal stay balanced, and the deck stays in its bracket.",
     href: "/build",
     glyph: "creature",
     action: "Start a deck",
@@ -41,10 +41,22 @@ export default function HomePage() {
       {/* Clipped sideways: the swiped-right cards fly out of the scene. */}
       <section className="grid items-center gap-10 overflow-x-clip md:grid-cols-[1.2fr_1fr]">
         <div className="space-y-6">
-          <h1 className="text-5xl leading-[0.95] font-extrabold sm:text-7xl">{SITE.tagline}</h1>
+          <h1 className="text-5xl leading-[0.95] font-extrabold sm:text-6xl">
+            {/* Hyphenated words such as "bracket-legal" stay on one line. */}
+            {SITE.tagline.split(/(\S+-\S+)/).map((part, i) =>
+              i % 2 ? (
+                <span key={i} className="whitespace-nowrap">
+                  {part}
+                </span>
+              ) : (
+                part
+              ),
+            )}
+          </h1>
           <p className="max-w-xl text-lg text-muted-foreground">
-            A deckbuilding companion for Magic: The Gathering Commander. Choose a commander and a power level, then
-            swipe right on the cards you love — we keep the deck playable while you have fun.
+            Pick a commander and a bracket, then swipe right on the cards you love. Ramp, draw, removal and the mana
+            curve stay on target, and Game Changers and two-card combos stay within your bracket. Then goldfish the
+            deck right here: free, no account.
           </p>
           <div className="flex flex-wrap gap-3">
             <Button size="lg" nativeButton={false} render={<Link href="/build" />}>
