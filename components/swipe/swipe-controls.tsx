@@ -87,7 +87,8 @@ export function useSwipeKeys(onDecision: (decision: SwipeDecision) => void, onUn
   });
 }
 
-function RoundButton({
+/** A round, raised button with a tooltip, as under every swipe stack. */
+export function RoundButton({
   label,
   className,
   children,

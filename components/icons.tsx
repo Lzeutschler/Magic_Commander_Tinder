@@ -3,6 +3,7 @@ import {
   ArrowCounterClockwiseIcon as ArrowCounterClockwiseBase,
   ArrowLeftIcon as ArrowLeftBase,
   ArrowRightIcon as ArrowRightBase,
+  ArrowUpIcon as ArrowUpBase,
   ArrowUpRightIcon as ArrowUpRightBase,
   ArrowsClockwiseIcon as ArrowsClockwiseBase,
   ArrowUUpLeftIcon as ArrowUUpLeftBase,
@@ -62,6 +63,7 @@ function bold(Base: Icon, name: string) {
 export const ArrowCounterClockwiseIcon = bold(ArrowCounterClockwiseBase, "ArrowCounterClockwiseIcon");
 export const ArrowLeftIcon = bold(ArrowLeftBase, "ArrowLeftIcon");
 export const ArrowRightIcon = bold(ArrowRightBase, "ArrowRightIcon");
+export const ArrowUpIcon = bold(ArrowUpBase, "ArrowUpIcon");
 export const ArrowUpRightIcon = bold(ArrowUpRightBase, "ArrowUpRightIcon");
 export const ArrowsClockwiseIcon = bold(ArrowsClockwiseBase, "ArrowsClockwiseIcon");
 export const ArrowUUpLeftIcon = bold(ArrowUUpLeftBase, "ArrowUUpLeftIcon");

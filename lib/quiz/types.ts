@@ -4,7 +4,7 @@ import type { ArchetypeId } from "@/lib/tagging/archetypes";
 import type { FranchiseId } from "./franchises";
 
 export type Track = "beginner" | "advanced";
-export type Tempo = "fast" | "midrange" | "slow" | "reactive";
+export type Tempo = "fast" | "midrange" | "slow";
 export type Complexity = "simple" | "medium" | "complex";
 export type ColorCount = "mono" | "two" | "three-plus";
 /** How the commander stack weighs popularity; switchable while swiping. */
@@ -39,26 +39,46 @@ export interface AnswerOption {
   art?: string;
   /** Mana symbol shown instead of (or on top of) art, e.g. "W". */
   symbol?: string;
-  /** Picking it clears the other answers, e.g. "No preference". */
+  /** Answers "none of these" for the whole question: never a card or tile of its own, a gate's "no" picks it. */
   exclusive?: boolean;
   effect: AnswerEffect;
 }
 
+/** How a question is put to the player as swipe cards. */
+export type QuestionCard =
+  /** One yes/no card per answer, the best fit for the answers so far first, until `max` yeses or `limit` cards. */
+  | { kind: "yesno"; limit?: number }
+  /** One card with two answers side by side: swipe toward one, or up for the one in between. */
+  | { kind: "versus"; left: string; right: string; middle?: string }
+  /** One card of small tiles to tap, for long lists. A gate first asks whether the question matters at all. */
+  | { kind: "pick"; gate?: { title: string; description: string; art: string } };
+
 export interface Question {
   id: string;
   title: string;
-  subtitle: string;
-  /** Maximum number of answers; 1 means single choice that advances on click. */
+  /** A short hint on pick cards. */
+  subtitle?: string;
+  /** Maximum number of answers. */
   max: number;
-  /** Multi-choice questions may be skipped with no answer. */
-  optional?: boolean;
+  card: QuestionCard;
   options: AnswerOption[];
-  /** A second, smaller single-choice row on the same screen. */
-  followUp?: Omit<Question, "followUp">;
+  /** A row of single-choice chips under the tiles of a pick card. */
+  followUp?: Omit<Question, "followUp" | "card">;
 }
 
 /** Picked option ids per question id. */
 export type Answers = Record<string, string[]>;
+
+/** How a quiz card was answered: yes/no and gates, the sides of a versus card, done or skip on a pick card. */
+export type QuizChoice = "yes" | "no" | "left" | "right" | "middle" | "done" | "skip";
+
+/** One answered quiz card. The quiz answers are all swipes' answers added up in order. */
+export interface QuizSwipe {
+  card: string;
+  question: string;
+  choice: QuizChoice;
+  answers: Answers;
+}
 
 export interface QuizProfile {
   track: Track;

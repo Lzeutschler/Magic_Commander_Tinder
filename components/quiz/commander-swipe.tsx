@@ -19,13 +19,13 @@ import { identityName } from "@/lib/cards/colors";
 import { cardImageUrl } from "@/lib/cards/image";
 import type { SwipeDecision } from "@/lib/deckbuilder/session";
 import { edhrecCommanderUrl } from "@/lib/edhrec/links";
+import { pickedOptions } from "@/lib/quiz/deck";
 import { FRANCHISE_LABELS, franchiseOf } from "@/lib/quiz/franchises";
-import { QUESTIONS } from "@/lib/quiz/questions";
 import { topArchetypes } from "@/lib/quiz/scoring";
 import type { PopularityMode, ScoredCommander, Track } from "@/lib/quiz/types";
 import { ARCHETYPE_LABELS } from "@/lib/tagging/archetypes";
 import { cn } from "@/lib/utils";
-import { useQuizStore } from "@/stores/quiz";
+import { useQuizAnswers, useQuizStore } from "@/stores/quiz";
 
 import { matchPercent, useQuizRanking } from "./use-quiz-ranking";
 
@@ -226,35 +226,35 @@ function PopularityToggle() {
 }
 
 function AnswerSummary({ track }: { track: Track }) {
-  const answers = useQuizStore((s) => s.answers);
-  const goToStep = useQuizStore((s) => s.goToStep);
+  const answers = useQuizAnswers();
+  const reviseQuestion = useQuizStore((s) => s.reviseQuestion);
   const restart = useQuizStore((s) => s.restart);
-  const questions = QUESTIONS[track];
+  const picked = pickedOptions(track, answers);
+  const revise = (questionId: string) => {
+    window.scrollTo({ top: 0 });
+    reviseQuestion(questionId);
+  };
 
   return (
     <div className="panel space-y-4 p-5">
       <h2 className="ui-label text-muted-foreground">Your answers</h2>
       <ul className="space-y-2.5 text-sm">
-        {questions.map((q, i) => {
-          const labels = (answers[q.id] ?? []).map((id) => q.options.find((o) => o.id === id)?.label).filter(Boolean);
-          const followUp = q.followUp && answers[q.followUp.id]?.[0];
-          const followUpLabel = followUp ? q.followUp!.options.find((o) => o.id === followUp)?.label : null;
-          return (
-            <li key={q.id}>
-              <button type="button" onClick={() => goToStep(i)} className="group -mx-2 w-[calc(100%+1rem)] rounded-md px-2 py-1 text-left hover:bg-accent">
-                <div className="ui-label text-muted-foreground group-hover:text-foreground">{q.title}</div>
-                <div className="text-foreground/90">
-                  {labels.length ? labels.join(", ") : "No preference"}
-                  {followUpLabel && followUpLabel !== "Any" ? ` · ${followUpLabel}` : ""}
-                </div>
-              </button>
-            </li>
-          );
-        })}
+        {picked.map(({ question, options }) => (
+          <li key={question.id}>
+            <button
+              type="button"
+              onClick={() => revise(question.id)}
+              className="group -mx-2 w-[calc(100%+1rem)] rounded-md px-2 py-1 text-left hover:bg-accent"
+            >
+              <div className="ui-label text-muted-foreground group-hover:text-foreground">{question.title}</div>
+              <div className="text-foreground/90">{options.length ? options.map((o) => o.label).join(", ") : "No preference"}</div>
+            </button>
+          </li>
+        ))}
       </ul>
       <div className="flex flex-col gap-2">
-        <Button variant="outline" onClick={() => goToStep(0)}>
-          <NotePencilIcon /> Change answers
+        <Button variant="outline" onClick={() => revise(picked[0].question.id)}>
+          <NotePencilIcon /> Swipe the questions again
         </Button>
         <Button variant="ghost" onClick={restart} className="text-muted-foreground">
           <ArrowCounterClockwiseIcon /> Start over

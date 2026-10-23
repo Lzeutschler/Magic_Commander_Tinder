@@ -70,21 +70,38 @@ async function answerAdvancedQuiz(page: Page) {
   await page.getByRole("button", { name: /I know my way around/ }).click();
   await expect(page.getByTestId("quiz-progress")).toHaveText("1 / 7");
 
-  await page.getByRole("button", { name: /Death by a thousand cuts/ }).click();
-  await page.getByRole("button", { name: "Next", exact: true }).click();
-  await page.getByRole("button", { name: /The graveyard/ }).click();
-  await page.getByRole("button", { name: "Next", exact: true }).click();
-  // Single-choice questions advance on click.
-  await page.getByRole("button", { name: /Punish everything/ }).click();
+  // The newest card is the last one; the one before may still be flying off.
+  const card = page.getByTestId("quiz-card").last();
+  const swipe = async (id: string, answer: "Yes (→)" | "No (←)") => {
+    await expect(card).toHaveAttribute("data-card", id);
+    await page.getByRole("button", { name: answer }).click();
+  };
+  const pick = async (id: string, tiles: RegExp[]) => {
+    await expect(card).toHaveAttribute("data-card", id);
+    for (const tile of tiles) await card.getByRole("button", { name: tile }).click();
+  };
+
+  await swipe("win:army", "No (←)");
+  await swipe("win:champion", "No (←)");
+  await swipe("win:drain", "Yes (→)");
+  for (const id of ["win:giants", "win:combo", "win:mill"]) await swipe(id, "No (←)");
+  await pick("engine", [/The graveyard/]);
+  await page.getByRole("button", { name: "Done (→)" }).click();
+  // Draining the table makes punishing it the first table card.
+  await swipe("table:punish", "Yes (→)");
+  await expect(card).toHaveAttribute("data-card", "tempo");
   await page.getByRole("button", { name: /Build an engine/ }).click();
+  await expect(card).toHaveAttribute("data-card", "complexity");
   await page.getByRole("button", { name: /Some decisions/ }).click();
-  await page.getByRole("button", { name: /White/ }).click();
-  await page.getByRole("button", { name: /Black/ }).click();
-  await page.getByRole("radio", { name: "Two" }).click();
-  await page.getByRole("button", { name: "Next", exact: true }).click();
-  await expect(page.getByTestId("quiz-progress")).toHaveText("7 / 7");
-  await page.getByRole("button", { name: /Vampires/ }).click();
-  await page.getByRole("button", { name: "Show my commanders" }).click();
+  await pick("colors", [/White/, /Black/]);
+  await card.getByRole("radio", { name: "2 colors" }).click();
+  await page.getByRole("button", { name: "Done (→)" }).click();
+  await swipe("tribe:gate", "Yes (→)");
+  await pick("tribe", [/Vampires/]);
+  await page.getByRole("button", { name: "Done (→)" }).click();
+
+  await expect(page.getByRole("heading", { name: "It's a match!" })).toBeVisible();
+  await page.getByRole("button", { name: "Meet your commanders" }).click({ timeout: 30_000 });
 }
 
 // Quiz: advanced track → commander swipe → shortlist → deckbuilding swipe.

@@ -5,9 +5,10 @@ import { motion, useMotionValue, useTransform, type MotionValue, type PanInfo } 
 import { CardImage } from "@/components/card/card-image";
 import type { CardDisplay } from "@/lib/cards/types";
 import type { SwipeDecision } from "@/lib/deckbuilder/session";
+import { cn } from "@/lib/utils";
 
-const SWIPE_DISTANCE = 110;
-const SWIPE_VELOCITY = 600;
+export const SWIPE_DISTANCE = 110;
+export const SWIPE_VELOCITY = 600;
 
 const exitVariants = {
   enter: { opacity: 0, scale: 0.9, y: 24 },
@@ -66,7 +67,8 @@ export function SwipeCard({
   );
 }
 
-function Stamp({
+/** PICK, PASS or MAYBE on a card, fading in with the drag. */
+export function Stamp({
   label,
   className,
   opacity,
@@ -78,7 +80,7 @@ function Stamp({
   return (
     <motion.span
       style={{ opacity }}
-      className={`pointer-events-none absolute rounded-lg border-4 bg-black/50 px-3 py-1 font-heading text-3xl font-bold tracking-widest ${className}`}
+      className={cn("pointer-events-none absolute rounded-lg border-4 bg-black/50 px-3 py-1 font-heading text-3xl font-bold tracking-widest", className)}
     >
       {label}
     </motion.span>
