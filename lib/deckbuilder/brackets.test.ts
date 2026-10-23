@@ -31,7 +31,7 @@ describe("two-card combos and brackets", () => {
   it("rejects a card that completes a forbidden combo and reports combos in finished decks", () => {
     const monolith = spell("Basalt Monolith", 3);
     const combos = [combo(["Kinnan, Bonder Prodigy", "Basalt Monolith"], 5, "R")];
-    const context = { commander: "Kinnan, Bonder Prodigy", combos };
+    const context = { commanders: ["Kinnan, Bonder Prodigy"], combos };
     expect(bracketViolation(monolith, [], 3, context)).toMatch(/early two-card combo with Kinnan/);
     expect(bracketViolation(monolith, [], 4, context)).toBeNull();
     expect(deckBracketIssues([monolith], 2, context)).toEqual(["Two-card combo: Kinnan, Bonder Prodigy + Basalt Monolith"]);

@@ -25,6 +25,8 @@ export type CurveProfile = "low" | "balanced" | "high";
 export const CURVE_PROFILES: CurveProfile[] = ["low", "balanced", "high"];
 
 export interface DeckTemplate {
+  /** Cards besides the commanders: 99, or 98 with a partner. */
+  size: number;
   lands: number;
   /** How many of the lands should be nonbasic before basics fill the rest. */
   nonbasicLands: number;
@@ -92,7 +94,12 @@ const NONBASIC_BONUS: Record<Bracket, number> = { 1: 0, 2: 0, 3: 0, 4: 4, 5: 6 }
 const EDHREC_BLEND = 0.5;
 
 /** The recommended template: bracket defaults, adjusted towards what this commander's decks play. */
-export function recommendTemplate(bracket: Bracket, colors: readonly Color[], profile: PoolProfile | null): DeckTemplate {
+export function recommendTemplate(
+  bracket: Bracket,
+  colors: readonly Color[],
+  profile: PoolProfile | null,
+  size: number = DECK_SIZE,
+): DeckTemplate {
   const base = ROLE_TARGETS[bracket];
   const roles = { ...base };
   if (profile) {
@@ -116,12 +123,13 @@ export function recommendTemplate(bracket: Bracket, colors: readonly Color[], pr
         : "balanced";
 
   return {
+    size,
     lands,
     nonbasicLands: Math.min(lands, NONBASICS_BY_COLORS[colors.length] + NONBASIC_BONUS[bracket]),
     roles,
     maxTutors: MAX_TUTORS[bracket],
     curveProfile,
-    curve: curveTargets(bracket, curveProfile, DECK_SIZE - lands),
+    curve: curveTargets(bracket, curveProfile, size - lands),
   };
 }
 
@@ -136,9 +144,11 @@ export interface TemplateOverrides {
 }
 
 export function applyOverrides(recommended: DeckTemplate, overrides: TemplateOverrides, bracket: Bracket): DeckTemplate {
-  const lands = clamp(overrides.lands ?? recommended.lands, 0, DECK_SIZE);
+  const size = recommended.size;
+  const lands = clamp(overrides.lands ?? recommended.lands, 0, size);
   const curveProfile = overrides.curveProfile ?? recommended.curveProfile;
   return {
+    size,
     lands,
     nonbasicLands: clamp(overrides.nonbasicLands ?? recommended.nonbasicLands, 0, lands),
     roles: { ...recommended.roles, ...overrides.roles },
@@ -147,7 +157,7 @@ export function applyOverrides(recommended: DeckTemplate, overrides: TemplateOve
     curve:
       lands === recommended.lands && curveProfile === recommended.curveProfile
         ? recommended.curve
-        : curveTargets(bracket, curveProfile, DECK_SIZE - lands),
+        : curveTargets(bracket, curveProfile, size - lands),
   };
 }
 

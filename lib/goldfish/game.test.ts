@@ -94,7 +94,20 @@ describe("goldfish game", () => {
     const commanderId = game.zones.command[0];
     game = moveCard(game, commanderId, "battlefield");
     game = moveCard(game, commanderId, "command");
-    expect(commanderTax(game)).toBe(2);
+    expect(commanderTax(game, commanderId)).toBe(2);
+  });
+
+  it("puts both commanders of a pair in the command zone, each with its own tax", () => {
+    const partner = card({ name: "Raised by Giants", typeLine: "Legendary Enchantment — Background" });
+    let game = keepHand(newGame({ ...deck, partner }, 1));
+    const [first, second] = game.zones.command;
+    expect(game.zones.command).toHaveLength(2);
+    expect(game.cards[second].card.name).toBe("Raised by Giants");
+    expect(game.cards[second].isCommander).toBe(true);
+    game = moveCard(game, second, "battlefield");
+    expect(commanderTax(game, first)).toBe(0);
+    expect(commanderTax(game, second)).toBe(2);
+    expect(totalCards(game)).toBe(101);
   });
 
   it("untaps and draws on the next turn", () => {

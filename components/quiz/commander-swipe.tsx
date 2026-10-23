@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { identityName } from "@/lib/cards/colors";
 import { cardImageUrl } from "@/lib/cards/image";
+import { pairingLabel } from "@/lib/cards/pairing";
 import type { SwipeDecision } from "@/lib/deckbuilder/session";
 import { edhrecCommanderUrl } from "@/lib/edhrec/links";
 import { pickedOptions } from "@/lib/quiz/deck";
@@ -151,6 +152,7 @@ export function CommanderSwipe({ track }: { track: Track }) {
 function WhyThisFits({ scored, topScore }: { scored: ScoredCommander; topScore: number }) {
   const { commander, reasons } = scored;
   const franchise = franchiseOf(commander.set);
+  const pairing = pairingLabel(commander);
   return (
     <div className="panel space-y-4 p-5">
       <div className="flex items-start justify-between gap-3">
@@ -171,9 +173,9 @@ function WhyThisFits({ scored, topScore }: { scored: ScoredCommander; topScore: 
             {identityName(commander.colorIdentity)}
           </div>
           {commander.edhrecDecks !== null ? (
-            <EdhrecLink href={edhrecCommanderUrl(commander.name)}>{commander.edhrecDecks.toLocaleString("en-US")} decks on EDHREC</EdhrecLink>
+            <EdhrecLink href={edhrecCommanderUrl([commander])}>{commander.edhrecDecks.toLocaleString("en-US")} decks on EDHREC</EdhrecLink>
           ) : (
-            <EdhrecLink href={edhrecCommanderUrl(commander.name)}>On EDHREC</EdhrecLink>
+            <EdhrecLink href={edhrecCommanderUrl([commander])}>On EDHREC</EdhrecLink>
           )}
         </div>
       </div>
@@ -195,7 +197,7 @@ function WhyThisFits({ scored, topScore }: { scored: ScoredCommander; topScore: 
           </Badge>
         ))}
         {franchise !== "magic" && <Badge>{FRANCHISE_LABELS[franchise]}</Badge>}
-        {commander.partner && <Badge variant="outline">Partner</Badge>}
+        {pairing && <Badge variant="outline">{pairing}</Badge>}
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import { Suspense } from "react";
 
 import { BrewLoader } from "@/components/cauldron";
 import { SharedDeckView } from "@/components/deck/shared-deck-view";
-import { frontFaceName } from "@/lib/cards/names";
+import { commandZone, commanderTitle } from "@/lib/decks/command-zone";
 import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
 import { deckCount } from "@/lib/decks/stats";
 import { OPEN_GRAPH } from "@/lib/metadata";
@@ -19,8 +19,8 @@ export async function generateMetadata({ params }: PageProps<"/d/[code]">): Prom
 
   const title = `${deck.name} · Bracket ${deck.bracket} Commander deck`;
   const description =
-    `${frontFaceName(deck.commander.name)}, bracket ${deck.bracket} (${BRACKET_INFO[deck.bracket].name}), ` +
-    `${deckCount(deck.entries) + 1} cards. Brewed with ${SITE.name}: see the list, goldfish it or keep a copy.`;
+    `${commanderTitle(deck)}, bracket ${deck.bracket} (${BRACKET_INFO[deck.bracket].name}), ` +
+    `${deckCount(deck.entries) + commandZone(deck).length} cards. Brewed with ${SITE.name}: see the list, goldfish it or keep a copy.`;
   return {
     title,
     description,

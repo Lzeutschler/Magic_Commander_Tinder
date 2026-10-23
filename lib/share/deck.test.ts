@@ -32,12 +32,24 @@ describe("shared deck codes", () => {
       bracket: 2,
       theme: "tokens",
       commander: "Krenko, Mob Boss",
+      partner: null,
       cards: [
         { name: "Fable of the Mirror-Breaker // Reflection of Kiki-Jiki", quantity: 1 },
         { name: "Mountain", quantity: 30 },
         { name: "Sol Ring", quantity: 1 },
       ],
     });
+  });
+
+  it("carry a partner", async () => {
+    const decoded = await decodeSharedDeck(await encodeSharedDeck({ ...deck, partner: card({ name: "Raised by Giants" }) }));
+    expect(decoded?.partner).toBe("Raised by Giants");
+    expect(decoded?.cards).toHaveLength(3);
+  });
+
+  it("still open links made before partners", async () => {
+    const decoded = await decodeSharedDeck(await rawCode("1\n2\n\nGoblins\nKrenko, Mob Boss\nSol Ring\n30\tMountain"));
+    expect(decoded).toMatchObject({ commander: "Krenko, Mob Boss", partner: null, cards: [{ name: "Sol Ring", quantity: 1 }, { name: "Mountain", quantity: 30 }] });
   });
 
   it("keep a deck without a theme", async () => {
@@ -49,7 +61,7 @@ describe("shared deck codes", () => {
     expect(await decodeSharedDeck("")).toBeNull();
     expect(await decodeSharedDeck("not a code!")).toBeNull();
     expect(await decodeSharedDeck("AAAA")).toBeNull();
-    expect(await decodeSharedDeck(await rawCode("2\n3\n\nDeck\nKrenko, Mob Boss\nSol Ring"))).toBeNull();
+    expect(await decodeSharedDeck(await rawCode("3\n3\n\nDeck\nKrenko, Mob Boss\nSol Ring"))).toBeNull();
     expect(await decodeSharedDeck(await rawCode("1\n9\n\nDeck\nKrenko, Mob Boss\nSol Ring"))).toBeNull();
     expect(await decodeSharedDeck(await rawCode("1\n3\n\nDeck\nKrenko, Mob Boss\n0\tSol Ring"))).toBeNull();
   });

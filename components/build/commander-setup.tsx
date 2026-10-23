@@ -11,7 +11,8 @@ import { ArrowRightIcon, CaretDownIcon, CircleNotchIcon, SlidersHorizontalIcon, 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { identityName } from "@/lib/cards/colors";
+import { identityName, sortColors } from "@/lib/cards/colors";
+import { takesSecondCommander } from "@/lib/cards/pairing";
 import type { CommanderSummary } from "@/lib/cards/types";
 import { fetchCandidatePool, useCommanderInsights } from "@/lib/data/client";
 import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
@@ -25,6 +26,7 @@ import { useDeckStore } from "@/stores/decks";
 
 import { BracketPicker } from "./bracket-picker";
 import { DeckSettingsForm } from "./deck-settings-form";
+import { PartnerPicker } from "./partner-picker";
 
 const MAX_THEMES = 12;
 /** The lowest budget step: a deck of cards that cost a dollar or less. */
@@ -32,8 +34,8 @@ const CHEAP_OUT = 1;
 const THEME_LABELS = new Map(THEMES.map((t) => [t.id, t.label]));
 
 /**
- * The chosen commander with bracket and EDHREC theme pickers. Starting creates the deck and opens
- * the deckbuilding swipe. `children` render below the commander's name, e.g. why it was suggested.
+ * The chosen commander with partner, bracket and EDHREC theme pickers. Starting creates the deck and
+ * opens the deckbuilding swipe. `children` render below the commander's name, e.g. why it was suggested.
  */
 export function CommanderSetup({
   commander,
@@ -52,12 +54,21 @@ export function CommanderSetup({
   const router = useRouter();
   const createDeck = useDeckStore((s) => s.createDeck);
   const [bracket, setBracket] = useState<Bracket>(2);
-  // The theme belongs to one commander; choosing another commander resets it.
-  const [themeChoice, setThemeChoice] = useState<{ commanderId: string; slug: string | null } | null>(null);
-  const theme = themeChoice?.commanderId === commander.id ? themeChoice.slug : null;
-  const setTheme = (slug: string | null) => setThemeChoice({ commanderId: commander.id, slug });
+  // The partner belongs to one commander, the theme to one pair; choosing another commander or partner resets it.
+  const [partnerChoice, setPartnerChoice] = useState<{ commanderId: string; partner: CommanderSummary | null } | null>(null);
+  const partner = partnerChoice?.commanderId === commander.id ? partnerChoice.partner : null;
+  const zoneId = `${commander.id}+${partner?.id ?? ""}`;
+  const [themeChoice, setThemeChoice] = useState<{ zoneId: string; slug: string | null } | null>(null);
+  const theme = themeChoice?.zoneId === zoneId ? themeChoice.slug : null;
+  const setTheme = (slug: string | null) => setThemeChoice({ zoneId, slug });
   const [starting, setStarting] = useState(false);
-  const insights = useCommanderInsights(commander.name);
+  const takesPartner = takesSecondCommander(commander);
+  // The lone commander's insights list its pairings; the pair's own insights hold the themes and deck counts.
+  const soloInsights = useCommanderInsights(commander.name);
+  const insights = useCommanderInsights(commander.name, partner?.name ?? null);
+  const zone = partner ? [commander, partner] : [commander];
+  const identity = useMemo(() => sortColors([...commander.colorIdentity, ...(partner?.colorIdentity ?? [])]), [commander, partner]);
+  const size = partner ? 98 : 99;
 
   // Swipe settings start from the preferences used last and, like the theme, belong to one commander.
   const lastPreferences = useDeckStore((s) => s.lastPreferences);
@@ -69,15 +80,16 @@ export function CommanderSetup({
 
   // The recommendation needs the candidate pool; the swipe reuses this query once it starts.
   const commanderName = insights.data?.commander.name ?? null;
+  const partnerName = insights.data?.partner?.name ?? null;
   const pool = useQuery({
-    queryKey: ["candidates", commanderName, bracket, theme],
-    queryFn: () => fetchCandidatePool(commanderName!, bracket, theme),
+    queryKey: ["candidates", commanderName, partnerName, bracket, theme],
+    queryFn: () => fetchCandidatePool(commanderName!, partnerName, bracket, theme),
     enabled: advancedOpen && Boolean(commanderName),
     staleTime: Infinity,
   });
   const recommended = useMemo(
-    () => (pool.data ? recommendTemplate(bracket, commander.colorIdentity, profilePool(pool.data)) : null),
-    [pool.data, bracket, commander.colorIdentity],
+    () => (pool.data ? recommendTemplate(bracket, identity, profilePool(pool.data), size) : null),
+    [pool.data, bracket, identity, size],
   );
   // The budget has its own control above, so the summary of the advanced settings leaves it out.
   const settingsNotes = describeSettings(settings, { budget: false });
@@ -87,33 +99,40 @@ export function CommanderSetup({
   const start = () => {
     if (!insights.data) return;
     setStarting(true);
-    const id = createDeck({ commander: insights.data.commander, bracket, theme, settings, recommendation: recommended ?? undefined });
+    const id = createDeck({
+      commander: insights.data.commander,
+      partner: insights.data.partner,
+      bracket,
+      theme,
+      settings,
+      recommendation: recommended ?? undefined,
+    });
     onStart?.(id);
     router.push(`/build/${id}`);
   };
 
   return (
     <section className="panel grid gap-6 p-4 sm:p-6 md:grid-cols-[260px_1fr]">
-      <div className="mx-auto w-40 sm:w-56 md:w-full">
+      <div className={cn("mx-auto grid gap-3", partner ? "w-72 grid-cols-2 sm:w-96 md:w-full md:grid-cols-1" : "w-40 sm:w-56 md:w-full")}>
         <CardImage card={commander} flippable eager />
+        {partner && <CardImage card={partner} flippable eager />}
       </div>
-      <div className="space-y-6">
+      <div className="min-w-0 space-y-6">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
             <h2 className="text-3xl leading-tight font-bold">{commander.name}</h2>
+            {partner && <p className="text-xl leading-tight font-semibold">& {partner.name}</p>}
             <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-              <ColorIdentity colors={commander.colorIdentity} />
-              {identityName(commander.colorIdentity)} · {commander.typeLine}
+              <ColorIdentity colors={identity} />
+              {identityName(identity)}
+              {!partner && ` · ${commander.typeLine}`}
             </p>
             {insights.data && insights.data.deckCount > 0 && (
               <p className="text-xs text-muted-foreground">
-                <EdhrecLink href={edhrecCommanderUrl(commander.name, bracket, theme)}>
+                <EdhrecLink href={edhrecCommanderUrl(zone, bracket, theme)}>
                   {insights.data.deckCount.toLocaleString()} decks on EDHREC
                 </EdhrecLink>
               </p>
-            )}
-            {commander.partner && (
-              <p className="text-xs text-brand">Partner and background pairings are coming later — you can build it solo for now.</p>
             )}
           </div>
           <Button variant="ghost" size="icon" onClick={onClose} aria-label={closeLabel}>
@@ -121,6 +140,16 @@ export function CommanderSetup({
           </Button>
         </div>
         {children}
+
+        {takesPartner && (
+          <PartnerPicker
+            commander={commander}
+            partner={partner}
+            pairings={soloInsights.data?.pairings ?? []}
+            loading={soloInsights.isLoading}
+            onChange={(next) => setPartnerChoice({ commanderId: commander.id, partner: next })}
+          />
+        )}
 
         <div className="space-y-3">
           <h3 className="ui-label text-muted-foreground">Bracket</h3>
@@ -173,7 +202,7 @@ export function CommanderSetup({
           <p className="text-sm text-muted-foreground">
             {budget === null
               ? "Any card can show up, whatever it costs."
-              : `Only cards up to $${budget} show up, so the 99 cost at most about $${(budget * 99).toLocaleString("en-US")}. Cards without a price stay in.`}
+              : `Only cards up to $${budget} show up, so the ${size} cost at most about $${(budget * size).toLocaleString("en-US")}. Cards without a price stay in.`}
           </p>
         </div>
 

@@ -2,6 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 
+import { asPairable, canPair } from "@/lib/cards/pairing";
 import type { Card } from "@/lib/cards/types";
 import { decodeSharedDeck } from "@/lib/share/deck";
 import type { DeckEntry } from "@/lib/decks/types";
@@ -14,6 +15,7 @@ export interface ResolvedSharedDeck {
   bracket: Bracket;
   theme: string | null;
   commander: Card;
+  partner?: Card;
   entries: DeckEntry[];
   /** Names in the link that are not in our card database (renamed or not Commander-legal). */
   missing: string[];
@@ -29,6 +31,8 @@ export const loadSharedDeck = cache(async (code: string): Promise<ResolvedShared
   const db = await getCardDb();
   const commander = findCard(db, shared.commander);
   if (!commander) return null;
+  const partner = shared.partner ? findCard(db, shared.partner) : undefined;
+  if (partner && !canPair(asPairable(commander), asPairable(partner))) return null;
 
   const entries = new Map<string, DeckEntry>();
   const missing: string[] = [];
@@ -40,5 +44,13 @@ export const loadSharedDeck = cache(async (code: string): Promise<ResolvedShared
     }
     entries.set(card.id, { card, quantity: (entries.get(card.id)?.quantity ?? 0) + quantity });
   }
-  return { name: shared.name, bracket: shared.bracket, theme: shared.theme, commander, entries: [...entries.values()], missing };
+  return {
+    name: shared.name,
+    bracket: shared.bracket,
+    theme: shared.theme,
+    commander,
+    ...(partner && { partner }),
+    entries: [...entries.values()],
+    missing,
+  };
 });

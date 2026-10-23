@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { COLORS } from "@/lib/cards/colors";
 import { nameKey } from "@/lib/cards/names";
+import { isBackground } from "@/lib/cards/pairing";
 import type { Color, CommanderSummary } from "@/lib/cards/types";
 import { useCommanders } from "@/lib/data/client";
 import { cn } from "@/lib/utils";
@@ -45,7 +46,8 @@ export function CommanderPicker({
   const results = useMemo(() => {
     const tokens = searchText(deferredQuery).split(" ").filter(Boolean);
     return (commanders ?? []).filter((c) => {
-      if (!matchesColors(c, colors)) return false;
+      // Backgrounds join a commander that chooses one, from its setup.
+      if (isBackground(c) || !matchesColors(c, colors)) return false;
       const haystack = searchText(`${c.name} ${c.typeLine}`);
       return tokens.every((t) => haystack.includes(t));
     });

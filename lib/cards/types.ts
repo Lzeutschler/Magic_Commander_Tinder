@@ -1,5 +1,7 @@
 import type { ArchetypeId } from "@/lib/tagging/archetypes";
 
+import type { Pairing } from "./pairing";
+
 export type Color = "W" | "U" | "B" | "R" | "G";
 
 /** Functional roles a card can fill in a deck, derived from Scryfall Tagger oracle tags. */
@@ -51,13 +53,6 @@ export interface TokenCard {
   image: CardImage | null;
 }
 
-export type PartnerKind =
-  | "partner"
-  | "partner-with"
-  | "friends-forever"
-  | "background"
-  | "doctors-companion";
-
 /** What it takes to draw a card; without an image, the rules text (when known) fills the face. */
 export type CardDisplay = Pick<Card, "name" | "image" | "manaCost" | "typeLine"> & { oracleText?: string };
 
@@ -84,7 +79,8 @@ export interface CommanderSummary {
   tribes: string[];
   /** The commander's own creature types. */
   creatureTypes: string[];
-  partner: PartnerKind | null;
+  /** Abilities that let it share the command zone; Backgrounds are listed too but cannot lead a deck. */
+  pairings: Pairing[];
   /** Total EDHREC decks, known for the most popular commanders of each color identity. */
   edhrecDecks: number | null;
   /** EDHREC decks per archetype, for commanders among a theme's top commanders. */

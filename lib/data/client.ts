@@ -24,16 +24,23 @@ export function useCommanders() {
   });
 }
 
-export function useCommanderInsights(name: string | null) {
+/** Themes and deck counts for a commander, or for a pair when `partner` is given. */
+export function useCommanderInsights(name: string | null, partner: string | null = null) {
   return useQuery({
-    queryKey: ["commander-insights", name],
-    queryFn: () => getJson<CommanderInsights>(`/api/commander-insights?commander=${encodeURIComponent(name!)}`),
+    queryKey: ["commander-insights", name, partner],
+    queryFn: () => {
+      const params = new URLSearchParams({ commander: name! });
+      if (partner) params.set("partner", partner);
+      return getJson<CommanderInsights>(`/api/commander-insights?${params}`);
+    },
     enabled: Boolean(name),
   });
 }
 
-export function fetchCandidatePool(commander: string, bracket: Bracket, theme: string | null) {
-  const params = new URLSearchParams({ commander, bracket: String(bracket) });
+export function fetchCandidatePool(commander: string, partner: string | null, bracket: Bracket, theme: string | null) {
+  const params = new URLSearchParams({ commander });
+  if (partner) params.set("partner", partner);
+  params.set("bracket", String(bracket));
   if (theme) params.set("theme", theme);
   return getJson<CandidatePool>(`/api/candidates?${params}`);
 }
@@ -60,15 +67,15 @@ export function resolveCardNames(names: string[]) {
 }
 
 /** Commander Spellbook combos in a deck, checked on the server. */
-export function useDeckCombos(commander: string, cards: string[]) {
+export function useDeckCombos(commanders: string[], cards: string[]) {
   const sorted = [...new Set(cards)].sort();
   return useQuery({
-    queryKey: ["combos", commander, sorted],
+    queryKey: ["combos", commanders, sorted],
     queryFn: () =>
       getJson<{ combos: Combo[] }>("/api/combos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ commander, cards: sorted }),
+        body: JSON.stringify({ commanders, cards: sorted }),
       }),
     enabled: sorted.length > 0,
     staleTime: Infinity,

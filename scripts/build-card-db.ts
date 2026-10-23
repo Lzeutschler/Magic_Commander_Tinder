@@ -4,7 +4,8 @@
  * Outputs:
  *   data/cards.json            every Commander-legal card (server only)
  *   data/tokens.json           token cards for the goldfish sandbox (server only)
- *   public/data/commanders.json every legal commander with themes, tribes and archetypes (client)
+ *   public/data/commanders.json every legal commander with themes, tribes and archetypes, plus the
+ *                              Backgrounds that can join one (client)
  *   data/meta.json             build timestamp and source files
  *
  * Commander archetypes combine Scryfall Tagger tags with EDHREC theme pages (cached in .cache/edhrec),
@@ -30,7 +31,8 @@ import path from "node:path";
 import { sortColors } from "@/lib/cards/colors";
 import { parseScryfallImageUrl } from "@/lib/cards/image";
 import { edhrecSlug } from "@/lib/cards/names";
-import type { Card, CardImage, CommanderSummary, PartnerKind, Role, TokenCard } from "@/lib/cards/types";
+import { pairingsOf } from "@/lib/cards/pairing";
+import type { Card, CardImage, CommanderSummary, Role, TokenCard } from "@/lib/cards/types";
 import { rulesComplexity } from "@/lib/quiz/scoring";
 import { recsSource, type RecsSource } from "@/lib/recs/source";
 import { USER_AGENT } from "@/lib/site";
@@ -59,7 +61,7 @@ const OUTPUTS = [
 ];
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 /** Bump when the output format changes so stale local data is rebuilt. */
-const SCHEMA_VERSION = 4;
+const SCHEMA_VERSION = 5;
 const SCRYFALL_HEADERS = { "User-Agent": USER_AGENT, Accept: "application/json" };
 /** EDHREC color identity page slugs, e.g. json.edhrec.com/pages/commanders/orzhov.json. */
 const EDHREC_IDENTITIES = [
@@ -437,21 +439,11 @@ function dedupeTokens(tokens: TokenCard[]): TokenCard[] {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
+/** Commanders, and Backgrounds, which only ever join a commander as the second one. */
 function isCommander(raw: ScryfallCard): boolean {
   const front = frontTypeLine(raw);
-  if (front.includes("Legendary") && front.includes("Creature")) return true;
+  if (front.includes("Legendary") && (front.includes("Creature") || front.includes("Background"))) return true;
   return /can be your commander/i.test(oracleText(raw));
-}
-
-function partnerKind(raw: ScryfallCard): PartnerKind | null {
-  const keywords = raw.keywords ?? [];
-  const text = oracleText(raw);
-  if (keywords.includes("Partner with")) return "partner-with";
-  if (keywords.includes("Partner")) return "partner";
-  if (keywords.includes("Friends forever")) return "friends-forever";
-  if (keywords.includes("Doctor's companion")) return "doctors-companion";
-  if (/choose a background/i.test(text)) return "background";
-  return null;
 }
 
 function toCommander(
@@ -466,7 +458,7 @@ function toCommander(
   const slug = edhrecSlug(card.name);
   const edhrecDecks = edhrec.totals.get(slug) ?? null;
   const edhrecThemes = edhrec.themes.get(slug) ?? {};
-  const partner = partnerKind(raw);
+  const pairings = pairingsOf(card);
 
   return {
     id: card.id,
@@ -476,7 +468,7 @@ function toCommander(
     cmc: card.cmc,
     typeLine: card.typeLine,
     colorIdentity: card.colorIdentity,
-    complexity: rulesComplexity({ oracleText: card.oracleText, partner }),
+    complexity: rulesComplexity({ name: card.name, oracleText: card.oracleText, pairings }),
     image: card.image,
     edhrecRank: card.edhrecRank,
     priceUsd: card.priceUsd,
@@ -484,7 +476,7 @@ function toCommander(
     themes,
     tribes,
     creatureTypes: creatureTypes(card.typeLine),
-    partner,
+    pairings,
     edhrecDecks,
     edhrecThemes,
     archetypes: combineArchetypes({

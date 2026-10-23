@@ -75,7 +75,7 @@ export function commander(overrides: Partial<CommanderSummary> & { name: string 
     themes: [],
     tribes: [],
     creatureTypes: ["Human"],
-    partner: null,
+    pairings: [],
     edhrecDecks: null,
     edhrecThemes: {},
     archetypes: {},

@@ -69,7 +69,7 @@ function SharedQuizView({ quiz }: { quiz: ResolvedSharedQuiz }) {
             <p className="numeral text-2xl text-brand">{top.percent}% match</p>
           </div>
           {top.reasons.length > 0 && <Reasons reasons={top.reasons} />}
-          <EdhrecLink href={edhrecCommanderUrl(top.card.name)} className="self-start text-sm text-muted-foreground">
+          <EdhrecLink href={edhrecCommanderUrl([top.card])} className="self-start text-sm text-muted-foreground">
             {frontFaceName(top.card.name)} on EDHREC
           </EdhrecLink>
           <div className="mt-auto flex flex-wrap gap-2">
@@ -97,7 +97,7 @@ function SharedQuizView({ quiz }: { quiz: ResolvedSharedQuiz }) {
                 </Link>
                 <p className="flex items-baseline justify-between gap-2 text-sm">
                   <span className="font-semibold text-brand tabular-nums">{percent}% match</span>
-                  <EdhrecLink href={edhrecCommanderUrl(card.name)} className="text-xs text-muted-foreground">
+                  <EdhrecLink href={edhrecCommanderUrl([card])} className="text-xs text-muted-foreground">
                     EDHREC
                   </EdhrecLink>
                 </p>

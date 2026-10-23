@@ -5,7 +5,6 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 import type { Card } from "@/lib/cards/types";
-import { frontFaceName } from "@/lib/cards/names";
 import {
   decide,
   finish,
@@ -21,6 +20,7 @@ import type { DeckTemplate } from "@/lib/deckbuilder/template";
 import type { CandidatePool } from "@/lib/deckbuilder/types";
 import { DECK_STORE_VERSION, migrateDeckStore } from "@/lib/decks/migrate";
 import type { Bracket } from "@/lib/edhrec/types";
+import { commanderTitle } from "@/lib/decks/command-zone";
 import type { Deck } from "@/lib/decks/types";
 
 interface DeckStore {
@@ -34,6 +34,7 @@ interface DeckStore {
 
   createDeck(input: {
     commander: Card;
+    partner?: Card;
     bracket: Bracket;
     theme: string | null;
     name?: string;
@@ -63,13 +64,14 @@ export const useDeckStore = create<DeckStore>()(
       passedByCommander: {},
       lastPreferences: DEFAULT_PREFERENCES,
 
-      createDeck({ commander, bracket, theme, name, entries = [], maybe = [], settings, recommendation }) {
+      createDeck({ commander, partner, bracket, theme, name, entries = [], maybe = [], settings, recommendation }) {
         const id = crypto.randomUUID();
         const now = Date.now();
         const deck: Deck = {
           id,
-          name: name ?? frontFaceName(commander.name),
+          name: name ?? commanderTitle({ commander, partner }),
           commander,
+          ...(partner && { partner }),
           bracket,
           theme,
           entries,

@@ -3,7 +3,7 @@ import "server-only";
 import { cacheLife } from "next/cache";
 import { z } from "zod";
 
-import type { CardStat, CommanderStats } from "@/lib/recs/types";
+import type { CardStat, CommanderStats, PairingStat } from "@/lib/recs/types";
 import { upstreamFetch } from "@/lib/server/upstream";
 import { USER_AGENT } from "@/lib/site";
 
@@ -30,6 +30,19 @@ const pageSchema = z.object({
   }),
 });
 
+/** EDHREC answers a pair in the other order with `{ "redirect": "/commanders/a-b" }`. */
+const redirectSchema = z.object({ redirect: z.string().regex(/^\/commanders\/[a-z0-9-]+(?:\/[a-z0-9-]+)*$/) });
+
+const pairingsSchema = z.object({
+  container: z.object({
+    json_dict: z.object({
+      cardlists: z.array(z.object({ cardviews: z.array(z.object({ name: z.string(), num_decks: z.number().nullish() })) })),
+    }),
+  }),
+});
+
+const HEADERS = { "User-Agent": USER_AGENT, Accept: "application/json" };
+
 export class EdhrecError extends Error {
   constructor(
     message: string,
@@ -41,7 +54,8 @@ export class EdhrecError extends Error {
 
 /**
  * Fetches a commander page from EDHREC's (unofficial) JSON endpoint, optionally filtered by
- * bracket and theme, e.g. /pages/commanders/krenko-mob-boss/core/tokens.json. Cached for a day.
+ * bracket and theme, e.g. /pages/commanders/krenko-mob-boss/core/tokens.json. `slug` may name a pair
+ * (see `commandZoneSlug`). Cached for a day.
  */
 export async function fetchCommanderPage(
   slug: string,
@@ -55,15 +69,39 @@ export async function fetchCommanderPage(
   if (!isEdhrecSlug(slug) || (theme !== undefined && !isEdhrecSlug(theme))) {
     throw new EdhrecError(`EDHREC ${segments}: not a page`, 400);
   }
-  const res = await upstreamFetch("edhrec", `https://json.edhrec.com/pages/commanders/${segments}.json`, {
-    headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
-  if (!res.ok) throw new EdhrecError(`EDHREC ${segments}: HTTP ${res.status}`, res.status);
+  let json = await getPage(`commanders/${segments}`);
+  const redirect = redirectSchema.safeParse(json);
+  if (redirect.success) json = await getPage(redirect.data.redirect.slice(1));
 
-  const parsed = pageSchema.safeParse(await res.json());
+  const parsed = pageSchema.safeParse(json);
   if (!parsed.success) throw new EdhrecError(`EDHREC ${segments}: unexpected format`, 502);
   return normalize(parsed.data);
+}
+
+/**
+ * The commanders and Backgrounds most often paired with a commander, most decks first, from EDHREC's
+ * pairings page, e.g. /pages/partners/tymna-the-weaver.json. Cached for a day.
+ */
+export async function fetchPairingsPage(slug: string): Promise<PairingStat[]> {
+  "use cache";
+  cacheLife("days");
+
+  if (!isEdhrecSlug(slug)) throw new EdhrecError(`EDHREC partners/${slug}: not a page`, 400);
+  const parsed = pairingsSchema.safeParse(await getPage(`partners/${slug}`));
+  if (!parsed.success) throw new EdhrecError(`EDHREC partners/${slug}: unexpected format`, 502);
+  return parsed.data.container.json_dict.cardlists
+    .flatMap((list) => list.cardviews)
+    .map((view) => ({ name: view.name, deckCount: view.num_decks ?? 0 }))
+    .sort((a, b) => b.deckCount - a.deckCount);
+}
+
+async function getPage(path: string): Promise<unknown> {
+  const res = await upstreamFetch("edhrec", `https://json.edhrec.com/pages/${path}.json`, {
+    headers: HEADERS,
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  });
+  if (!res.ok) throw new EdhrecError(`EDHREC ${path}: HTTP ${res.status}`, res.status);
+  return res.json();
 }
 
 function normalize(page: z.infer<typeof pageSchema>): CommanderStats {

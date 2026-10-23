@@ -8,6 +8,7 @@ import { CircleNotchIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { asPairable, canPair } from "@/lib/cards/pairing";
 import type { Card } from "@/lib/cards/types";
 import { resolveCardNames } from "@/lib/data/client";
 import { parseDeckList } from "@/lib/deck-io/parse";
@@ -37,6 +38,10 @@ export function ImportDialog({ children }: { children: React.ReactElement }) {
       setError('Add a "Commander" section or mark your commander with *CMDR*.');
       return;
     }
+    if (parsed.commanders.length > 2) {
+      setError("A deck has at most two commanders.");
+      return;
+    }
     setBusy(true);
     try {
       const names = [...parsed.commanders, ...parsed.cards, ...parsed.maybe].map((l) => l.name);
@@ -44,6 +49,16 @@ export function ImportDialog({ children }: { children: React.ReactElement }) {
       const commander = cards[parsed.commanders[0].name];
       if (!commander) {
         setError(`Could not find the commander "${parsed.commanders[0].name}".`);
+        return;
+      }
+      const partnerName = parsed.commanders[1]?.name;
+      const partner = partnerName ? cards[partnerName] : undefined;
+      if (partnerName && !partner) {
+        setError(`Could not find the commander "${partnerName}".`);
+        return;
+      }
+      if (partner && !canPair(asPairable(commander), asPairable(partner))) {
+        setError(`${commander.name} and ${partner.name} cannot be commanders together.`);
         return;
       }
 
@@ -56,7 +71,7 @@ export function ImportDialog({ children }: { children: React.ReactElement }) {
       }
       const maybe = parsed.maybe.map((l) => cards[l.name]).filter((c): c is Card => Boolean(c));
 
-      const id = createDeck({ commander, bracket: 3, theme: null, entries: [...entries.values()], maybe });
+      const id = createDeck({ commander, partner, bracket: 3, theme: null, entries: [...entries.values()], maybe });
       if (missing.length) toast.warning(`Skipped ${missing.length} unknown card(s): ${missing.slice(0, 5).join(", ")}`);
       else toast.success("Deck imported");
       setOpen(false);

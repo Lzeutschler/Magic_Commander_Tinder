@@ -1,6 +1,6 @@
 import type { Card } from "@/lib/cards/types";
 import type { Bracket } from "@/lib/edhrec/types";
-import type { CommanderTheme } from "@/lib/recs/types";
+import type { CommanderTheme, PairingStat } from "@/lib/recs/types";
 
 import type { Combo } from "./combos";
 
@@ -14,6 +14,7 @@ export interface Candidate extends Card {
 
 export interface CandidatePool {
   commander: Card;
+  partner?: Card;
   bracket: Bracket;
   theme: string | null;
   source: "edhrec" | "fallback";
@@ -30,9 +31,12 @@ export interface CandidatePool {
 
 export interface CommanderInsights {
   commander: Card;
+  partner?: Card;
   deckCount: number;
   themes: CommanderTheme[];
   bracketCounts: Partial<Record<Bracket, number>>;
+  /** Partners or Backgrounds decks play with a lone commander that can take one, most decks first. */
+  pairings: PairingStat[];
   /** The deck statistics source could not be asked, so the answer is only cached briefly. */
   incomplete?: boolean;
 }

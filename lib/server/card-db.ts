@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { frontFaceName, nameKey } from "@/lib/cards/names";
+import { asPairable, canPair, isBackground } from "@/lib/cards/pairing";
 import type { Card, TokenCard } from "@/lib/cards/types";
 
 export interface CardDb {
@@ -44,4 +45,22 @@ async function load(): Promise<CardDb> {
 
 export function findCard(db: CardDb, name: string): Card | undefined {
   return db.byName.get(nameKey(name)) ?? db.byName.get(nameKey(frontFaceName(name)));
+}
+
+/**
+ * The commander named `name` and, when `partnerName` is given, the partner it may legally share the
+ * command zone with, or why the names are no command zone (with the HTTP status to answer).
+ */
+export function findCommandZone(db: CardDb, name: string, partnerName: string | null): Card[] | { error: string; status: number } {
+  const commander = findCard(db, name);
+  if (!commander) return { error: `Unknown commander: ${name}`, status: 404 };
+  if (partnerName === null) return [commander];
+  const partner = findCard(db, partnerName);
+  if (!partner) return { error: `Unknown partner: ${partnerName}`, status: 404 };
+  // A Background always goes second, so every pair has one canonical order.
+  if (isBackground(asPairable(commander))) return { error: "A Background goes second, as the partner", status: 400 };
+  if (!canPair(asPairable(commander), asPairable(partner))) {
+    return { error: `${commander.name} and ${partner.name} cannot be commanders together`, status: 400 };
+  }
+  return [commander, partner];
 }

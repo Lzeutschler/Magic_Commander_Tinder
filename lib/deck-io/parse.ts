@@ -13,9 +13,10 @@ type Section = "commanders" | "cards" | "maybe" | "skip";
 
 const SECTION_HEADERS: [RegExp, Section][] = [
   [/^(commanders?|command zone)$/i, "commanders"],
-  [/^(deck|main ?deck|mainboard|companion)$/i, "cards"],
+  [/^(deck|main ?deck|mainboard)$/i, "cards"],
   [/^(maybe(board)?|considering)$/i, "maybe"],
-  [/^(sideboard|tokens?)$/i, "skip"],
+  // A companion starts the game outside the deck, so it is not one of the 99.
+  [/^(sideboard|tokens?|companions?)$/i, "skip"],
 ];
 
 /**

@@ -11,7 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cardImageUrl } from "@/lib/cards/image";
 import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
 import { deckCount } from "@/lib/decks/stats";
-import { DECK_SIZE, type Deck } from "@/lib/decks/types";
+import { deckIdentity, mainDeckSize } from "@/lib/decks/command-zone";
+import type { Deck } from "@/lib/decks/types";
 import { useDeckStore, useDecksHydrated } from "@/stores/decks";
 
 import { ImportDialog } from "./import-dialog";
@@ -65,6 +66,7 @@ export function DeckList({ limit }: { limit?: number }) {
 /** A deck as a framed art crop with a name plate below, like a card's title and type line. */
 function DeckTile({ deck, inProgress }: { deck: Deck; inProgress: boolean }) {
   const count = deckCount(deck.entries);
+  const identity = deckIdentity(deck);
   const art = deck.commander.image ? cardImageUrl(deck.commander.image, "art_crop") : null;
   return (
     <Link
@@ -80,20 +82,20 @@ function DeckTile({ deck, inProgress }: { deck: Deck; inProgress: boolean }) {
         )}
         {inProgress && <Badge className="absolute top-2 left-2">Brewing</Badge>}
       </div>
-      {/* The commander's colors as a thin band, like the frame color of a card. */}
+      {/* The commanders' colors as a thin band, like the frame color of a card. */}
       <div className="mt-1.5 flex h-1.5 gap-px overflow-hidden rounded-xs" aria-hidden="true">
-        {(deck.commander.colorIdentity.length ? deck.commander.colorIdentity : ["C"]).map((color) => (
+        {(identity.length ? identity : ["C"]).map((color) => (
           <span key={color} className="flex-1" style={{ backgroundColor: `var(--mana-${color.toLowerCase()})` }} />
         ))}
       </div>
       <div className="space-y-1 px-2 pt-2.5 pb-1.5">
         <div className="flex items-center justify-between gap-2">
           <h3 className="truncate text-xl leading-tight font-bold">{deck.name}</h3>
-          <ColorIdentity colors={deck.commander.colorIdentity} />
+          <ColorIdentity colors={identity} />
         </div>
         <p className="text-xs text-muted-foreground">
           <span className="tabular-nums">
-            {count}/{DECK_SIZE}
+            {count}/{mainDeckSize(deck)}
           </span>{" "}
           cards · Bracket {deck.bracket} {BRACKET_INFO[deck.bracket].name}
         </p>

@@ -7,6 +7,8 @@ import { HeartShape } from "@/components/cauldron";
 import { ArrowRightIcon, ArrowUUpLeftIcon, CheckIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { artCropUrl, cardImageUrl } from "@/lib/cards/image";
+import { takesSecondCommander } from "@/lib/cards/pairing";
+import { useCommanderInsights } from "@/lib/data/client";
 import { pickedOptions } from "@/lib/quiz/deck";
 import type { Track } from "@/lib/quiz/types";
 import { cn } from "@/lib/utils";
@@ -24,6 +26,8 @@ export function QuizMatch({ track }: { track: Track }) {
   const liked = pickedOptions(track, answers).flatMap((p) => p.options.map((option) => ({ key: `${p.question.id}:${option.id}`, option })));
   const vibe = liked.find((l) => l.option.art)?.option.art;
   const top = ranked[0];
+  // A commander that takes a partner meets its favorite one too.
+  const pairing = useCommanderInsights(top && takesSecondCommander(top.commander) ? top.commander.name : null).data?.pairings[0];
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center gap-6 px-4 py-10 text-center">
@@ -49,6 +53,12 @@ export function QuizMatch({ track }: { track: Track }) {
             <p className="text-lg text-muted-foreground">
               You and <span className="font-semibold text-foreground">{top.commander.name}</span> swiped right on each other.
             </p>
+            {pairing && (
+              <p className="text-sm text-muted-foreground" data-testid="match-pairing">
+                Best paired with <span className="font-semibold text-foreground">{pairing.name}</span> (
+                {pairing.deckCount.toLocaleString("en-US")} decks)
+              </p>
+            )}
             {top.reasons.length > 0 && (
               <ul className="mx-auto flex max-w-md flex-wrap justify-center gap-x-4 gap-y-1 text-sm">
                 {top.reasons.slice(0, 2).map((reason) => (

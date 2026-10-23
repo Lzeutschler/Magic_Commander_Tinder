@@ -12,7 +12,8 @@ import { comboBreaksBracket, combosInDeck } from "@/lib/deckbuilder/combos";
 import { deckTemplate } from "@/lib/deckbuilder/settings";
 import { karstenLands } from "@/lib/deckbuilder/template";
 import { CARD_TYPES, deckStats, expandEntries } from "@/lib/decks/stats";
-import { DECK_SIZE, type Deck } from "@/lib/decks/types";
+import { commandZone, deckIdentity } from "@/lib/decks/command-zone";
+import type { Deck } from "@/lib/decks/types";
 import { cn } from "@/lib/utils";
 
 /** Below this many nonland cards, Karsten's land estimate says little about the finished deck. */
@@ -22,16 +23,17 @@ export function DeckStatsPanel({ deck }: { deck: Deck }) {
   const stats = deckStats(deck);
   const template = deckTemplate(deck);
   const cards = expandEntries(deck.entries);
+  const commanders = commandZone(deck).map((c) => c.name);
   const combosQuery = useDeckCombos(
-    deck.commander.name,
+    commanders,
     cards.filter((c) => !isLand(c) || !c.typeLine.startsWith("Basic")).map((c) => c.name),
   );
-  const combos = combosInDeck(combosQuery.data?.combos ?? [], new Set([deck.commander.name, ...cards.map((c) => c.name)]));
-  const issues = deckBracketIssues(cards, deck.bracket, { commander: deck.commander.name, combos });
-  const missing = DECK_SIZE - stats.total;
+  const combos = combosInDeck(combosQuery.data?.combos ?? [], new Set([...commanders, ...cards.map((c) => c.name)]));
+  const issues = deckBracketIssues(cards, deck.bracket, { commanders, combos });
+  const missing = template.size - stats.total;
   const karsten = Math.round(karstenLands(stats.averageManaValue, stats.cheapRampDraw));
   const curveData = stats.curve.map((count, i) => ({ label: CURVE_LABELS[i], count }));
-  const colors = deck.commander.colorIdentity;
+  const colors = deckIdentity(deck);
   const totalPips = colors.reduce((sum, c) => sum + stats.pips[c], 0);
   // A quarter of the lands plus the color's share of the pips, as when basics are added.
   const sourceTarget = (color: Deck["commander"]["colorIdentity"][number]) =>
@@ -43,9 +45,9 @@ export function DeckStatsPanel({ deck }: { deck: Deck }) {
         <div className="flex items-baseline justify-between">
           <span className="numeral text-5xl">
             {stats.total}
-            <span className="text-xl text-muted-foreground">/{DECK_SIZE}</span>
+            <span className="text-xl text-muted-foreground">/{template.size}</span>
           </span>
-          <span className="text-sm text-muted-foreground">+ commander</span>
+          <span className="text-sm text-muted-foreground">+ {deck.partner ? "2 commanders" : "commander"}</span>
         </div>
         <StatusLine ok={missing === 0}>
           {missing === 0 ? "Deck size is legal" : missing > 0 ? `${missing} cards missing` : `${-missing} cards too many`}
