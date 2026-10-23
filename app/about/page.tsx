@@ -6,7 +6,7 @@ import { ArrowRightIcon, ArrowUpRightIcon } from "@/components/icons";
 import { ExternalLink, Prose } from "@/components/legal/prose";
 import { Button } from "@/components/ui/button";
 import { canonical } from "@/lib/metadata";
-import { OPERATOR, SITE } from "@/lib/site";
+import { FEEDBACK, SITE } from "@/lib/site";
 import portrait from "@/public/about/leonard-zeutschler.jpg";
 
 export const metadata: Metadata = {
@@ -77,7 +77,7 @@ export default function AboutPage() {
           your decks in your browser.
         </p>
         <p>
-          Found a bug or have an idea? Write to <a href={`mailto:${OPERATOR.email}`}>{OPERATOR.email}</a>.
+          Found a bug or have an idea? Write to <a href={`mailto:${FEEDBACK.email}`}>{FEEDBACK.email}</a>.
         </p>
         <div className="pt-2">
           <Button nativeButton={false} render={<Link href="/build" />}>
