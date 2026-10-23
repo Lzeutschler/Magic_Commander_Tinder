@@ -1,7 +1,8 @@
 import { isLand } from "@/lib/cards/mana";
 import type { Card } from "@/lib/cards/types";
 import { deckStats, expandEntries } from "@/lib/decks/stats";
-import { DECK_SIZE, type Deck } from "@/lib/decks/types";
+import { commandZone, deckIdentity, mainDeckSize } from "@/lib/decks/command-zone";
+import type { Deck } from "@/lib/decks/types";
 import { seededRandom } from "@/lib/random";
 
 import { fillBasics } from "./basics";
@@ -53,7 +54,7 @@ export function startSession(
 ): { session: SwipeSession; deck: Deck } {
   const nextDeck: Deck = {
     ...deck,
-    recommendation: recommendTemplate(deck.bracket, deck.commander.colorIdentity, profilePool(pool)),
+    recommendation: recommendTemplate(deck.bracket, deckIdentity(deck), profilePool(pool), mainDeckSize(deck)),
   };
   const session: SwipeSession = {
     deckId: deck.id,
@@ -79,7 +80,7 @@ function openCandidates(session: SwipeSession, deck: Deck, lands: boolean): Cand
   const deckCards = expandEntries(deck.entries);
   const inDeck = new Set(deckCards.map((c) => c.id));
   const tutorsFull = template.maxTutors !== null && deckCards.filter((c) => !isLand(c) && c.roles.includes("tutor")).length >= template.maxTutors;
-  const context = { commander: deck.commander.name, combos: session.combos };
+  const context = { commanders: commandZone(deck).map((c) => c.name), combos: session.combos };
   return session.pool.filter(
     (c) =>
       isLand(c) === lands &&
@@ -95,13 +96,13 @@ function openCandidates(session: SwipeSession, deck: Deck, lands: boolean): Cand
 
 /** Everything the scorer needs to know about the deck right now. */
 export function scoreContext(session: SwipeSession, deck: Deck): ScoreContext {
-  const have = new Set([deck.commander.name, ...deck.entries.map((e) => e.card.name)]);
+  const have = new Set([...commandZone(deck).map((c) => c.name), ...deck.entries.map((e) => e.card.name)]);
   const combos = deck.bracket >= 4 ? (session.combos ?? []) : [];
   return {
     stats: deckStats(deck),
     template: deckTemplate(deck),
     preferences: deck.settings.preferences,
-    identity: deck.commander.colorIdentity,
+    identity: deckIdentity(deck),
     combosCompleted: (card) => (combos.length ? combosCompletedBy(card.name, combos, have) : []),
   };
 }
@@ -137,8 +138,8 @@ export function nextCandidate(session: SwipeSession, deck: Deck): Candidate | nu
 function currentPhase(session: SwipeSession, deck: Deck): SwipePhase {
   const stats = deckStats(deck);
   const template = deckTemplate(deck);
-  if (stats.total >= DECK_SIZE) return "done";
-  if (!session.skippedSpells && stats.nonlands < DECK_SIZE - template.lands && openCandidates(session, deck, false).length) {
+  if (stats.total >= template.size) return "done";
+  if (!session.skippedSpells && stats.nonlands < template.size - template.lands && openCandidates(session, deck, false).length) {
     return "spells";
   }
   if (stats.lands < template.nonbasicLands && openCandidates(session, deck, true).length) return "lands";
@@ -201,14 +202,14 @@ export function finish(session: SwipeSession, deck: Deck): Deck {
   const template = deckTemplate(deck);
   const spells: SwipeSession = { ...session, phase: "spells" };
   let entries = deck.entries;
-  while (deckStats({ entries }).nonlands < DECK_SIZE - template.lands) {
+  while (deckStats({ entries }).nonlands < template.size - template.lands) {
     const best = rankCandidates(spells, { ...deck, entries })[0];
     if (!best) break;
     entries = [...entries, { card: stripCandidate(best.candidate), quantity: 1 }];
   }
   return {
     ...deck,
-    entries: fillBasics(entries, deck.commander.colorIdentity, session.basicLands, template.lands),
+    entries: fillBasics(entries, deckIdentity(deck), session.basicLands, template.lands, template.size),
     updatedAt: Date.now(),
   };
 }

@@ -1,7 +1,6 @@
 import { CURVE_LABELS, curveBucket, isLand, landColors } from "@/lib/cards/mana";
 import type { Color } from "@/lib/cards/types";
 import type { DeckStats } from "@/lib/decks/stats";
-import { DECK_SIZE } from "@/lib/decks/types";
 
 import { comboPartners, type Combo } from "./combos";
 import type { SwipePreferences } from "./settings";
@@ -104,7 +103,7 @@ export function scoreCandidate(card: Candidate, ctx: ScoreContext): number {
  * need (nearly) all remaining spell slots.
  */
 export function roleUrgency(stats: DeckStats, template: DeckTemplate): number {
-  const slotsLeft = Math.max(1, DECK_SIZE - template.lands - stats.nonlands);
+  const slotsLeft = Math.max(1, template.size - template.lands - stats.nonlands);
   const missing = TEMPLATE_ROLES.reduce((sum, role) => sum + Math.max(0, template.roles[role] - stats.roles[role]), 0);
   return Math.min(1, Math.max(0, (missing / slotsLeft - 0.7) / 0.3));
 }

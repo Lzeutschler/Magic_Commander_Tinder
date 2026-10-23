@@ -12,9 +12,11 @@ export interface Deck {
   id: string;
   name: string;
   commander: Card;
+  /** A second commander: a partner, a Background, the Doctor or the Doctor's companion. */
+  partner?: Card;
   bracket: Bracket;
   theme: string | null;
-  /** The 99, excluding the commander. */
+  /** The 99 (98 with a partner), excluding the commanders. */
   entries: DeckEntry[];
   /** Cards swiped up ("maybe") to review in the editor. */
   maybe: Card[];
@@ -29,4 +31,5 @@ export interface Deck {
   updatedAt: number;
 }
 
+/** Cards besides a single commander; `mainDeckSize` accounts for a partner. */
 export const DECK_SIZE = 99;

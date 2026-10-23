@@ -2,6 +2,7 @@ import { produce, type Draft } from "immer";
 
 import type { Card } from "@/lib/cards/types";
 import { expandEntries } from "@/lib/decks/stats";
+import { commandZone } from "@/lib/decks/command-zone";
 import type { Deck } from "@/lib/decks/types";
 import { seededRandom } from "@/lib/random";
 
@@ -40,11 +41,14 @@ function makeCard(card: PlayCard, id: string, extra: Partial<GameCard> = {}): Ga
   };
 }
 
-/** Commander in the command zone, the 99 shuffled into the library and an opening hand of 7. */
-export function newGame(deck: Pick<Deck, "commander" | "entries">, seed: number): GameState {
+/** Commanders in the command zone, the 99 (or 98) shuffled into the library and an opening hand of 7. */
+export function newGame(deck: Pick<Deck, "commander" | "partner" | "entries">, seed: number): GameState {
   const cards: Record<string, GameCard> = {};
-  const commanderId = "c0";
-  cards[commanderId] = makeCard(deck.commander, commanderId, { isCommander: true });
+  const commanderIds = commandZone(deck).map((commander, i) => {
+    const id = i === 0 ? "c0" : `p${i}`;
+    cards[id] = makeCard(commander, id, { isCommander: true });
+    return id;
+  });
 
   const library = expandEntries(deck.entries).map((card: Card, i) => {
     const id = `c${i + 1}`;
@@ -60,13 +64,13 @@ export function newGame(deck: Pick<Deck, "commander" | "entries">, seed: number)
       battlefield: [],
       graveyard: [],
       exile: [],
-      command: [commanderId],
+      command: commanderIds,
     },
     life: STARTING_LIFE,
     turn: 0,
     phase: "mulligan",
     mulligans: 0,
-    commanderCasts: 0,
+    commanderCasts: {},
     seed,
     shuffles: 1,
     nextInstance: library.length + 1,
@@ -174,7 +178,9 @@ export function moveCard(state: GameState, instanceId: string, to: ZoneId, optio
       log(draft, `${card.card.name} token left the battlefield`);
       return;
     }
-    if (card.isCommander && from === "command" && to === "battlefield") draft.commanderCasts += 1;
+    if (card.isCommander && from === "command" && to === "battlefield") {
+      draft.commanderCasts[instanceId] = (draft.commanderCasts[instanceId] ?? 0) + 1;
+    }
 
     if (to === "library" && options.position === "bottom") draft.zones.library.push(instanceId);
     else if (to === "library") draft.zones.library.unshift(instanceId);
@@ -285,6 +291,7 @@ export function availableMana(state: GameState): { total: number; colors: Record
   return { total, colors };
 }
 
-export function commanderTax(state: GameState): number {
-  return state.commanderCasts * 2;
+/** Extra mana the commander `instanceId` costs from the command zone; each commander keeps its own tax. */
+export function commanderTax(state: GameState, instanceId: string): number {
+  return (state.commanderCasts[instanceId] ?? 0) * 2;
 }

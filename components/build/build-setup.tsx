@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { PageHeader } from "@/components/page-header";
+import { isBackground } from "@/lib/cards/pairing";
 import type { CommanderSummary } from "@/lib/cards/types";
 import { useCommanders } from "@/lib/data/client";
 
@@ -16,7 +17,7 @@ export function BuildSetup() {
   const [chosen, setChosen] = useState<CommanderSummary | null | undefined>(undefined);
   const linked = useMemo(() => {
     const name = commanders.data && new URLSearchParams(window.location.search).get("commander");
-    return name ? (commanders.data?.find((c) => c.name === name) ?? null) : null;
+    return name ? (commanders.data?.find((c) => c.name === name && !isBackground(c)) ?? null) : null;
   }, [commanders.data]);
   const commander = chosen === undefined ? linked : chosen;
 

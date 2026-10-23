@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cardImageUrl } from "@/lib/cards/image";
+import { frontFaceName } from "@/lib/cards/names";
 import type { Deck } from "@/lib/decks/types";
 import {
   availableMana,
@@ -189,7 +190,11 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
   }, []);
 
   const mana = availableMana(game);
-  const tax = commanderTax(game);
+  const commanders = Object.values(game.cards).filter((c) => c.isCommander);
+  const taxes = commanders
+    .map((c) => ({ name: frontFaceName(c.card.name).split(",")[0], tax: commanderTax(game, c.instanceId) }))
+    .filter((t) => t.tax > 0);
+  const taxBadge = (id: string) => (commanderTax(game, id) ? `+${commanderTax(game, id)}` : undefined);
   const art = deck.commander.image ? cardImageUrl(deck.commander.image, "art_crop") : null;
 
   const playing = game.phase === "playing";
@@ -320,7 +325,7 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
         {/* Table */}
         <div className="relative flex min-h-0 flex-1 gap-2 px-2 pt-2">
           <aside className="flex w-[calc(var(--pile-w)+10px)] shrink-0 flex-col gap-2.5 overflow-y-auto overflow-x-hidden px-[5px] pt-1 pb-2 [--card-w:var(--pile-w)]">
-            <Pile zone="command" game={game} handlers={handlers} badge={tax ? `+${tax}` : undefined} />
+            <Pile zone="command" game={game} handlers={handlers} badgeFor={taxBadge} />
             <Pile zone="library" game={game} handlers={handlers} faceDown onClick={() => playing && act((g) => draw(g))} />
             <Pile zone="graveyard" game={game} handlers={handlers} onClick={() => setDialog({ kind: "zone", zone: "graveyard" })} />
             <Pile zone="exile" game={game} handlers={handlers} onClick={() => setDialog({ kind: "zone", zone: "exile" })} />
@@ -389,7 +394,12 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
                     </span>
                   ))}
                 </div>
-                {tax > 0 && <p className="text-xs text-muted-foreground">Commander tax: +{tax}</p>}
+                {taxes.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Commander tax:{" "}
+                    {commanders.length === 1 ? `+${taxes[0].tax}` : taxes.map((t) => `${t.name} +${t.tax}`).join(" · ")}
+                  </p>
+                )}
               </div>
 
               <div className="panel min-h-0 flex-1 space-y-1 overflow-y-auto p-3 text-xs">

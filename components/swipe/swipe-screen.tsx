@@ -22,7 +22,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cardImageUrl } from "@/lib/cards/image";
-import { frontFaceName } from "@/lib/cards/names";
 import type { Card } from "@/lib/cards/types";
 import { fetchCandidatePool } from "@/lib/data/client";
 import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
@@ -39,7 +38,8 @@ import type { DeckTemplate } from "@/lib/deckbuilder/template";
 import type { Candidate } from "@/lib/deckbuilder/types";
 import { deckStats, type DeckStats } from "@/lib/decks/stats";
 import { edhrecCardUrl, edhrecCommanderUrl } from "@/lib/edhrec/links";
-import { DECK_SIZE, type Deck } from "@/lib/decks/types";
+import { commandZone, commanderTitle } from "@/lib/decks/command-zone";
+import type { Deck } from "@/lib/decks/types";
 import { randomSeed } from "@/lib/random";
 import { ROLE_LABELS } from "@/lib/tagging/roles";
 import { cn } from "@/lib/utils";
@@ -56,8 +56,8 @@ export function SwipeScreen({ deckId }: { deckId: string }) {
   const startSession = useDeckStore((s) => s.startSession);
 
   const pool = useQuery({
-    queryKey: ["candidates", deck?.commander.name, deck?.bracket, deck?.theme],
-    queryFn: () => fetchCandidatePool(deck!.commander.name, deck!.bracket, deck!.theme),
+    queryKey: ["candidates", deck?.commander.name, deck?.partner?.name ?? null, deck?.bracket, deck?.theme],
+    queryFn: () => fetchCandidatePool(deck!.commander.name, deck!.partner?.name ?? null, deck!.bracket, deck!.theme),
     enabled: hydrated && Boolean(deck) && !session,
     staleTime: Infinity,
   });
@@ -92,7 +92,7 @@ export function SwipeScreen({ deckId }: { deckId: string }) {
     );
   }
   if (!session) {
-    return <FullScreenMessage loading>Stirring in suggestions for {frontFaceName(deck.commander.name)}…</FullScreenMessage>;
+    return <FullScreenMessage loading>Stirring in suggestions for {commanderTitle(deck)}…</FullScreenMessage>;
   }
   return <SwipeBoard deck={deck} session={session} />;
 }
@@ -110,7 +110,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
   const template = useMemo(() => deckTemplate(deck), [deck]);
   const current = useMemo(() => nextCandidate(session, deck), [session, deck]);
   const reasons = useMemo(
-    () => (current ? explainCandidate(current, scoreContext(session, deck), frontFaceName(deck.commander.name)) : []),
+    () => (current ? explainCandidate(current, scoreContext(session, deck), commanderTitle(deck)) : []),
     [current, session, deck],
   );
 
@@ -139,7 +139,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
     undoSwipe(deck.id);
   };
   const finish = () => {
-    const openSpells = DECK_SIZE - template.lands - stats.nonlands;
+    const openSpells = template.size - template.lands - stats.nonlands;
     finishSwipe(deck.id);
     if (openSpells > 0) toast(`Filled ${openSpells} open spell slot${openSpells === 1 ? "" : "s"} with top suggestions. Review them in the editor.`);
     router.push(`/decks/${deck.id}`);
@@ -159,8 +159,12 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
       {/* Deck progress */}
       <aside className="panel order-2 space-y-5 p-5 lg:order-1">
         <div className="flex items-center gap-3">
-          <div className="w-14 shrink-0">
-            <CardImage card={deck.commander} size="small" />
+          <div className="flex shrink-0">
+            {commandZone(deck).map((c, i) => (
+              <div key={c.id} className={cn("w-14", i > 0 && "-ml-8 rotate-6")}>
+                <CardImage card={c} size="small" />
+              </div>
+            ))}
           </div>
           <div className="min-w-0">
             <div className="truncate font-heading text-lg leading-tight font-bold">{deck.name}</div>
@@ -192,7 +196,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
           {session.source === "edhrec" ? (
             <>
               Suggestions from{" "}
-              <EdhrecLink href={edhrecCommanderUrl(deck.commander.name, deck.bracket, deck.theme)}>
+              <EdhrecLink href={edhrecCommanderUrl(commandZone(deck), deck.bracket, deck.theme)}>
                 {session.deckCount.toLocaleString()} EDHREC decks
               </EdhrecLink>
               .
@@ -213,7 +217,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
               <span className="lg:hidden">Swipe → pick · ← pass · ↑ maybe</span>
             ) : (
               <span className="lg:hidden">
-                <span className="text-foreground tabular-nums">{stats.total}</span>/{DECK_SIZE} ·
+                <span className="text-foreground tabular-nums">{stats.total}</span>/{template.size} ·
               </span>
             )}
             <span className={cn(session.history.length === 0 && session.phase !== "done" && "max-lg:hidden")}>
@@ -407,7 +411,7 @@ function DonePanel({
   onUndo: () => void;
   canUndo: boolean;
 }) {
-  const openSpells = Math.max(0, DECK_SIZE - template.lands - stats.nonlands);
+  const openSpells = Math.max(0, template.size - template.lands - stats.nonlands);
   const basics = Math.max(0, template.lands - stats.lands);
   return (
     <div className="panel flex w-full max-w-md flex-col items-center gap-4 p-8 text-center">

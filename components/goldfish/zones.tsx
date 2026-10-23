@@ -253,7 +253,7 @@ export function Pile({
   onClick,
   handlers,
   faceDown,
-  badge,
+  badgeFor,
   children,
 }: {
   zone: ZoneId;
@@ -261,13 +261,17 @@ export function Pile({
   onClick?: () => void;
   handlers: CardHandlers;
   faceDown?: boolean;
-  badge?: string;
+  /** A small label on a card, e.g. the commander tax. */
+  badgeFor?: (instanceId: string) => string | undefined;
   children?: React.ReactNode;
 }) {
   const { setNodeRef, isOver } = useZoneDrop(zone);
   const ids = game.zones[zone];
   const topId = zone === "library" ? ids[0] : ids.at(-1);
   const top = topId ? game.cards[topId] : null;
+  // Both commanders of a pair stay in view, one below the other.
+  const spread = zone === "command" && ids.length > 1;
+  const badge = top && !spread ? badgeFor?.(top.instanceId) : undefined;
 
   return (
     <div className="space-y-1">
@@ -283,7 +287,16 @@ export function Pile({
           isOver && "ring-2 ring-brand ring-offset-2 ring-offset-background",
         )}
       >
-        {top && !faceDown ? (
+        {spread ? (
+          <div className="flex flex-col gap-2">
+            {ids.map((id) => (
+              <div key={id} className="relative">
+                <GameCardView card={game.cards[id]} handlers={handlers} />
+                <PileBadge>{badgeFor?.(id)}</PileBadge>
+              </div>
+            ))}
+          </div>
+        ) : top && !faceDown ? (
           <GameCardView card={top} handlers={{ ...handlers, onClick: onClick ? () => onClick() : handlers.onClick }} />
         ) : (
           <button
@@ -306,13 +319,18 @@ export function Pile({
             )}
           </button>
         )}
-        {badge && (
-          <span className="pointer-events-none absolute -top-2 -right-2 rounded-sm bg-brand px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground shadow-md">
-            {badge}
-          </span>
-        )}
+        <PileBadge>{badge}</PileBadge>
       </div>
       {children}
     </div>
+  );
+}
+
+function PileBadge({ children }: { children: string | undefined }) {
+  if (!children) return null;
+  return (
+    <span className="pointer-events-none absolute -top-2 -right-2 rounded-sm bg-brand px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground shadow-md">
+      {children}
+    </span>
   );
 }

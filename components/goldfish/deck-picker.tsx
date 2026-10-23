@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cardImageUrl } from "@/lib/cards/image";
 import { deckCount } from "@/lib/decks/stats";
-import { DECK_SIZE } from "@/lib/decks/types";
+import { deckIdentity, mainDeckSize } from "@/lib/decks/command-zone";
 import { useDeckStore, useDecksHydrated } from "@/stores/decks";
 
 export function GoldfishDeckPicker() {
@@ -49,9 +49,9 @@ export function GoldfishDeckPicker() {
               <div className="min-w-0 flex-1">
                 <div className="truncate text-lg leading-tight font-bold [font-family:var(--font-heading)]">{deck.name}</div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <ColorIdentity colors={deck.commander.colorIdentity} />
-                  <span className={count === DECK_SIZE ? "tabular-nums" : "text-brand tabular-nums"}>
-                    {count}/{DECK_SIZE} cards
+                  <ColorIdentity colors={deckIdentity(deck)} />
+                  <span className={count === mainDeckSize(deck) ? "tabular-nums" : "text-brand tabular-nums"}>
+                    {count}/{mainDeckSize(deck)} cards
                   </span>
                 </div>
               </div>

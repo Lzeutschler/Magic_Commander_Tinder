@@ -36,7 +36,8 @@ export interface GameState {
   /** "mulligan" until the opening hand is kept and any London mulligan cards are on the bottom. */
   phase: "mulligan" | "bottom" | "playing";
   mulligans: number;
-  commanderCasts: number;
+  /** Times each commander (by instance id) was cast from the command zone. */
+  commanderCasts: Record<string, number>;
   seed: number;
   /** Increments with every shuffle so each one uses fresh randomness. */
   shuffles: number;

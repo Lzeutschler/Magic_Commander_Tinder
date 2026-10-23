@@ -1,3 +1,4 @@
+import { deckIdentity, mainDeckSize } from "@/lib/decks/command-zone";
 import type { Deck } from "@/lib/decks/types";
 
 import { applyOverrides, recommendTemplate, type DeckTemplate, type TemplateOverrides } from "./template";
@@ -40,10 +41,18 @@ export const SYNERGY_STEPS = [
 
 export const BUDGET_STEPS: (number | null)[] = [null, 50, 20, 10, 5, 2, 1];
 
+/**
+ * The template recommended for the deck, or the bracket defaults for imported decks. Its size always
+ * follows the deck, since recommendations saved before partners existed have none.
+ */
+export function deckRecommendation(deck: Pick<Deck, "bracket" | "commander" | "partner" | "recommendation">): DeckTemplate {
+  const size = mainDeckSize(deck);
+  return deck.recommendation ? { ...deck.recommendation, size } : recommendTemplate(deck.bracket, deckIdentity(deck), null, size);
+}
+
 /** The template the deck swipes against: its recommendation plus the deck's own overrides. */
-export function deckTemplate(deck: Pick<Deck, "bracket" | "commander" | "recommendation" | "settings">): DeckTemplate {
-  const recommended = deck.recommendation ?? recommendTemplate(deck.bracket, deck.commander.colorIdentity, null);
-  return applyOverrides(recommended, deck.settings.overrides, deck.bracket);
+export function deckTemplate(deck: Pick<Deck, "bracket" | "commander" | "partner" | "recommendation" | "settings">): DeckTemplate {
+  return applyOverrides(deckRecommendation(deck), deck.settings.overrides, deck.bracket);
 }
 
 /** Back to the recommended targets and curve; budget and hidden cards are personal limits and stay. */

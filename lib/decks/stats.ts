@@ -1,4 +1,4 @@
-import { COLORS } from "@/lib/cards/colors";
+import { COLORS, sortColors } from "@/lib/cards/colors";
 import { colorPips, curveBucket, isLand, landColors } from "@/lib/cards/mana";
 import type { Card, Color } from "@/lib/cards/types";
 import { TEMPLATE_ROLES, templateRoles, type TemplateRole } from "@/lib/deckbuilder/template";
@@ -54,9 +54,13 @@ export interface DeckStats {
   priceUsd: number;
 }
 
-/** Stats for `deck`; land color sources only count colors of the commander's identity when it is given. */
-export function deckStats(deck: { entries: readonly DeckEntry[]; commander?: Pick<Card, "colorIdentity"> }): DeckStats {
-  const identity = deck.commander?.colorIdentity ?? COLORS;
+/** Stats for `deck`; land color sources only count colors of the commanders' identity when it is given. */
+export function deckStats(deck: {
+  entries: readonly DeckEntry[];
+  commander?: Pick<Card, "colorIdentity">;
+  partner?: Pick<Card, "colorIdentity">;
+}): DeckStats {
+  const identity = deck.commander ? sortColors([...deck.commander.colorIdentity, ...(deck.partner?.colorIdentity ?? [])]) : COLORS;
   const cards = expandEntries(deck.entries);
   const nonlands = cards.filter((c) => !isLand(c));
   const curve = [0, 0, 0, 0, 0, 0];

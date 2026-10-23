@@ -35,9 +35,30 @@ SB: 1 Duress
     expect(parsed.commanders).toEqual([{ name: "Atraxa, Praetors' Voice", quantity: 1 }]);
     expect(parsed.cards.map((c) => c.name)).toEqual(["Sol Ring", "Arcane Signet"]);
   });
+
+  it("keeps a companion out of the deck", () => {
+    const parsed = parseDeckList(`Commander
+1 Tymna the Weaver
+1 Kraum, Ludevic's Opus
+
+Companion
+1 Lurrus of the Dream-Den
+
+Deck
+1 Sol Ring`);
+    expect(parsed.commanders.map((c) => c.name)).toEqual(["Tymna the Weaver", "Kraum, Ludevic's Opus"]);
+    expect(parsed.cards.map((c) => c.name)).toEqual(["Sol Ring"]);
+  });
 });
 
 describe("exportDeck", () => {
+  it("lists both commanders of a pair", () => {
+    const commander = card({ name: "Wilson, Refined Grizzly" });
+    const partner = card({ name: "Raised by Giants" });
+    const parsed = parseDeckList(exportDeck({ commander, partner, entries: [] }, "sections"));
+    expect(parsed.commanders.map((c) => c.name)).toEqual(["Wilson, Refined Grizzly", "Raised by Giants"]);
+  });
+
   it("round-trips through the parser", () => {
     const commander = card({ name: "Krenko, Mob Boss", typeLine: "Legendary Creature — Goblin Warrior" });
     const entries = [

@@ -36,7 +36,8 @@ describe("API guards", () => {
   it("only let EDHREC slugs into EDHREC URLs", () => {
     expect(isEdhrecSlug("tokens")).toBe(true);
     expect(isEdhrecSlug("plus-1-plus-1-counters")).toBe(true);
-    for (const bad of ["../../cards/sol-ring", "Tokens", "tokens?x=1", "a/b", "", "-tokens", "x".repeat(81)]) {
+    expect(isEdhrecSlug("kraum-ludevics-opus-tymna-the-weaver")).toBe(true);
+    for (const bad of ["../../cards/sol-ring", "Tokens", "tokens?x=1", "a/b", "", "-tokens", "x".repeat(161)]) {
       expect(isEdhrecSlug(bad)).toBe(false);
     }
   });

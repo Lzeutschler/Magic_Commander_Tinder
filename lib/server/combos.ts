@@ -25,17 +25,17 @@ const responseSchema = z.object({
 });
 
 /**
- * All Commander Spellbook combos made only of the commander and `cards`, cached for a day.
+ * All Commander Spellbook combos made only of the commanders and `cards`, cached for a day.
  * Throws when Commander Spellbook is unreachable; callers treat that as "unknown", not "none".
  */
-export async function findCombos(commander: string, cards: string[]): Promise<Combo[]> {
+export async function findCombos(commanders: string[], cards: string[]): Promise<Combo[]> {
   "use cache";
   cacheLife("days");
 
   const res = await upstreamFetch("spellbook", SPELLBOOK_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json", "User-Agent": USER_AGENT },
-    body: JSON.stringify({ commanders: [{ card: commander }], main: cards.map((card) => ({ card })) }),
+    body: JSON.stringify({ commanders: commanders.map((card) => ({ card })), main: cards.map((card) => ({ card })) }),
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   if (!res.ok) throw new Error(`Commander Spellbook: HTTP ${res.status}`);

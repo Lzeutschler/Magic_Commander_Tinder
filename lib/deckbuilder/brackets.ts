@@ -80,8 +80,8 @@ export function bracketCounts(cards: readonly Card[]): BracketCounts {
 
 /** What the bracket check knows about the deck besides its cards. */
 export interface BracketContext {
-  /** Name of the commander, which counts as a combo piece. */
-  commander?: string;
+  /** Names of the commanders, which count as combo pieces. */
+  commanders?: readonly string[];
   /** Commander Spellbook combos to check two-card combos against. */
   combos?: readonly Combo[] | null;
 }
@@ -100,7 +100,7 @@ export function bracketViolation(card: Card, deck: readonly Card[], bracket: Bra
     return rules.maxExtraTurns === 0 ? "Extra turns are not allowed in this bracket" : "Extra turns must not be chained in this bracket";
   }
   if (context.combos?.length && bracket <= 3) {
-    const have = deckNames(deck, context.commander);
+    const have = deckNames(deck, context.commanders);
     const combo = combosCompletedBy(card.name, context.combos, have).find((c) => comboBreaksBracket(c, bracket));
     if (combo) {
       return bracket <= 2
@@ -125,14 +125,12 @@ export function deckBracketIssues(cards: readonly Card[], bracket: Bracket, cont
   if (counts.extraTurns > rules.maxExtraTurns) {
     issues.push(`${counts.extraTurns} extra-turn cards (bracket ${bracket} allows ${rules.maxExtraTurns})`);
   }
-  for (const combo of combosInDeck(context.combos ?? [], deckNames(cards, context.commander))) {
+  for (const combo of combosInDeck(context.combos ?? [], deckNames(cards, context.commanders))) {
     if (comboBreaksBracket(combo, bracket)) issues.push(`Two-card combo: ${comboPartners(combo)}`);
   }
   return issues;
 }
 
-function deckNames(cards: readonly Card[], commander: string | undefined): Set<string> {
-  const names = new Set(cards.map((c) => c.name));
-  if (commander) names.add(commander);
-  return names;
+function deckNames(cards: readonly Card[], commanders: readonly string[] = []): Set<string> {
+  return new Set([...cards.map((c) => c.name), ...commanders]);
 }

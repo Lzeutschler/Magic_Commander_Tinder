@@ -85,6 +85,21 @@ describe("swipe session", () => {
     expect(stats.roles.ramp).toBeGreaterThanOrEqual(template.roles.ramp);
   });
 
+  it("builds 98 cards in both colors when the commander has a partner", () => {
+    const partner = card({ name: "Blue Partner", typeLine: "Legendary Creature — Wizard", colorIdentity: ["U"], cmc: 3 });
+    const deck = { ...emptyDeck(commander, 2), partner };
+    const pool = { ...makePoolResponse(makePool(), 2), basicLands: [basic("Mountain", "R"), basic("Island", "U")] };
+    pool.candidates = makePool().filter((c) => fitsIdentity(c.colorIdentity, ["U", "R"]));
+    let state = startSession(deck, pool, 4);
+    state = swipeAll(state);
+    const finished = finish(state.session, state.deck);
+
+    expect(deckTemplate(finished).size).toBe(DECK_SIZE - 1);
+    expect(deckCount(finished.entries)).toBe(DECK_SIZE - 1);
+    expect(finished.entries.some((e) => e.card.name === "Blue Card")).toBe(true);
+    expect(expandEntries(finished.entries).every((c) => fitsIdentity(c.colorIdentity, ["U", "R"]))).toBe(true);
+  });
+
   it("stores the recommended template on the deck", () => {
     const { deck } = start(3, makePool(), 1);
     expect(deck.recommendation?.lands).toBeGreaterThan(30);

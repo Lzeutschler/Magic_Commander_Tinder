@@ -16,7 +16,13 @@ export interface CardStat {
   decks: number;
 }
 
-/** What decks of one commander play, optionally narrowed to a bracket and a theme. */
+/** A commander or Background that decks pair with a commander, e.g. Kraum with Tymna. */
+export interface PairingStat {
+  name: string;
+  deckCount: number;
+}
+
+/** What decks of one commander (or one pair) play, optionally narrowed to a bracket and a theme. */
 export interface CommanderStats {
   deckCount: number;
   themes: CommanderTheme[];

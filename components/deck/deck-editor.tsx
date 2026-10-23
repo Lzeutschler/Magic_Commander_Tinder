@@ -30,6 +30,7 @@ import { allowsMultipleCopies } from "@/lib/cards/names";
 import type { Card } from "@/lib/cards/types";
 import { BRACKET_INFO, bracketViolation } from "@/lib/deckbuilder/brackets";
 import { CARD_TYPES, expandEntries, primaryType, type CardType } from "@/lib/decks/stats";
+import { commandZone, deckIdentity } from "@/lib/decks/command-zone";
 import type { Deck, DeckEntry } from "@/lib/decks/types";
 import { edhrecCommanderUrl } from "@/lib/edhrec/links";
 import { BRACKETS, type Bracket } from "@/lib/edhrec/types";
@@ -38,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { useDeckStore, useDecksHydrated } from "@/stores/decks";
 
 import { AddCardSearch } from "./add-card-search";
+import { CommandZoneCards } from "./command-zone-cards";
 import { DeckStatsPanel } from "./deck-stats-panel";
 import { ExportDialog } from "./export-dialog";
 
@@ -126,9 +128,7 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
       </Link>
 
       <header className="panel flex flex-col gap-5 p-4 sm:p-5 md:flex-row">
-        <div className="w-48 shrink-0 self-center md:w-52 md:self-start">
-          <CardImage card={deck.commander} flippable />
-        </div>
+        <CommandZoneCards deck={deck} />
         <div className="flex flex-1 flex-col gap-4">
           <Input
             key={deck.name}
@@ -141,8 +141,8 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
             className="h-auto border-transparent bg-transparent px-2 -mx-2 font-heading text-3xl leading-tight font-extrabold shadow-none hover:border-input md:text-4xl"
           />
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-            <ColorIdentity colors={deck.commander.colorIdentity} />
-            <span>{deck.commander.name}</span>
+            <ColorIdentity colors={deckIdentity(deck)} />
+            <span>{commandZone(deck).map((c) => c.name).join(" & ")}</span>
             <span>·</span>
             <label className="flex items-center gap-2">
               Bracket
@@ -158,7 +158,7 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
                 ))}
               </select>
             </label>
-            <EdhrecLink href={edhrecCommanderUrl(deck.commander.name, deck.bracket, deck.theme)}>Compare on EDHREC</EdhrecLink>
+            <EdhrecLink href={edhrecCommanderUrl(commandZone(deck), deck.bracket, deck.theme)}>Compare on EDHREC</EdhrecLink>
           </div>
           <div className="mt-auto flex flex-wrap gap-2">
             <Button nativeButton={false} render={<Link href={`/build/${deck.id}`} />}>
@@ -186,10 +186,10 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <div className="flex gap-2">
             <div className="flex-1">
-              <AddCardSearch identity={deck.commander.colorIdentity} onAdd={addCard} />
+              <AddCardSearch identity={deckIdentity(deck)} onAdd={addCard} />
             </div>
             <div className="flex gap-0.5 rounded-md border border-border bg-ink p-0.5">
               <ViewButton active={view === "list"} onClick={() => setView("list")} label="List view">

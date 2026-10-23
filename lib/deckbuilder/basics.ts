@@ -4,7 +4,7 @@ import { deckCount, deckStats } from "@/lib/decks/stats";
 import { DECK_SIZE, type DeckEntry } from "@/lib/decks/types";
 
 /**
- * Adds basic lands until the deck reaches `landTarget` lands (never past 99 cards), giving them to the
+ * Adds basic lands until the deck reaches `landTarget` lands (never past `size` cards), giving them to the
  * colors whose mana sources fall furthest short of their target. Open spell slots stay open, so
  * finishing early never turns a half-built deck into a pile of basics. Each color the spells need aims for a quarter of the lands plus its
  * share of the colored pips, so a light splash still gets enough sources while nonbasic lands that
@@ -15,9 +15,10 @@ export function fillBasics(
   identity: readonly Color[],
   basics: readonly Card[],
   landTarget: number,
+  size: number = DECK_SIZE,
 ): DeckEntry[] {
   const stats = deckStats({ entries, commander: { colorIdentity: [...identity] } });
-  const needed = Math.min(DECK_SIZE - deckCount(entries), landTarget - stats.lands);
+  const needed = Math.min(size - deckCount(entries), landTarget - stats.lands);
   if (needed <= 0) return [...entries];
 
   const byName = new Map(basics.map((b) => [b.name, b]));

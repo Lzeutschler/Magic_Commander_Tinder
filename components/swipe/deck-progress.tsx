@@ -4,7 +4,7 @@ import { CURVE_LABELS } from "@/lib/cards/mana";
 import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
 import { TEMPLATE_ROLES, TEMPLATE_ROLE_LABELS, type DeckTemplate } from "@/lib/deckbuilder/template";
 import type { DeckStats } from "@/lib/decks/stats";
-import { DECK_SIZE, type Deck } from "@/lib/decks/types";
+import type { Deck } from "@/lib/decks/types";
 import { cn } from "@/lib/utils";
 
 export function RoleMeters({ stats, template }: { stats: DeckStats; template: DeckTemplate }) {
@@ -97,13 +97,13 @@ export function DeckCounter({ deck, stats, template }: { deck: Deck; stats: Deck
         <div>
           <div className="numeral text-5xl" data-testid="picked-count">
             {stats.total}
-            <span className="text-xl text-muted-foreground">/{DECK_SIZE}</span>
+            <span className="text-xl text-muted-foreground">/{template.size}</span>
           </div>
           <div className="ui-label mt-1 text-muted-foreground">cards picked</div>
         </div>
         <div className="text-right text-xs leading-relaxed text-muted-foreground tabular-nums">
           <div>
-            Spells {stats.nonlands}/{DECK_SIZE - template.lands}
+            Spells {stats.nonlands}/{template.size - template.lands}
           </div>
           <div title="Basic lands fill the remaining slots when you finish">
             Lands {stats.lands}/{template.lands}
@@ -116,7 +116,7 @@ export function DeckCounter({ deck, stats, template }: { deck: Deck; stats: Deck
       <div className="h-2 overflow-hidden rounded-xs bg-ink shadow-[inset_0_1px_0_0_oklch(0_0_0/40%)]">
         <div
           className="h-full bg-brand transition-all duration-500"
-          style={{ width: `${(stats.total / DECK_SIZE) * 100}%` }}
+          style={{ width: `${(stats.total / template.size) * 100}%` }}
         />
       </div>
     </div>

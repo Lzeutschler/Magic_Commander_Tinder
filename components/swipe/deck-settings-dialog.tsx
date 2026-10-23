@@ -4,14 +4,14 @@ import { DeckSettingsForm } from "@/components/build/deck-settings-form";
 import { SlidersHorizontalIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { recommendTemplate } from "@/lib/deckbuilder/template";
+import { deckRecommendation } from "@/lib/deckbuilder/settings";
 import type { Deck } from "@/lib/decks/types";
 import { useDeckStore } from "@/stores/decks";
 
 /** Swipe settings while swiping; every change applies to the next suggestion. */
 export function DeckSettingsDialog({ deck, trigger }: { deck: Deck; trigger?: React.ReactElement }) {
   const updateSettings = useDeckStore((s) => s.updateSettings);
-  const recommended = deck.recommendation ?? recommendTemplate(deck.bracket, deck.commander.colorIdentity, null);
+  const recommended = deckRecommendation(deck);
 
   return (
     <Dialog>

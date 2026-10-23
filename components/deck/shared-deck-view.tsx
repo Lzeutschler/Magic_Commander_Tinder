@@ -6,7 +6,6 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
-import { CardImage } from "@/components/card/card-image";
 import { CardSheet } from "@/components/card/card-sheet";
 import { ColorIdentity, ManaCost } from "@/components/card/mana";
 import { EdhrecLink } from "@/components/edhrec-link";
@@ -15,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import type { Card } from "@/lib/cards/types";
 import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
 import { DEFAULT_SETTINGS } from "@/lib/deckbuilder/settings";
+import { commandZone, deckIdentity } from "@/lib/decks/command-zone";
 import { CARD_TYPES, deckCount, primaryType, type CardType } from "@/lib/decks/stats";
 import { edhrecCommanderUrl } from "@/lib/edhrec/links";
 import type { Deck } from "@/lib/decks/types";
@@ -22,6 +22,7 @@ import type { ResolvedSharedDeck } from "@/lib/server/shared-deck";
 import { cn } from "@/lib/utils";
 import { useDeckStore, useDecksHydrated } from "@/stores/decks";
 
+import { CommandZoneCards } from "./command-zone-cards";
 import { DeckStatsPanel } from "./deck-stats-panel";
 import { ExportDialog } from "./export-dialog";
 
@@ -44,7 +45,14 @@ export function SharedDeckView({ shared }: { shared: ResolvedSharedDeck }) {
   // One copy per visit, whether the visitor saves first or goldfishes first.
   const save = () => {
     if (savedId) return savedId;
-    const id = createDeck({ commander: deck.commander, bracket: deck.bracket, theme: deck.theme, name: deck.name, entries: deck.entries });
+    const id = createDeck({
+      commander: deck.commander,
+      partner: deck.partner,
+      bracket: deck.bracket,
+      theme: deck.theme,
+      name: deck.name,
+      entries: deck.entries,
+    });
     setSavedId(id);
     return id;
   };
@@ -59,25 +67,23 @@ export function SharedDeckView({ shared }: { shared: ResolvedSharedDeck }) {
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6">
       <header className="panel flex flex-col gap-5 p-4 sm:p-5 md:flex-row">
-        <div className="w-48 shrink-0 self-center md:w-52 md:self-start">
-          <CardImage card={deck.commander} flippable />
-        </div>
+        <CommandZoneCards deck={deck} />
         <div className="flex flex-1 flex-col gap-4">
           <div className="space-y-1">
             <p className="ui-label text-muted-foreground">Shared deck</p>
             <h1 className="font-heading text-3xl leading-tight font-extrabold md:text-4xl">{deck.name}</h1>
           </div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-            <ColorIdentity colors={deck.commander.colorIdentity} />
-            <span>{deck.commander.name}</span>
+            <ColorIdentity colors={deckIdentity(deck)} />
+            <span>{commandZone(deck).map((c) => c.name).join(" & ")}</span>
             <span>·</span>
             <span>
               Bracket {deck.bracket} – {BRACKET_INFO[deck.bracket].name}
             </span>
             <span>·</span>
-            <span className="tabular-nums">{deckCount(deck.entries) + 1} cards</span>
+            <span className="tabular-nums">{deckCount(deck.entries) + commandZone(deck).length} cards</span>
             <span>·</span>
-            <EdhrecLink href={edhrecCommanderUrl(deck.commander.name, deck.bracket, deck.theme)}>Compare on EDHREC</EdhrecLink>
+            <EdhrecLink href={edhrecCommanderUrl(commandZone(deck), deck.bracket, deck.theme)}>Compare on EDHREC</EdhrecLink>
           </div>
           {shared.missing.length > 0 && (
             <p className="flex gap-2 text-sm text-maybe">
@@ -113,7 +119,7 @@ export function SharedDeckView({ shared }: { shared: ResolvedSharedDeck }) {
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <div className="columns-1 gap-5 md:columns-2">
             {groups.map((group) => (
               <section key={group.type} className="mb-5 break-inside-avoid">

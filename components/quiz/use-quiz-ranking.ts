@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 
+import { isBackground } from "@/lib/cards/pairing";
 import { useCommanders } from "@/lib/data/client";
 import { QUESTIONS } from "@/lib/quiz/questions";
 import { buildProfile, createScoringContext, rankCommanders } from "@/lib/quiz/scoring";
@@ -14,11 +15,13 @@ export function useQuizRanking(track: Track) {
   const answers = useQuizAnswers();
   const popularity = useQuizStore((s) => s.popularity);
 
-  const context = useMemo(() => (commanders.data ? createScoringContext(commanders.data) : null), [commanders.data]);
+  // Backgrounds only join a commander, so they are never a match on their own.
+  const leaders = useMemo(() => commanders.data?.filter((c) => !isBackground(c)), [commanders.data]);
+  const context = useMemo(() => (leaders ? createScoringContext(leaders) : null), [leaders]);
   const profile = useMemo(() => buildProfile(track, QUESTIONS[track], answers), [track, answers]);
   const ranked = useMemo(
-    () => (commanders.data && context ? rankCommanders(commanders.data, profile, popularity, context) : []),
-    [commanders.data, context, profile, popularity],
+    () => (leaders && context ? rankCommanders(leaders, profile, popularity, context) : []),
+    [leaders, context, profile, popularity],
   );
   const byId = useMemo(() => new Map<string, ScoredCommander>(ranked.map((r) => [r.commander.id, r])), [ranked]);
 

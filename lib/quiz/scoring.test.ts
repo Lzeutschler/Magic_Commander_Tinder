@@ -135,10 +135,11 @@ describe("scoring", () => {
   });
 
   it("matches complexity through rules text", () => {
-    const simpleText = { oracleText: "Flying", partner: null };
+    const simpleText = { name: "Simple", oracleText: "Flying", pairings: [] };
     const complexText = {
       oracleText: "Whenever you cast a spell, copy it.\n{T}: Untap another permanent.\nAt the beginning of your end step, if you control three or more artifacts, draw a card for each.",
-      partner: null,
+      name: "Complex",
+      pairings: [],
     };
     expect(rulesComplexity(complexText)).toBeGreaterThan(rulesComplexity(simpleText));
     const simple = commander({ name: "Simple", complexity: rulesComplexity(simpleText) });

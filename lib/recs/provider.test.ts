@@ -15,9 +15,11 @@ vi.mock("@/lib/edhrec/fetch-commander", () => ({
     }
   },
   fetchCommanderPage: vi.fn(),
+  fetchPairingsPage: vi.fn(),
 }));
 
 const fetchPage = vi.mocked(fetchCommanderPage);
+const krenko = { name: "Krenko, Mob Boss", typeLine: "Legendary Creature — Goblin Warrior" };
 const stats = { deckCount: 120, themes: [], bracketCounts: {}, averageLands: 37, cards: [] };
 
 describe("recsSource", () => {
@@ -48,22 +50,31 @@ describe("loadCommanderStats", () => {
 
   it("asks nobody when switched off", async () => {
     vi.stubEnv("RECS_SOURCE", "off");
-    await expect(loadCommanderStats("Krenko, Mob Boss", 3, "tokens")).resolves.toEqual({ stats: null, failed: false });
+    await expect(loadCommanderStats([krenko], 3, "tokens")).resolves.toEqual({ stats: null, failed: false });
     expect(fetchPage).not.toHaveBeenCalled();
   });
 
   it("reads EDHREC by commander slug", async () => {
     vi.stubEnv("RECS_SOURCE", "edhrec");
     fetchPage.mockResolvedValue(stats);
-    await expect(loadCommanderStats("Krenko, Mob Boss", 3, "tokens")).resolves.toEqual({ stats, failed: false });
+    await expect(loadCommanderStats([krenko], 3, "tokens")).resolves.toEqual({ stats, failed: false });
     expect(fetchPage).toHaveBeenCalledWith("krenko-mob-boss", 3, "tokens");
+  });
+
+  it("reads a pair from its own page", async () => {
+    vi.stubEnv("RECS_SOURCE", "edhrec");
+    fetchPage.mockResolvedValue(stats);
+    const giants = { name: "Raised by Giants", typeLine: "Legendary Enchantment — Background" };
+    const wilson = { name: "Wilson, Refined Grizzly", typeLine: "Legendary Creature — Bear Warrior" };
+    await loadCommanderStats([giants, wilson]);
+    expect(fetchPage).toHaveBeenCalledWith("wilson-refined-grizzly-raised-by-giants", undefined, undefined);
   });
 
   it("treats a missing page as no data and anything else as a failure to retry", async () => {
     vi.stubEnv("RECS_SOURCE", "edhrec");
     fetchPage.mockRejectedValueOnce(new EdhrecError("missing", 404));
-    await expect(loadCommanderStats("Krenko, Mob Boss")).resolves.toEqual({ stats: null, failed: false });
+    await expect(loadCommanderStats([krenko])).resolves.toEqual({ stats: null, failed: false });
     fetchPage.mockRejectedValueOnce(new EdhrecError("busy", 429));
-    await expect(loadCommanderStats("Krenko, Mob Boss")).resolves.toEqual({ stats: null, failed: true });
+    await expect(loadCommanderStats([krenko])).resolves.toEqual({ stats: null, failed: true });
   });
 });

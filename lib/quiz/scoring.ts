@@ -1,5 +1,6 @@
 import { COLOR_NAMES, identityName } from "@/lib/cards/colors";
 import { frontFaceName } from "@/lib/cards/names";
+import { pairingLabel, type Pairable } from "@/lib/cards/pairing";
 import type { Card, Color, CommanderSummary } from "@/lib/cards/types";
 import { ARCHETYPE_LABELS, ARCHETYPE_IDS, type ArchetypeId } from "@/lib/tagging/archetypes";
 import { stripReminderText } from "@/lib/tagging/themes";
@@ -129,10 +130,10 @@ export function buildProfile(track: Track, questions: Question[], answers: Answe
  * Rough rules complexity: text length plus a premium per ability and for partner pairings. Runs at
  * build time; commanders carry the result as `complexity`.
  */
-export function rulesComplexity(commander: Pick<Card, "oracleText"> & Pick<CommanderSummary, "partner">): number {
+export function rulesComplexity(commander: Pick<Card, "oracleText"> & Pairable): number {
   const text = stripReminderText(commander.oracleText);
   const abilities = text.split("\n").filter((line) => line.trim() && line.trim() !== "//").length;
-  return text.length + abilities * 40 + (commander.partner ? 60 : 0);
+  return text.length + abilities * 40 + (pairingLabel(commander) ? 60 : 0);
 }
 
 /** Percentiles across all commanders, computed once per commander list. */
@@ -262,7 +263,7 @@ export function scoreCommander(
     const text = profile.complexity === "simple" ? "Simple to play" : profile.complexity === "complex" ? "Lots to master" : "";
     add("complexity", points * WEIGHTS.complexity, points > 0.3 ? text : "");
   }
-  if (profile.track === "beginner" && commander.partner) add("complexity", -WEIGHTS.partner);
+  if (profile.track === "beginner" && pairingLabel(commander)) add("complexity", -WEIGHTS.partner);
 
   // Popularity.
   const p = context.popularity.get(commander.id) ?? 0;
