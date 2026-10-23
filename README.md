@@ -114,10 +114,15 @@ build command (`pnpm build`, which first downloads the Scryfall bulk data).
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | recommended | Public origin without trailing slash, e.g. `https://brewmance.com`. Used for `metadataBase` (canonical and Open Graph URLs), `robots.txt` and `sitemap.xml`. |
+| `RECS_SOURCE` | no | Where deck statistics come from: `edhrec` (default) or `off`. `off` sends no request to EDHREC, neither at runtime nor in the build, and suggestions fall back to Scryfall popularity, themes and roles. Unknown values count as `off`. |
 
 Without `NEXT_PUBLIC_SITE_URL`, `lib/site.ts` falls back to Vercel's `VERCEL_PROJECT_PRODUCTION_URL`
 (the production domain, set automatically) and then to `http://localhost:3000`. Set it for Production
 in *Project Settings → Environment Variables* once the custom domain is live, then redeploy.
+
+To switch EDHREC off, set `RECS_SOURCE=off` for Production (build and runtime both read it) and redeploy.
+The new deployment rebuilds the card data without EDHREC themes, and Vercel's CDN does not serve
+responses cached by the previous deployment.
 
 ### Domain
 

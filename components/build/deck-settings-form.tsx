@@ -84,7 +84,7 @@ export function DeckSettingsForm({
           <>
             <Stepper
               label="Lands"
-              hint={`Recommended from the EDHREC average and Frank Karsten's land formula. Leaves ${DECK_SIZE - template.lands} spell slots.`}
+              hint={`Recommended from this commander's deck data and Frank Karsten's land formula, or the bracket default without deck data. Leaves ${DECK_SIZE - template.lands} spell slots.`}
               value={template.lands}
               recommended={recommended.lands}
               min={20}

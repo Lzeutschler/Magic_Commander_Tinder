@@ -155,7 +155,7 @@ export function CommanderSetup({
                   {THEME_LABELS.get(t) ?? t}
                 </Badge>
               ))}
-              <span className="text-sm text-muted-foreground">No EDHREC themes for this commander yet.</span>
+              <span className="text-sm text-muted-foreground">No deck themes for this commander yet.</span>
             </div>
           )}
         </div>
