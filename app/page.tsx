@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { DeckList } from "@/components/deck/deck-list";
 import { BrewScene } from "@/components/home/brew-scene";
+import { SwipeShowcase } from "@/components/home/swipe-showcase";
 import { ArrowRightIcon, ManaGlyph, type ManaGlyphName } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { canonical } from "@/lib/metadata";
@@ -37,11 +38,12 @@ const FEATURES: { title: string; text: string; href: string; glyph: ManaGlyphNam
 
 export default function HomePage() {
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-16 px-4 py-12 sm:py-16">
-      {/* Clipped sideways: the swiped-right cards fly out of the scene. */}
+    <div className="mx-auto w-full max-w-6xl space-y-16 px-4 pt-8 pb-12 sm:py-16">
+      {/* Clipped sideways: the swiped cards fly out of the scene. */}
       <section className="grid items-center gap-10 overflow-x-clip md:grid-cols-[1.2fr_1fr]">
-        <div className="space-y-6">
-          <h1 className="text-5xl leading-[0.95] font-extrabold sm:text-6xl">
+        {/* On a phone the swipe stack comes right under the headline, then the buttons, then the pitch. */}
+        <div className="flex flex-col gap-5 sm:gap-6">
+          <h1 className="text-[2.6rem] leading-[1.06] font-extrabold min-[400px]:text-5xl sm:text-6xl md:text-5xl lg:text-6xl">
             {/* Hyphenated words such as "bracket-legal" stay on one line. */}
             {SITE.tagline.split(/(\S+-\S+)/).map((part, i) =>
               i % 2 ? (
@@ -53,7 +55,8 @@ export default function HomePage() {
               ),
             )}
           </h1>
-          <p className="max-w-xl text-lg text-muted-foreground">
+          <SwipeShowcase className="py-1 text-[14px] min-[400px]:text-[15px] md:hidden" />
+          <p className="order-1 max-w-xl text-lg text-muted-foreground md:order-none">
             Pick a commander and a bracket, then swipe right on the cards you love. Ramp, draw, removal and the mana
             curve stay on target, and Game Changers and two-card combos stay within your bracket. Then goldfish the
             deck right here: free, no account.
@@ -67,8 +70,8 @@ export default function HomePage() {
             </Button>
           </div>
         </div>
-        <div className="flex justify-center md:justify-end">
-          <BrewScene className="text-[7px] min-[400px]:text-[8px] sm:text-[9px] lg:text-[11px]" />
+        <div className="hidden justify-center md:flex md:justify-end">
+          <BrewScene className="text-[9px] lg:text-[11px]" />
         </div>
       </section>
 
