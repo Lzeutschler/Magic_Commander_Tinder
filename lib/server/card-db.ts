@@ -26,12 +26,17 @@ export function getCardDb(): Promise<CardDb> {
   return db;
 }
 
+// Whole file names, so Next's file tracing bundles just these two and not all of data/ (the
+// recommendation snapshot there is for API routes only).
+const CARDS_FILE = path.join(process.cwd(), "data/cards.json");
+const TOKENS_FILE = path.join(process.cwd(), "data/tokens.json");
+
 async function readData<T>(file: string): Promise<T> {
-  return JSON.parse(await readFile(path.join(process.cwd(), "data", file), "utf8")) as T;
+  return JSON.parse(await readFile(file, "utf8")) as T;
 }
 
 async function load(): Promise<CardDb> {
-  const [cards, tokens] = await Promise.all([readData<Card[]>("cards.json"), readData<TokenCard[]>("tokens.json")]);
+  const [cards, tokens] = await Promise.all([readData<Card[]>(CARDS_FILE), readData<TokenCard[]>(TOKENS_FILE)]);
   const byId = new Map<string, Card>();
   const byName = new Map<string, Card>();
   for (const card of cards) {

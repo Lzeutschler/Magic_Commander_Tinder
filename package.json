@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "data": "tsx scripts/build-card-db.ts",
-    "predev": "tsx scripts/build-card-db.ts",
+    "data": "tsx scripts/build-card-db.ts --force && tsx scripts/build-recs-snapshot.ts --force",
+    "predev": "tsx scripts/build-card-db.ts && tsx scripts/build-recs-snapshot.ts",
     "dev": "next dev",
-    "prebuild": "tsx scripts/build-card-db.ts",
+    "prebuild": "tsx scripts/build-card-db.ts && tsx scripts/build-recs-snapshot.ts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

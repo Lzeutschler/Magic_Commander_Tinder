@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { EdhrecError, fetchCommanderPage } from "@/lib/edhrec/fetch-commander";
 
 import { loadCommanderStats } from "./provider";
+import { loadSnapshotStats } from "./snapshot";
 import { recsSource } from "./source";
 
 vi.mock("@/lib/edhrec/fetch-commander", () => ({
@@ -18,7 +19,10 @@ vi.mock("@/lib/edhrec/fetch-commander", () => ({
   fetchPairingsPage: vi.fn(),
 }));
 
+vi.mock("./snapshot", () => ({ loadSnapshotStats: vi.fn() }));
+
 const fetchPage = vi.mocked(fetchCommanderPage);
+const snapshot = vi.mocked(loadSnapshotStats);
 const krenko = { name: "Krenko, Mob Boss", typeLine: "Legendary Creature — Goblin Warrior" };
 const stats = { deckCount: 120, themes: [], bracketCounts: {}, averageLands: 37, cards: [] };
 
@@ -46,6 +50,7 @@ describe("loadCommanderStats", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
     fetchPage.mockReset();
+    snapshot.mockReset();
   });
 
   it("asks nobody when switched off", async () => {
@@ -72,9 +77,28 @@ describe("loadCommanderStats", () => {
 
   it("treats a missing page as no data and anything else as a failure to retry", async () => {
     vi.stubEnv("RECS_SOURCE", "edhrec");
+    snapshot.mockResolvedValue(null);
     fetchPage.mockRejectedValueOnce(new EdhrecError("missing", 404));
     await expect(loadCommanderStats([krenko])).resolves.toEqual({ stats: null, failed: false });
     fetchPage.mockRejectedValueOnce(new EdhrecError("busy", 429));
     await expect(loadCommanderStats([krenko])).resolves.toEqual({ stats: null, failed: true });
+  });
+
+  it("stands in with the bulk data snapshot when EDHREC cannot be asked, still as a failure to retry", async () => {
+    vi.stubEnv("RECS_SOURCE", "edhrec");
+    snapshot.mockResolvedValue(stats);
+    fetchPage.mockRejectedValueOnce(new EdhrecError("busy", 429));
+    await expect(loadCommanderStats([krenko], 3)).resolves.toEqual({ stats, failed: true });
+    expect(snapshot).toHaveBeenCalledWith([krenko]);
+
+    fetchPage.mockResolvedValueOnce(stats);
+    await loadCommanderStats([krenko]);
+    expect(snapshot).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not read the snapshot when switched off", async () => {
+    vi.stubEnv("RECS_SOURCE", "off");
+    await loadCommanderStats([krenko]);
+    expect(snapshot).not.toHaveBeenCalled();
   });
 });

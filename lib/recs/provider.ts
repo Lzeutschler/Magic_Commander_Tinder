@@ -6,6 +6,7 @@ import type { Card } from "@/lib/cards/types";
 import { EdhrecError, fetchCommanderPage, fetchPairingsPage } from "@/lib/edhrec/fetch-commander";
 import type { Bracket } from "@/lib/edhrec/types";
 
+import { loadSnapshotStats } from "./snapshot";
 import { recsSource } from "./source";
 import type { CommanderStats, PairingStat } from "./types";
 
@@ -13,22 +14,28 @@ type Commander = Pick<Card, "name" | "typeLine">;
 
 export interface StatsResult {
   stats: CommanderStats | null;
-  /** The source could not be asked (down, busy or blocking us), so the answer should be retried soon. */
+  /**
+   * The source could not be asked (down, busy or blocking us), so the answer should be retried soon.
+   * `stats` then come from the EDHREC bulk data snapshot, when it has the commander.
+   */
   failed: boolean;
 }
 
 /**
  * Deck statistics for a commander, or a pair of them, from the source RECS_SOURCE picks, or null with
  * the reason: stats the source does not have (or a switched-off source) are a fine answer to cache, a
- * failed request is not.
+ * failed request is not. When EDHREC cannot be asked, the bulk data snapshot stands in, across all
+ * brackets and without themes.
  */
 export async function loadCommanderStats(commanders: readonly Commander[], bracket?: Bracket, theme?: string): Promise<StatsResult> {
   const source = recsSource();
   switch (source) {
     case "off":
       return { stats: null, failed: false };
-    case "edhrec":
-      return fromEdhrec(() => fetchCommanderPage(commandZoneSlug(commanders), bracket, theme), null);
+    case "edhrec": {
+      const live = await fromEdhrec(() => fetchCommanderPage(commandZoneSlug(commanders), bracket, theme), null);
+      return live.failed ? { stats: await loadSnapshotStats(commanders), failed: true } : live;
+    }
     default:
       throw new Error(`Unhandled recommendation source: ${source satisfies never}`);
   }
