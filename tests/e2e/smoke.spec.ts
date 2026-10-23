@@ -171,11 +171,11 @@ test("share a quiz shortlist and build its best match", async ({ page, browser }
   await expect(other.getByRole("button", { name: "Start swiping" })).toBeEnabled({ timeout: 30_000 });
 });
 
-// Goldfish on a phone: the toolbar and the whole hand fit the screen, and tapping a card plays it.
+// On a phone: deck cards open by tap, and goldfish fits the screen with cards played by tap.
 test.describe("on a phone", () => {
   test.use({ viewport: { width: 390, height: 664 }, hasTouch: true, isMobile: true });
 
-  test("goldfish fits the screen and plays cards by tap", async ({ page }) => {
+  test("open cards by tap and goldfish on a small touch screen", async ({ page }) => {
     await page.goto("/build");
     await page.getByPlaceholder("Search commanders or creature types…").fill("krenko mob");
     await page.getByRole("button", { name: "Krenko, Mob Boss" }).click();
@@ -186,6 +186,17 @@ test.describe("on a phone", () => {
       await page.waitForTimeout(80);
     }
     await page.getByRole("button", { name: "Finish with basics & edit" }).click();
+
+    // No hover on a phone: tapping a card in the list opens it big, with its actions.
+    const firstCard = page.locator("main li > button").first();
+    const name = (await firstCard.textContent())!.trim();
+    await firstCard.tap();
+    const sheet = page.getByRole("dialog");
+    await expect(sheet.getByRole("heading", { name })).toBeVisible();
+    await expect(sheet.getByRole("button", { name: "Move to maybe" })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(sheet).toBeHidden();
+
     await page.getByRole("button", { name: "Goldfish" }).click();
     await page.getByRole("button", { name: "Keep 7" }).click();
 

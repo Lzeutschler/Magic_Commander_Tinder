@@ -70,11 +70,11 @@ export function SwipeButtons({
   );
 }
 
-/** ← pass, ↑ maybe, → pick, Z or Backspace undo — ignored while typing in a field. */
+/** ← pass, ↑ maybe, → pick, Z or Backspace undo — ignored while typing in a field or inside a dialog. */
 export function useSwipeKeys(onDecision: (decision: SwipeDecision) => void, onUndo: () => void) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLElement && e.target.closest("input, textarea")) return;
+      if (e.target instanceof HTMLElement && e.target.closest("input, textarea, [role=dialog]")) return;
       if (e.key === "ArrowRight") onDecision("pick");
       else if (e.key === "ArrowLeft") onDecision("pass");
       else if (e.key === "ArrowUp") onDecision("maybe");

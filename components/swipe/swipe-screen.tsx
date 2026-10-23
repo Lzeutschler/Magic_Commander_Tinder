@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { CardImage } from "@/components/card/card-image";
+import { CardSheet } from "@/components/card/card-sheet";
 import { ManaCost } from "@/components/card/mana";
 import { BrewLoader, CelebrationCauldron } from "@/components/cauldron";
 import { EdhrecLink } from "@/components/edhrec-link";
@@ -22,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cardImageUrl } from "@/lib/cards/image";
 import { frontFaceName } from "@/lib/cards/names";
+import type { Card } from "@/lib/cards/types";
 import { fetchCandidatePool } from "@/lib/data/client";
 import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
 import { explainCandidate, type CandidateReason } from "@/lib/deckbuilder/score";
@@ -101,6 +103,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
   const skipToLands = useDeckStore((s) => s.skipToLands);
   const finishSwipe = useDeckStore((s) => s.finishSwipe);
   const [lastDecision, setLastDecision] = useState<SwipeDecision | null>(null);
+  const [inspected, setInspected] = useState<Card | null>(null);
 
   const stats = useMemo(() => deckStats(deck), [deck]);
   const template = useMemo(() => deckTemplate(deck), [deck]);
@@ -161,6 +164,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
             <div className="text-xs text-muted-foreground">
               Bracket {deck.bracket} · {BRACKET_INFO[deck.bracket].name}
               {deck.theme ? ` · ${deck.theme}` : ""}
+              {deck.settings.preferences.maxPriceUsd !== null ? ` · up to $${deck.settings.preferences.maxPriceUsd} per card` : ""}
             </div>
           </div>
         </div>
@@ -298,7 +302,9 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
               {recentPicks.map((card) => (
                 <CardHoverPreview key={card.id} card={card}>
                   <li className="flex items-center justify-between gap-2 rounded-md px-2 py-1.5 hover:bg-accent">
-                    <span className="truncate">{card.name}</span>
+                    <button type="button" onClick={() => setInspected(card)} className="min-h-7 truncate text-left hover:underline">
+                      {card.name}
+                    </button>
                     <ManaCost cost={card.manaCost} />
                   </li>
                 </CardHoverPreview>
@@ -310,6 +316,8 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
           )}
         </div>
       </aside>
+
+      <CardSheet card={inspected} onClose={() => setInspected(null)} />
     </div>
   );
 }

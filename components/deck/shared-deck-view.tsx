@@ -7,10 +7,12 @@ import { toast } from "sonner";
 
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { CardImage } from "@/components/card/card-image";
+import { CardSheet } from "@/components/card/card-sheet";
 import { ColorIdentity, ManaCost } from "@/components/card/mana";
 import { EdhrecLink } from "@/components/edhrec-link";
 import { DownloadSimpleIcon, HeartIcon, PlayIcon, WarningIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import type { Card } from "@/lib/cards/types";
 import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
 import { DEFAULT_SETTINGS } from "@/lib/deckbuilder/settings";
 import { CARD_TYPES, deckCount, primaryType, type CardType } from "@/lib/decks/stats";
@@ -31,6 +33,7 @@ export function SharedDeckView({ shared }: { shared: ResolvedSharedDeck }) {
   const hydrated = useDecksHydrated();
   const createDeck = useDeckStore((s) => s.createDeck);
   const [savedId, setSavedId] = useState<string | null>(null);
+  const [inspected, setInspected] = useState<Card | null>(null);
 
   // The stats panel and the export work on a full deck, so the shared one gets default settings.
   const deck = useMemo<Deck>(
@@ -123,9 +126,14 @@ export function SharedDeckView({ shared }: { shared: ResolvedSharedDeck }) {
                     <CardHoverPreview key={card.id} card={card}>
                       <li className="flex min-h-10 items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-accent">
                         <span className="w-5 text-right text-muted-foreground tabular-nums">{quantity}</span>
-                        <span className={cn("flex-1 truncate", card.gameChanger && "text-brand")} title={card.gameChanger ? "Game Changer" : undefined}>
+                        <button
+                          type="button"
+                          onClick={() => setInspected(card)}
+                          className={cn("min-h-9 flex-1 truncate text-left hover:underline", card.gameChanger && "text-brand")}
+                          title={card.gameChanger ? "Game Changer" : undefined}
+                        >
                           {card.name}
-                        </span>
+                        </button>
                         <ManaCost cost={card.manaCost} className="shrink-0" />
                       </li>
                     </CardHoverPreview>
@@ -157,6 +165,8 @@ export function SharedDeckView({ shared }: { shared: ResolvedSharedDeck }) {
           <DeckStatsPanel deck={deck} />
         </aside>
       </div>
+
+      <CardSheet card={inspected} onClose={() => setInspected(null)} />
     </div>
   );
 }

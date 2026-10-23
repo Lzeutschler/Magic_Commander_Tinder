@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { CardImage } from "@/components/card/card-image";
+import { CardSheet, isTouchScreen } from "@/components/card/card-sheet";
 import { ColorIdentity, ManaCost } from "@/components/card/mana";
 import { EmptyCauldron } from "@/components/cauldron";
 import { EdhrecLink } from "@/components/edhrec-link";
@@ -66,6 +67,10 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
   const updateDeck = useDeckStore((s) => s.updateDeck);
   const deleteDeck = useDeckStore((s) => s.deleteDeck);
   const [view, setView] = useState<"list" | "visual">("list");
+  // The card opened big; it closes by itself once it is neither in the deck nor on the maybe list.
+  const [inspected, setInspected] = useState<Card | null>(null);
+  const inspectedEntry = inspected ? deck.entries.find((e) => e.card.id === inspected.id) : undefined;
+  const inspectedMaybe = inspected !== null && deck.maybe.some((c) => c.id === inspected.id);
 
   const update = (fn: (deck: Deck) => Deck) => updateDeck(deck.id, fn);
 
@@ -221,6 +226,7 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
                           onAdd={() => addCard(entry.card)}
                           onRemove={() => changeQuantity(entry, -1)}
                           onMaybe={() => moveToMaybe(entry)}
+                          onInspect={() => setInspected(entry.card)}
                         />
                       ))}
                     </ul>
@@ -231,7 +237,8 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
                         <CardHoverPreview key={entry.card.id} card={entry.card}>
                           <button
                             type="button"
-                            onClick={() => changeQuantity(entry, -1)}
+                            // Touch screens cannot hover to read the card, so a tap opens it instead of removing one.
+                            onClick={() => (isTouchScreen() ? setInspected(entry.card) : changeQuantity(entry, -1))}
                             title={`${entry.card.name} · click to remove one`}
                             aria-label={`Remove one ${entry.card.name}`}
                             className={cn(
@@ -270,7 +277,9 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
                 {deck.maybe.map((card) => (
                   <CardHoverPreview key={card.id} card={card}>
                     <li className="flex min-h-11 items-center gap-3 px-2 py-1 text-sm">
-                      <span className="flex-1 truncate">{card.name}</span>
+                      <button type="button" onClick={() => setInspected(card)} className="min-h-9 flex-1 truncate text-left hover:underline">
+                        {card.name}
+                      </button>
                       <ManaCost cost={card.manaCost} />
                       <Button size="xs" variant="outline" onClick={() => addCard(card)}>
                         <PlusIcon /> Add
@@ -295,6 +304,47 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
           <DeckStatsPanel deck={deck} />
         </aside>
       </div>
+
+      <CardSheet card={inspectedEntry || inspectedMaybe ? inspected : null} onClose={() => setInspected(null)}>
+        {inspectedEntry ? (
+          <>
+            {allowsMultipleCopies(inspectedEntry.card.name, inspectedEntry.card.oracleText) && (
+              <span className="flex items-center gap-2">
+                <Button size="icon-sm" variant="outline" aria-label="Remove one" onClick={() => changeQuantity(inspectedEntry, -1)}>
+                  <MinusIcon />
+                </Button>
+                <span className="min-w-16 text-center tabular-nums">{inspectedEntry.quantity} in deck</span>
+                <Button size="icon-sm" variant="outline" aria-label="Add one" onClick={() => addCard(inspectedEntry.card)}>
+                  <PlusIcon />
+                </Button>
+              </span>
+            )}
+            <Button variant="outline" onClick={() => moveToMaybe(inspectedEntry)}>
+              <StarIcon /> Move to maybe
+            </Button>
+            <Button
+              variant="ghost"
+              className="text-destructive"
+              onClick={() => changeQuantity(inspectedEntry, -inspectedEntry.quantity)}
+            >
+              <TrashIcon /> Remove
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button onClick={() => inspected && addCard(inspected)}>
+              <PlusIcon /> Add to deck
+            </Button>
+            <Button
+              variant="ghost"
+              className="text-destructive"
+              onClick={() => update((d) => ({ ...d, maybe: d.maybe.filter((m) => m.id !== inspected?.id) }))}
+            >
+              <TrashIcon /> Remove from maybe
+            </Button>
+          </>
+        )}
+      </CardSheet>
     </div>
   );
 }
@@ -304,11 +354,14 @@ function CardRow({
   onAdd,
   onRemove,
   onMaybe,
+  onInspect,
 }: {
   entry: DeckEntry;
   onAdd: () => void;
   onRemove: () => void;
   onMaybe: () => void;
+  /** Opens the card big, which is how touch screens read it. */
+  onInspect: () => void;
 }) {
   const { card, quantity } = entry;
   const multiple = allowsMultipleCopies(card.name, card.oracleText);
@@ -316,11 +369,17 @@ function CardRow({
     <CardHoverPreview card={card}>
       <li className="group flex items-center gap-2 min-h-11 rounded-md px-2 py-1 text-sm hover:bg-accent">
         <span className="w-5 text-right text-muted-foreground tabular-nums">{quantity}</span>
-        <span className={cn("flex-1 truncate", card.gameChanger && "text-brand")} title={card.gameChanger ? "Game Changer" : undefined}>
+        <button
+          type="button"
+          onClick={onInspect}
+          className={cn("min-h-9 flex-1 truncate text-left hover:underline", card.gameChanger && "text-brand")}
+          title={card.gameChanger ? "Game Changer" : undefined}
+        >
           {card.name}
-        </span>
+        </button>
         <ManaCost cost={card.manaCost} className="shrink-0" />
-        <span className="flex gap-0.5 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+        {/* Shown on hover with a mouse; touch screens (tablets too) always show them. */}
+        <span className="flex gap-0.5 opacity-100 transition sm:pointer-fine:opacity-0 sm:pointer-fine:group-hover:opacity-100 sm:pointer-fine:group-focus-within:opacity-100">
           {multiple && (
             <Button size="icon-xs" variant="ghost" aria-label={`Add another ${card.name}`} onClick={onAdd}>
               <PlusIcon />

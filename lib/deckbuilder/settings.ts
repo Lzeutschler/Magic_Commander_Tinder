@@ -71,12 +71,15 @@ export function isRecommended(settings: DeckSettings): boolean {
   );
 }
 
-/** Short notes on everything that differs from the defaults, e.g. ["Max. $5 per card", "More synergy"]. */
-export function describeSettings(settings: DeckSettings): string[] {
+/**
+ * Short notes on everything that differs from the defaults, e.g. ["Max. $5 per card", "More synergy"].
+ * `budget: false` leaves the price limit out where it is shown on its own.
+ */
+export function describeSettings(settings: DeckSettings, { budget = true }: { budget?: boolean } = {}): string[] {
   const { overrides, preferences } = settings;
   const notes: string[] = [];
   if (hasOverrides(overrides)) notes.push("Custom targets");
-  if (preferences.maxPriceUsd !== null) notes.push(`Max. $${preferences.maxPriceUsd} per card`);
+  if (budget && preferences.maxPriceUsd !== null) notes.push(`Max. $${preferences.maxPriceUsd} per card`);
   if (preferences.synergy !== DEFAULT_PREFERENCES.synergy) {
     notes.push(SYNERGY_STEPS.find((s) => s.value === preferences.synergy)?.label ?? "Custom weighting");
   }
