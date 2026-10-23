@@ -3,6 +3,8 @@ import "server-only";
 import { cacheLife } from "next/cache";
 import { z } from "zod";
 
+import { USER_AGENT } from "@/lib/site";
+
 import { BRACKET_SLUGS, type Bracket, type EdhrecCardStat, type EdhrecCommanderPage } from "./types";
 
 const cardViewSchema = z.object({
@@ -47,7 +49,7 @@ export async function fetchCommanderPage(
 
   const segments = [slug, bracket ? BRACKET_SLUGS[bracket] : null, theme].filter(Boolean).join("/");
   const res = await fetch(`https://json.edhrec.com/pages/commanders/${segments}.json`, {
-    headers: { "User-Agent": "Brewmance/0.1", Accept: "application/json" },
+    headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
   });
   if (!res.ok) throw new EdhrecError(`EDHREC ${segments}: HTTP ${res.status}`, res.status);
 

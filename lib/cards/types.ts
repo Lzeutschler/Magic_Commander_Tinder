@@ -58,18 +58,23 @@ export type PartnerKind =
   | "background"
   | "doctors-companion";
 
+/** What it takes to draw a card; without an image, the rules text (when known) fills the face. */
+export type CardDisplay = Pick<Card, "name" | "image" | "manaCost" | "typeLine"> & { oracleText?: string };
+
 export interface CommanderSummary {
   id: string;
   name: string;
-  /** EDHREC page slug, e.g. "atraxa-praetors-voice". */
-  slug: string;
   /** Scryfall set code of the printing Scryfall shows for this card, e.g. "ltr". */
   set: string;
   manaCost: string;
   cmc: number;
   typeLine: string;
-  oracleText: string;
   colorIdentity: Color[];
+  /**
+   * Rough rules complexity (`rulesComplexity` in lib/quiz/scoring.ts), worked out at build time so the
+   * rules text, the biggest part of every commander, stays out of the download.
+   */
+  complexity: number;
   image: CardImage | null;
   edhrecRank: number | null;
   priceUsd: number | null;

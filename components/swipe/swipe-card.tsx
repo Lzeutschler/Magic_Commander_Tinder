@@ -3,7 +3,7 @@
 import { motion, useMotionValue, useTransform, type MotionValue, type PanInfo } from "motion/react";
 
 import { CardImage } from "@/components/card/card-image";
-import type { Card } from "@/lib/cards/types";
+import type { CardDisplay } from "@/lib/cards/types";
 import type { SwipeDecision } from "@/lib/deckbuilder/session";
 
 const SWIPE_DISTANCE = 110;
@@ -26,7 +26,7 @@ export function SwipeCard({
   card,
   onDecision,
 }: {
-  card: Pick<Card, "name" | "image" | "manaCost" | "typeLine" | "oracleText">;
+  card: CardDisplay;
   onDecision: (decision: SwipeDecision) => void;
 }) {
   const x = useMotionValue(0);

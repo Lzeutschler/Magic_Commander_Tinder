@@ -7,7 +7,7 @@ import { CardBack } from "@/components/card/card-back";
 import { HeartBurst } from "@/components/cauldron";
 import { ArrowUUpLeftIcon, HeartIcon, StarIcon, XIcon } from "@/components/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import type { Card } from "@/lib/cards/types";
+import type { CardDisplay } from "@/lib/cards/types";
 import type { SwipeDecision } from "@/lib/deckbuilder/session";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +21,7 @@ export function SwipeStack({
   onDecision,
   className,
 }: {
-  card: Pick<Card, "name" | "image" | "manaCost" | "typeLine" | "oracleText">;
+  card: CardDisplay;
   cardKey: string;
   lastDecision: SwipeDecision | null;
   onDecision: (decision: SwipeDecision) => void;

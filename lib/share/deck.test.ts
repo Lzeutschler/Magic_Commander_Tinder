@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { card } from "@/tests/fixtures";
 
-import { decodeSharedDeck, encodeSharedDeck } from "./share";
+import { decodeSharedDeck, encodeSharedDeck } from "./deck";
 
 const deck = {
   name: "Goblins\nall the way down",

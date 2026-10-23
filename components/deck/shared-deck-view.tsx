@@ -8,11 +8,13 @@ import { toast } from "sonner";
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { CardImage } from "@/components/card/card-image";
 import { ColorIdentity, ManaCost } from "@/components/card/mana";
+import { EdhrecLink } from "@/components/edhrec-link";
 import { DownloadSimpleIcon, HeartIcon, PlayIcon, WarningIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
 import { DEFAULT_SETTINGS } from "@/lib/deckbuilder/settings";
 import { CARD_TYPES, deckCount, primaryType, type CardType } from "@/lib/decks/stats";
+import { edhrecCommanderUrl } from "@/lib/edhrec/links";
 import type { Deck } from "@/lib/decks/types";
 import type { ResolvedSharedDeck } from "@/lib/server/shared-deck";
 import { cn } from "@/lib/utils";
@@ -71,6 +73,8 @@ export function SharedDeckView({ shared }: { shared: ResolvedSharedDeck }) {
             </span>
             <span>·</span>
             <span className="tabular-nums">{deckCount(deck.entries) + 1} cards</span>
+            <span>·</span>
+            <EdhrecLink href={edhrecCommanderUrl(deck.commander.name, deck.bracket, deck.theme)}>Compare on EDHREC</EdhrecLink>
           </div>
           {shared.missing.length > 0 && (
             <p className="flex gap-2 text-sm text-maybe">

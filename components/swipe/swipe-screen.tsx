@@ -10,6 +10,7 @@ import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { CardImage } from "@/components/card/card-image";
 import { ManaCost } from "@/components/card/mana";
 import { BrewLoader, CelebrationCauldron } from "@/components/cauldron";
+import { EdhrecLink } from "@/components/edhrec-link";
 import {
   ArrowLeftIcon,
   ArrowUUpLeftIcon,
@@ -34,6 +35,7 @@ import {
 import { deckTemplate } from "@/lib/deckbuilder/settings";
 import type { Candidate } from "@/lib/deckbuilder/types";
 import { deckStats } from "@/lib/decks/stats";
+import { edhrecCardUrl, edhrecCommanderUrl } from "@/lib/edhrec/links";
 import { DECK_SIZE, type Deck } from "@/lib/decks/types";
 import { randomSeed } from "@/lib/random";
 import { ROLE_LABELS } from "@/lib/tagging/roles";
@@ -180,9 +182,17 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
           </Button>
         </div>
         <p className="text-[11px] text-muted-foreground">
-          {session.source === "edhrec"
-            ? `Suggestions from ${session.deckCount.toLocaleString()} EDHREC decks.`
-            : "EDHREC has little data on this commander, so suggestions use card popularity and themes."}
+          {session.source === "edhrec" ? (
+            <>
+              Suggestions from{" "}
+              <EdhrecLink href={edhrecCommanderUrl(deck.commander.name, deck.bracket, deck.theme)}>
+                {session.deckCount.toLocaleString()} EDHREC decks
+              </EdhrecLink>
+              .
+            </>
+          ) : (
+            "EDHREC has little data on this commander, so suggestions use card popularity and themes."
+          )}
         </p>
       </aside>
 
@@ -268,6 +278,9 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
                 ))}
               {current.priceUsd !== null && <Badge variant="outline">${current.priceUsd.toFixed(2)}</Badge>}
             </div>
+            <EdhrecLink href={edhrecCardUrl(current.name)} className="text-xs text-muted-foreground">
+              {current.name} on EDHREC
+            </EdhrecLink>
           </div>
         )}
 
@@ -330,6 +343,9 @@ function CompactWhy({ candidate, reasons }: { candidate: Candidate; reasons: Can
             </Badge>
           ))}
         {candidate.priceUsd !== null && <Badge variant="outline">${candidate.priceUsd.toFixed(2)}</Badge>}
+        <EdhrecLink href={edhrecCardUrl(candidate.name)} className="px-1 text-xs text-muted-foreground">
+          EDHREC
+        </EdhrecLink>
       </div>
       {deckReasons.length > 0 && (
         <ul className="flex flex-col items-center gap-0.5 text-xs text-muted-foreground">

@@ -3,7 +3,7 @@ import "server-only";
 import { cache } from "react";
 
 import type { Card } from "@/lib/cards/types";
-import { decodeSharedDeck } from "@/lib/deck-io/share";
+import { decodeSharedDeck } from "@/lib/share/deck";
 import type { DeckEntry } from "@/lib/decks/types";
 import type { Bracket } from "@/lib/edhrec/types";
 

@@ -9,6 +9,7 @@ import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { CardImage } from "@/components/card/card-image";
 import { ColorIdentity, ManaCost } from "@/components/card/mana";
 import { EmptyCauldron } from "@/components/cauldron";
+import { EdhrecLink } from "@/components/edhrec-link";
 import {
   ArrowLeftIcon,
   CardsIcon,
@@ -21,6 +22,7 @@ import {
   StarIcon,
   TrashIcon,
 } from "@/components/icons";
+import { ShareButton } from "@/components/share-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { allowsMultipleCopies } from "@/lib/cards/names";
@@ -28,14 +30,15 @@ import type { Card } from "@/lib/cards/types";
 import { BRACKET_INFO, bracketViolation } from "@/lib/deckbuilder/brackets";
 import { CARD_TYPES, expandEntries, primaryType, type CardType } from "@/lib/decks/stats";
 import type { Deck, DeckEntry } from "@/lib/decks/types";
+import { edhrecCommanderUrl } from "@/lib/edhrec/links";
 import { BRACKETS, type Bracket } from "@/lib/edhrec/types";
+import { sharedDeckText } from "@/lib/share/deck";
 import { cn } from "@/lib/utils";
 import { useDeckStore, useDecksHydrated } from "@/stores/decks";
 
 import { AddCardSearch } from "./add-card-search";
 import { DeckStatsPanel } from "./deck-stats-panel";
 import { ExportDialog } from "./export-dialog";
-import { ShareButton } from "./share-button";
 
 const GROUP_ORDER: CardType[] = [...CARD_TYPES, "Other"];
 
@@ -150,6 +153,7 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
                 ))}
               </select>
             </label>
+            <EdhrecLink href={edhrecCommanderUrl(deck.commander.name, deck.bracket, deck.theme)}>Compare on EDHREC</EdhrecLink>
           </div>
           <div className="mt-auto flex flex-wrap gap-2">
             <Button nativeButton={false} render={<Link href={`/build/${deck.id}`} />}>
@@ -160,7 +164,12 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
                 <DownloadSimpleIcon /> Export
               </Button>
             </ExportDialog>
-            <ShareButton deck={deck} />
+            <ShareButton
+              route="/d"
+              text={sharedDeckText(deck)}
+              title={deck.name}
+              description="Anyone with the link can see, goldfish and copy this deck."
+            />
             <Button variant="outline" nativeButton={false} render={<Link href={`/goldfish/${deck.id}`} />}>
               <PlayIcon /> Goldfish
             </Button>

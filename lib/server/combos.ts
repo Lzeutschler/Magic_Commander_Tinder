@@ -4,6 +4,7 @@ import { cacheLife } from "next/cache";
 import { z } from "zod";
 
 import type { Combo } from "@/lib/deckbuilder/combos";
+import { USER_AGENT } from "@/lib/site";
 
 import { findCard, getCardDb } from "./card-db";
 
@@ -32,7 +33,7 @@ export async function findCombos(commander: string, cards: string[]): Promise<Co
 
   const res = await fetch(SPELLBOOK_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json", "User-Agent": "Brewmance/0.1" },
+    headers: { "Content-Type": "application/json", Accept: "application/json", "User-Agent": USER_AGENT },
     body: JSON.stringify({ commanders: [{ card: commander }], main: cards.map((card) => ({ card })) }),
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });

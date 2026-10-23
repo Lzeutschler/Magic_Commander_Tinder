@@ -119,11 +119,17 @@ Kartenbild kleiner machen.
 Umgesetzt: Unterhalb von `sm` ist der Button eine fixierte Leiste am unteren Rand, und das Kartenbild ist 160 statt
 224 px breit. Das gilt auch für den Deckstart aus der Quiz-Shortlist.
 
-### 7. Quiz-Ergebnis teilbar machen (M)
+### 7. Quiz-Ergebnis teilbar machen (M) ✅
 
 Kein anderes Quiz hat den Einsteiger-Weg mit Franchises (Herr der Ringe, Final Fantasy, Marvel …) und das
 direkte Weiterswipen ins Deck. Ein „My commander match: Sauron, the Dark Lord (96 %)“ mit Bild und Link zum
 Quiz wäre der einfachste Weg, dass Leute es in ihre Pod-Chats weitergeben.
+
+Umgesetzt: „Share“ auf der Shortlist erzeugt `/q/<code>` mit bis zu acht Commandern, jeweils mit Match-Prozent und
+zwei Gründen. Der Commander, der gerade angezeigt wird, steht vorne. Die Seite zeigt den besten Treffer groß, die
+übrigen darunter, und bietet „Find your own commander“ sowie „Build …“. Die Build-Links (`/build?commander=…`)
+belegen die Commander-Wahl vor. Das Vorschaubild zeigt Name, Prozent, Gründe und einen Fächer der drei besten
+Treffer. Deck- und Quiz-Links nutzen jetzt denselben Kodierer (`lib/share/code.ts`).
 
 ### 8. Feedback-Kanal sichtbar machen (S) ✅
 
@@ -144,7 +150,7 @@ der Dialog „Comment on Reddit“ als ersten Weg an.
 Wer ein fertiges Deck über „Swipe more cards“ wieder öffnet, liest „63 spells and 36 nonbasic lands picked“.
 Die 30 Standardländer werden dabei als Nicht-Standardländer gezählt (`components/swipe/swipe-screen.tsx:322`).
 
-### 10. Cache vorwärmen und sich bei EDHREC und Spellbook vorstellen (S)
+### 10. Cache vorwärmen und sich bei EDHREC und Spellbook vorstellen (S) ✅ teilweise
 
 Die erste Karte kam lokal mit kaltem Cache nach etwa 3 Sekunden. Danach sind EDHREC und Commander Spellbook
 einen Tag lang gecacht (`"use cache"` plus CDN), das ist gut. Ein Reddit-Ansturm verteilt sich aber auf
@@ -156,23 +162,52 @@ viele verschiedene Commander:
   Spellbook sich melden können, statt einfach zu blocken.
 - Optional EDHREC vorab kurz Bescheid geben, weil die App deren inoffizielles JSON nutzt.
 
-### 11. Commander-Daten verkleinern (S–M)
+Umgesetzt: Alle Anfragen an EDHREC, Commander Spellbook und Scryfall (auch im Daten-Build) senden
+`Brewmance/0.1 (+<Seiten-URL>)` (`USER_AGENT` in `lib/site.ts`).
+
+Nicht umgesetzt, mit neuem Befund: Laut Next.js-Doku lebt `"use cache"` auf Serverless nur im Speicher einer
+Instanz und hält dort kaum über einzelne Anfragen hinaus. Den eigentlichen Schutz liefert der CDN-Cache von
+`/api/candidates` (`s-maxage` einen Tag), und der gilt pro Vercel-Region. Ein Warm-up-Skript, das von
+Deutschland aus läuft, würde nur die europäische Region füllen und US-Besuchern nicht helfen. Darum gibt es
+keins. Der wirksame Hebel wäre `"use cache: remote"` in `fetchCommanderPage` und `findCombos`: ein von
+Vercel bereitgestellter, über alle Instanzen geteilter Cache. Dann ruft jeder Commander/Bracket/Theme EDHREC
+höchstens einmal am Tag ab, weltweit. Vorher die Limits für den Runtime Cache auf dem Hobby-Plan prüfen. Die
+konnte ich nicht verlässlich klären, und auf Hobby lässt sich kein Zusatzvolumen kaufen.
+
+### 11. Commander-Daten verkleinern (S–M) ✅
 
 `public/data/commanders.json` ist 2,7 MB groß (600 KB gzip) und wird auf `/build` und `/quiz` geladen. Im WLAN
 fällt das nicht auf, im Mobilfunk schon. Felder kürzen oder die Quiz-Felder in eine eigene Datei auslagern.
+
+Umgesetzt: Der Regeltext (39 % der Datei) und der EDHREC-Slug sind raus. Das Quiz bekommt die Regel-Komplexität
+schon beim Build als Zahl (`complexity`). Vorher 2,7 MB, 592 KB gzip und 382 KB Brotli, jetzt 1,9 MB, 336 KB gzip
+und 245 KB Brotli. Die Schema-Version des Daten-Builds steht auf 4, damit lokale Daten neu erzeugt werden.
 
 ---
 
 ## Vor dem Posten entscheiden
 
-- **Impressum:** Darin stehen Name und Privatadresse, und mit Reddit sieht das ein großes Publikum. Ob ein
-  rein privates, nicht kommerzielles Hobbyprojekt überhaupt ein Impressum braucht, wird unterschiedlich
-  gesehen. Falls ja, gibt es Impressum-Services mit ladungsfähiger c/o-Adresse. Das ist keine Rechtsberatung,
-  nur ein Punkt, den du bewusst entscheiden solltest. Außerdem steht dort `info@45level.com`, während der Text
-  sagt, dass die Seite nicht über die 45level GmbH läuft. Eine private Adresse würde besser passen.
-- **Reichweite messen:** Die Datenschutzerklärung sagt ausdrücklich „keine Analytics“. Wenn du wissen willst,
-  wie viele Leute von Reddit kommen, ist Vercel Web Analytics cookielos. Dann müsste aber die
-  Datenschutzerklärung angepasst werden. Ohne Analytics bleiben nur die Vercel-Logs und die Kommentare.
+- **Impressum:** ✅ geklärt. Die Adresse ist die Geschäftsadresse von 45level und darf so stehen bleiben.
+- **Reichweite messen:** Wunsch: keine Kosten, wenn überhaupt Google Analytics. Google Analytics setzt Cookies und
+  überträgt Daten in die USA. In Deutschland braucht das praktisch immer ein Einwilligungs-Banner und eine
+  angepasste Datenschutzerklärung, und das „no cookies, no banner“ der Seite fiele weg. Kostenlos und ohne Banner
+  ginge Vercel Web Analytics: Auf Hobby sind 50.000 Events im Monat frei, danach pausiert die Erfassung, Kosten
+  entstehen keine. Die Datenschutzerklärung müsste trotzdem einen Absatz dazu bekommen. Entscheidung offen.
+- **Domain:** ✅ `https://www.brewmance.app` ist verbunden, `brewmance.app` leitet per 308 dorthin. Canonical,
+  `og:url` und Vorschaubilder zeigen schon auf www, ohne weitere Einstellung.
+- **EDHREC:** Die Nutzungsbedingungen (gültig seit 06.08.2024) verbieten automatisierte Anfragen an die Seite,
+  das Weiterverbreiten der Inhalte und den Zugriff, um eine ähnliche oder konkurrierende Seite zu bauen. Ein
+  offizielles API gibt es nicht. Brewmance liest deren internes JSON und verstößt damit streng genommen gegen die
+  Bedingungen. Viele Community-Tools machen es trotzdem, aber ein Reddit-Launch macht es sichtbar. Vor dem Post
+  EDHREC anschreiben und um Erlaubnis bitten. Bis zur Antwort hilft ein Schalter, mit dem sich EDHREC sofort
+  abschalten lässt (die App hat schon eine eigene Bewertung als Ersatz). Dazu sichtbare Links zurück zu den
+  EDHREC-Seiten. Keine Rechtsberatung.
+
+  Stand: Die Rücklinks sind eingebaut. Die Deck-Anzahl im Swipe-Panel, in der Commander-Wahl und im Quiz verlinkt
+  auf die Commander-Seite, passend gefiltert nach Bracket und Theme. Jede vorgeschlagene Karte verlinkt auf ihre
+  Kartenseite. Editor, geteilte Decks und geteilte Quiz-Ergebnisse haben „Compare on EDHREC“. Alle Links nutzen
+  `rel="noopener"` ohne `noreferrer`, damit EDHREC die Besuche sieht. Die Mail an contact@edhrec.com ist
+  entworfen. Den Abschalt-Schalter bauen wir erst, wenn er nötig wird.
 
 ## Für den Post selbst
 

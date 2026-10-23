@@ -3,7 +3,7 @@
 import { cloneElement, useState } from "react";
 import { createPortal } from "react-dom";
 
-import type { Card } from "@/lib/cards/types";
+import type { CardDisplay } from "@/lib/cards/types";
 
 import { CardImage } from "./card-image";
 
@@ -19,7 +19,7 @@ export function CardHoverPreview({
   card,
   children,
 }: {
-  card: Pick<Card, "name" | "image" | "manaCost" | "typeLine" | "oracleText">;
+  card: CardDisplay;
   children: HoverTarget;
 }) {
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);

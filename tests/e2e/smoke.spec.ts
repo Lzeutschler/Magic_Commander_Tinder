@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 // End to end: choose a commander, swipe, finish in the editor, export, then goldfish the deck.
 // Needs network access, since card suggestions come from EDHREC and images from Scryfall.
@@ -64,8 +64,8 @@ test("adjust deck settings before and while swiping", async ({ page }) => {
   await expect(page.getByTestId("picked-count")).toHaveText("1/99");
 });
 
-// Quiz: advanced track → commander swipe → shortlist → deckbuilding swipe.
-test("find a commander with the quiz and start a deck", async ({ page }) => {
+/** The advanced track with answers that leave plenty of white-black vampire commanders. */
+async function answerAdvancedQuiz(page: Page) {
   await page.goto("/quiz");
   await page.getByRole("button", { name: /I know my way around/ }).click();
   await expect(page.getByTestId("quiz-progress")).toHaveText("1 / 7");
@@ -85,6 +85,11 @@ test("find a commander with the quiz and start a deck", async ({ page }) => {
   await expect(page.getByTestId("quiz-progress")).toHaveText("7 / 7");
   await page.getByRole("button", { name: /Vampires/ }).click();
   await page.getByRole("button", { name: "Show my commanders" }).click();
+}
+
+// Quiz: advanced track → commander swipe → shortlist → deckbuilding swipe.
+test("find a commander with the quiz and start a deck", async ({ page }) => {
+  await answerAdvancedQuiz(page);
 
   await expect(page.getByTestId("commander-count")).toHaveText("Commander 1 of 30", { timeout: 30_000 });
   await expect(page.getByTestId("fit-reasons").locator("li").first()).toBeVisible();
@@ -134,4 +139,34 @@ test("share a deck by link and goldfish it elsewhere", async ({ page, browser })
   await other.getByRole("button", { name: "Goldfish this deck" }).click();
   await other.getByRole("button", { name: "Keep 7" }).click();
   await expect(other.locator("[data-zone=hand] [data-card-name]")).toHaveCount(7);
+});
+
+// Sharing a quiz result: the shortlist link opens the best match elsewhere, which can start that commander.
+test("share a quiz shortlist and build its best match", async ({ page, browser }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: async (text: string) => void ((window as unknown as { copied: string }).copied = text) },
+    });
+  });
+  await answerAdvancedQuiz(page);
+  await expect(page.getByTestId("commander-count")).toBeVisible({ timeout: 30_000 });
+  await page.keyboard.press("ArrowRight");
+  await page.waitForTimeout(80);
+  await page.keyboard.press("ArrowRight");
+  await page.getByRole("button", { name: "Review shortlist" }).click();
+  const top = (await page.getByRole("heading", { level: 2 }).first().textContent())!;
+
+  await page.getByRole("button", { name: "Share" }).click();
+  await expect(page.getByText("Link copied")).toBeVisible();
+  const link = await page.evaluate(() => (window as unknown as { copied: string }).copied);
+  expect(link).toMatch(/\/q\/[\w-]+$/);
+
+  const other = await browser.newPage();
+  await other.goto(link);
+  await expect(other.getByRole("heading", { level: 1, name: top })).toBeVisible();
+  await expect(other.getByText(/\d+% match/).first()).toBeVisible();
+  // The best match comes first; its "Build" button is a link styled as a button.
+  await other.locator('a[href^="/build?commander="]').first().click();
+  await expect(other.getByRole("heading", { level: 2, name: top })).toBeVisible({ timeout: 30_000 });
+  await expect(other.getByRole("button", { name: "Start swiping" })).toBeEnabled({ timeout: 30_000 });
 });

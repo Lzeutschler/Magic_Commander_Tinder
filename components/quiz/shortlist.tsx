@@ -7,8 +7,10 @@ import { CardImage } from "@/components/card/card-image";
 import { BrewLoader, EmptyCauldron } from "@/components/cauldron";
 import { ArrowLeftIcon, CheckIcon, StarIcon, XIcon } from "@/components/icons";
 import { PageHeader } from "@/components/page-header";
+import { ShareButton } from "@/components/share-button";
 import { Button } from "@/components/ui/button";
 import type { ScoredCommander, Track } from "@/lib/quiz/types";
+import { sharedQuizText } from "@/lib/share/quiz";
 import { cn } from "@/lib/utils";
 import { useQuizStore } from "@/stores/quiz";
 
@@ -25,6 +27,10 @@ export function Shortlist({ track }: { track: Track }) {
     .map((d) => ({ decision: d.decision, scored: byId.get(d.commanderId) }))
     .filter((e): e is { decision: typeof e.decision; scored: ScoredCommander } => Boolean(e.scored));
   const selected = entries.find((e) => e.scored.commander.id === selectedId)?.scored ?? entries[0]?.scored ?? null;
+  // A shared result leads with the commander on screen, then the rest of the shortlist by match.
+  const shared = selected
+    ? [selected, ...entries.map((e) => e.scored).filter((s) => s !== selected).sort((a, b) => b.score - a.score)]
+    : [];
 
   if (isLoading) {
     return (
@@ -40,9 +46,26 @@ export function Shortlist({ track }: { track: Track }) {
         title="Your shortlist"
         description="Choose your commander, set a power level and start swiping cards for its 99."
         actions={
-          <Button variant="outline" onClick={keepSwiping}>
-            <ArrowLeftIcon /> Keep swiping
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {shared.length > 0 && (
+              <ShareButton
+                route="/q"
+                text={sharedQuizText({
+                  track,
+                  matches: shared.map((scored) => ({
+                    name: scored.commander.name,
+                    percent: matchPercent(scored.score, topScore),
+                    reasons: scored.reasons.map((r) => r.text),
+                  })),
+                })}
+                title="My Commander matches"
+                description="Anyone with the link sees your matches and can take the quiz."
+              />
+            )}
+            <Button variant="outline" onClick={keepSwiping}>
+              <ArrowLeftIcon /> Keep swiping
+            </Button>
+          </div>
         }
       />
 

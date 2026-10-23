@@ -38,7 +38,8 @@ export function SiteFooter() {
             Scryfall
           </a>
           . Recommendations based on data from{" "}
-          <a href="https://edhrec.com" className="underline hover:text-foreground" target="_blank" rel="noreferrer">
+          {/* No noreferrer here: EDHREC should see the visits we send them. */}
+          <a href="https://edhrec.com" className="underline hover:text-foreground" target="_blank" rel="noopener">
             EDHREC
           </a>
           . Symbol font{" "}
