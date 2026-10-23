@@ -23,7 +23,7 @@ import { cardImageUrl } from "@/lib/cards/image";
 import { frontFaceName } from "@/lib/cards/names";
 import { fetchCandidatePool } from "@/lib/data/client";
 import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
-import { explainCandidate } from "@/lib/deckbuilder/score";
+import { explainCandidate, type CandidateReason } from "@/lib/deckbuilder/score";
 import {
   nextCandidate,
   rankCandidates,
@@ -41,7 +41,7 @@ import { cn } from "@/lib/utils";
 import { useDeckStore, useDecksHydrated } from "@/stores/decks";
 
 import { DeckSettingsDialog } from "./deck-settings-dialog";
-import { DeckCounter, MiniCurve, RoleMeters } from "./deck-progress";
+import { CompactRoleMeters, DeckCounter, MiniCurve, RoleMeters } from "./deck-progress";
 import { SwipeButtons, SwipeStack, useSwipeKeys } from "./swipe-controls";
 
 export function SwipeScreen({ deckId }: { deckId: string }) {
@@ -147,7 +147,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
     .filter((c) => c !== undefined);
 
   return (
-    <div className="mx-auto grid w-full max-w-7xl flex-1 gap-6 px-4 py-6 lg:grid-cols-[280px_1fr_300px]">
+    <div className="mx-auto grid w-full max-w-7xl flex-1 gap-6 px-4 py-3 lg:grid-cols-[280px_1fr_300px] lg:py-6">
       {/* Deck progress */}
       <aside className="panel order-2 space-y-5 p-5 lg:order-1">
         <div className="flex items-center gap-3">
@@ -187,13 +187,21 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
       </aside>
 
       {/* Swipe stack */}
-      <section className="order-1 flex flex-col items-center gap-5 select-none lg:order-2">
+      <section className="order-1 flex flex-col items-center gap-3 select-none lg:order-2 lg:gap-5">
         <div className="flex w-full max-w-md items-center justify-between gap-2">
           <div className="ui-label flex items-center gap-2 text-muted-foreground">
             <CardsIcon className="size-4" />
-            {session.phase === "spells" && "Spells & permanents"}
-            {session.phase === "lands" && "Nonbasic lands"}
-            {session.phase === "done" && "Deck complete"}
+            {/* Below lg the deck panel sits under the card, so the count (or, before the first swipe, the gestures) goes here. */}
+            {session.history.length === 0 && session.phase !== "done" ? (
+              <span className="lg:hidden">Swipe → pick · ← pass · ↑ maybe</span>
+            ) : (
+              <span className="lg:hidden">
+                <span className="text-foreground tabular-nums">{stats.total}</span>/{DECK_SIZE} ·
+              </span>
+            )}
+            <span className={cn(session.history.length === 0 && session.phase !== "done" && "max-lg:hidden")}>
+              {PHASE_LABELS[session.phase]}
+            </span>
           </div>
           <DeckSettingsDialog
             deck={deck}
@@ -209,9 +217,20 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
           <DonePanel deck={deck} onFinish={finish} onUndo={undo} canUndo={session.history.length > 0} />
         ) : (
           <>
-            <SwipeStack card={current} cardKey={current.id} lastDecision={lastDecision} onDecision={decideCurrent} />
+            <div className="w-full max-w-md lg:hidden">
+              <CompactRoleMeters stats={stats} template={template} />
+            </div>
+            <SwipeStack
+              card={current}
+              cardKey={current.id}
+              lastDecision={lastDecision}
+              onDecision={decideCurrent}
+              // Leaves room for the role meters above and the reasons below the buttons.
+              className="max-lg:w-[min(400px,84vw,calc((100dvh-20rem)*0.7176))]"
+            />
             <SwipeButtons onDecision={decideCurrent} onUndo={undo} canUndo={session.history.length > 0} />
-            <p className="hidden text-xs text-muted-foreground sm:block">Drag the card or use ← ↑ → · Z to undo</p>
+            <p className="hidden text-xs text-muted-foreground lg:block">Drag the card or use ← ↑ → · Z to undo</p>
+            <CompactWhy candidate={current} reasons={reasons} />
           </>
         )}
       </section>
@@ -219,7 +238,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
       {/* Why this card */}
       <aside className="order-3 space-y-5">
         {current && session.phase !== "done" && (
-          <div className="panel space-y-4 p-5">
+          <div className="panel hidden space-y-4 p-5 lg:block">
             <div>
               <div className="flex items-start justify-between gap-2">
                 <h2 className="font-heading text-2xl leading-tight font-bold">{current.name}</h2>
@@ -230,10 +249,10 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
             <FitMeters candidate={current} deckCount={session.deckCount} />
             {reasons.length > 0 && (
               <ul className="space-y-1.5 text-sm">
-                {reasons.map((reason) => (
-                  <li key={reason} className="flex gap-2">
+                {reasons.slice(0, 3).map(({ text }) => (
+                  <li key={text} className="flex gap-2">
                     <CheckIcon className="mt-0.5 size-4 shrink-0 text-teal" aria-hidden />
-                    {reason}
+                    {text}
                   </li>
                 ))}
               </ul>
@@ -282,6 +301,50 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
   );
 }
 
+const PHASE_LABELS: Record<SwipeSession["phase"], string> = {
+  spells: "Spells & permanents",
+  lands: "Nonbasic lands",
+  done: "Deck complete",
+};
+
+/** The "why this card" panel in brief, under the buttons where the panel itself sits far below the card. */
+function CompactWhy({ candidate, reasons }: { candidate: Candidate; reasons: CandidateReason[] }) {
+  const synergy = Math.round(candidate.synergy * 100);
+  // The badges already show synergy and popularity, so the lines say what the deck needs.
+  const deckReasons = reasons.filter((r) => r.kind === "deck").slice(0, 2);
+  return (
+    <div className="w-full max-w-md space-y-2 lg:hidden">
+      <div className="flex flex-wrap justify-center gap-1.5">
+        <Badge variant={synergy > 0 ? "default" : "secondary"}>
+          {synergy > 0 ? "+" : ""}
+          {synergy}% synergy
+        </Badge>
+        <Badge variant="secondary">{Math.round(candidate.inclusion * 100)}% of decks</Badge>
+        {candidate.gameChanger && <Badge>Game Changer</Badge>}
+        {candidate.roles
+          .filter((r) => r !== "mld" && r !== "extraturn")
+          .slice(0, 2)
+          .map((role) => (
+            <Badge key={role} variant="outline">
+              {ROLE_LABELS[role]}
+            </Badge>
+          ))}
+        {candidate.priceUsd !== null && <Badge variant="outline">${candidate.priceUsd.toFixed(2)}</Badge>}
+      </div>
+      {deckReasons.length > 0 && (
+        <ul className="flex flex-col items-center gap-0.5 text-xs text-muted-foreground">
+          {deckReasons.map(({ text }) => (
+            <li key={text} className="flex gap-1.5">
+              <CheckIcon className="mt-px size-3.5 shrink-0 text-teal" aria-hidden />
+              {text}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function FitMeters({ candidate, deckCount }: { candidate: Candidate; deckCount: number }) {
   const synergy = Math.round(candidate.synergy * 100);
   const inclusion = Math.round(candidate.inclusion * 100);
@@ -319,7 +382,7 @@ function DonePanel({
       <CelebrationCauldron className="-mt-2 text-[4.5px]" />
       <h2 className="text-2xl font-bold">Your brew is ready</h2>
       <p className="text-muted-foreground">
-        {stats.nonlands} spells and {stats.lands} nonbasic lands picked.{" "}
+        {stats.nonlands} spells and {stats.lands} lands picked.{" "}
         {DECK_SIZE - stats.total > 0 && `${DECK_SIZE - stats.total} basic lands will complete the 99.`}
       </p>
       <div className="flex gap-2">

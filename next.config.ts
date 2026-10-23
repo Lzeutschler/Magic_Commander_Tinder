@@ -42,9 +42,11 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
-  // Route handlers read the generated card database from disk at runtime.
+  // Route handlers and shared deck pages read the generated card database from disk at runtime; the
+  // shared deck image also reads the Open Graph fonts.
   outputFileTracingIncludes: {
     "/api/**": ["./data/**/*.json"],
+    "/d/**": ["./data/**/*.json", "./app/fonts/og/*"],
   },
   turbopack: {
     rules: {

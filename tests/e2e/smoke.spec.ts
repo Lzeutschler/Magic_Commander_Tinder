@@ -58,6 +58,8 @@ test("adjust deck settings before and while swiping", async ({ page }) => {
   await dialog.getByRole("button", { name: "Reset to recommendation" }).click();
   await expect(landsCounter).toHaveText(`Lands 0/${lands}`);
   await page.keyboard.press("Escape");
+  // Keys go to the dialog until its close animation ends, which a production build reaches faster than dev.
+  await expect(dialog).toBeHidden();
   await page.keyboard.press("ArrowRight");
   await expect(page.getByTestId("picked-count")).toHaveText("1/99");
 });
@@ -101,4 +103,35 @@ test("find a commander with the quiz and start a deck", async ({ page }) => {
   await expect(page).toHaveURL(/\/build\/[\w-]+$/);
   await expect(page.getByText("cards picked")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText(/Bracket 3/)).toBeVisible();
+});
+
+// Sharing: a link carries the deck to a fresh browser, which can open it in goldfish.
+test("share a deck by link and goldfish it elsewhere", async ({ page, browser }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: async (text: string) => void ((window as unknown as { copied: string }).copied = text) },
+    });
+  });
+  await page.goto("/build");
+  await page.getByPlaceholder("Search commanders or creature types…").fill("krenko mob");
+  await page.getByRole("button", { name: "Krenko, Mob Boss" }).click();
+  await page.getByRole("button", { name: "Start swiping" }).click();
+  await expect(page.getByText("cards picked")).toBeVisible({ timeout: 30_000 });
+  for (let i = 0; i < 10; i++) {
+    await page.keyboard.press("ArrowRight");
+    await page.waitForTimeout(80);
+  }
+  await page.getByRole("button", { name: "Finish with basics & edit" }).click();
+  await page.getByRole("button", { name: "Share" }).click();
+  await expect(page.getByText("Link copied")).toBeVisible();
+  const link = await page.evaluate(() => (window as unknown as { copied: string }).copied);
+  expect(link).toMatch(/\/d\/[\w-]+$/);
+
+  const other = await browser.newPage();
+  await other.goto(link);
+  await expect(other.getByRole("heading", { name: "Krenko, Mob Boss" })).toBeVisible();
+  await expect(other.getByText("100 cards")).toBeVisible();
+  await other.getByRole("button", { name: "Goldfish this deck" }).click();
+  await other.getByRole("button", { name: "Keep 7" }).click();
+  await expect(other.locator("[data-zone=hand] [data-card-name]")).toHaveCount(7);
 });
