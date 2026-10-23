@@ -2,6 +2,8 @@ import "server-only";
 
 import { cacheLife } from "next/cache";
 
+import { USER_AGENT } from "@/lib/site";
+
 /**
  * A Scryfall card image as a data URL for `ImageResponse`, which would fetch it with a generic
  * User-Agent that Scryfall rejects. Null when Scryfall cannot be reached, so images leave the card out.
@@ -20,7 +22,7 @@ async function fetchDataUrl(url: string): Promise<string> {
   cacheLife("max");
 
   const res = await fetch(url, {
-    headers: { "User-Agent": "Brewmance/0.1", Accept: "image/*" },
+    headers: { "User-Agent": USER_AGENT, Accept: "image/*" },
     signal: AbortSignal.timeout(5_000),
   });
   if (!res.ok) throw new Error(`Scryfall image: HTTP ${res.status}`);

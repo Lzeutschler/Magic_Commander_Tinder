@@ -127,12 +127,14 @@ describe("scoring", () => {
   });
 
   it("matches complexity through rules text", () => {
-    const simple = commander({ name: "Simple", oracleText: "Flying" });
-    const complex = commander({
-      name: "Complex",
+    const simpleText = { oracleText: "Flying", partner: null };
+    const complexText = {
       oracleText: "Whenever you cast a spell, copy it.\n{T}: Untap another permanent.\nAt the beginning of your end step, if you control three or more artifacts, draw a card for each.",
-    });
-    expect(rulesComplexity(complex)).toBeGreaterThan(rulesComplexity(simple));
+      partner: null,
+    };
+    expect(rulesComplexity(complexText)).toBeGreaterThan(rulesComplexity(simpleText));
+    const simple = commander({ name: "Simple", complexity: rulesComplexity(simpleText) });
+    const complex = commander({ name: "Complex", complexity: rulesComplexity(complexText) });
     expect(rank([complex, simple], { complexity: "simple" })[0]).toBe("Simple");
     expect(rank([simple, complex], { complexity: "complex" })[0]).toBe("Complex");
   });

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CardHoverPreview } from "@/components/card/card-hover-preview";
 import { ColorIdentity, ManaCost } from "@/components/card/mana";
 import { BrewLoader, Cauldron, CelebrationCauldron } from "@/components/cauldron";
+import { EdhrecLink } from "@/components/edhrec-link";
 import {
   ArrowCounterClockwiseIcon,
   ListChecksIcon,
@@ -17,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { identityName } from "@/lib/cards/colors";
 import { cardImageUrl } from "@/lib/cards/image";
 import type { SwipeDecision } from "@/lib/deckbuilder/session";
+import { edhrecCommanderUrl } from "@/lib/edhrec/links";
 import { FRANCHISE_LABELS, franchiseOf } from "@/lib/quiz/franchises";
 import { QUESTIONS } from "@/lib/quiz/questions";
 import { topArchetypes } from "@/lib/quiz/scoring";
@@ -168,7 +170,11 @@ function WhyThisFits({ scored, topScore }: { scored: ScoredCommander; topScore: 
             <ColorIdentity colors={commander.colorIdentity} />
             {identityName(commander.colorIdentity)}
           </div>
-          {commander.edhrecDecks !== null && <div>{commander.edhrecDecks.toLocaleString("en-US")} decks on EDHREC</div>}
+          {commander.edhrecDecks !== null ? (
+            <EdhrecLink href={edhrecCommanderUrl(commander.name)}>{commander.edhrecDecks.toLocaleString("en-US")} decks on EDHREC</EdhrecLink>
+          ) : (
+            <EdhrecLink href={edhrecCommanderUrl(commander.name)}>On EDHREC</EdhrecLink>
+          )}
         </div>
       </div>
       <div>

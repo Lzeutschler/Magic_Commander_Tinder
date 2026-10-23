@@ -5,29 +5,41 @@ import { toast } from "sonner";
 
 import { ShareNetworkIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { encodeSharedDeck } from "@/lib/deck-io/share";
-import type { Deck } from "@/lib/decks/types";
+import { packText } from "@/lib/share/code";
 
-/** Copies a link that carries the whole deck; phones open the system share sheet instead. */
-export function ShareButton({ deck }: { deck: Deck }) {
+/**
+ * Copies a link that carries `text` (a deck or a quiz result) under `route`; phones open the system
+ * share sheet instead. `description` tells what the link shows.
+ */
+export function ShareButton({
+  route,
+  text,
+  title,
+  description,
+}: {
+  route: "/d" | "/q";
+  text: string;
+  title: string;
+  description: string;
+}) {
   const [url, setUrl] = useState<string | null>(null);
 
   // Built ahead of the click: Safari only allows sharing and copying right inside the click handler.
   useEffect(() => {
     let current = true;
-    encodeSharedDeck(deck).then((code) => {
-      if (current) setUrl(`${window.location.origin}/d/${code}`);
+    packText(text).then((code) => {
+      if (current) setUrl(`${window.location.origin}${route}/${code}`);
     });
     return () => {
       current = false;
     };
-  }, [deck]);
+  }, [route, text]);
 
   const share = async () => {
     if (!url) return;
     if (navigator.share && window.matchMedia("(pointer: coarse)").matches) {
       try {
-        await navigator.share({ title: deck.name, url });
+        await navigator.share({ title, url });
         return;
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") return;
@@ -35,7 +47,7 @@ export function ShareButton({ deck }: { deck: Deck }) {
     }
     try {
       await navigator.clipboard.writeText(url);
-      toast.success("Link copied", { description: "Anyone with the link can see, goldfish and copy this deck." });
+      toast.success("Link copied", { description });
     } catch {
       toast.error("Could not copy the link");
     }

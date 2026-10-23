@@ -30,6 +30,8 @@ import { sortColors } from "@/lib/cards/colors";
 import { parseScryfallImageUrl } from "@/lib/cards/image";
 import { edhrecSlug } from "@/lib/cards/names";
 import type { Card, CardImage, CommanderSummary, PartnerKind, Role, TokenCard } from "@/lib/cards/types";
+import { rulesComplexity } from "@/lib/quiz/scoring";
+import { USER_AGENT } from "@/lib/site";
 import {
   ARCHETYPES,
   archetypesFromTags,
@@ -55,8 +57,8 @@ const OUTPUTS = [
 ];
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 /** Bump when the output format changes so stale local data is rebuilt. */
-const SCHEMA_VERSION = 3;
-const SCRYFALL_HEADERS = { "User-Agent": "Brewmance/0.1", Accept: "application/json" };
+const SCHEMA_VERSION = 4;
+const SCRYFALL_HEADERS = { "User-Agent": USER_AGENT, Accept: "application/json" };
 /** EDHREC color identity page slugs, e.g. json.edhrec.com/pages/commanders/orzhov.json. */
 const EDHREC_IDENTITIES = [
   "colorless", "mono-white", "mono-blue", "mono-black", "mono-red", "mono-green",
@@ -448,17 +450,17 @@ function toCommander(
   const slug = edhrecSlug(card.name);
   const edhrecDecks = edhrec.totals.get(slug) ?? null;
   const edhrecThemes = edhrec.themes.get(slug) ?? {};
+  const partner = partnerKind(raw);
 
   return {
     id: card.id,
     name: card.name,
-    slug,
     set: raw.set,
     manaCost: card.manaCost,
     cmc: card.cmc,
     typeLine: card.typeLine,
-    oracleText: card.oracleText,
     colorIdentity: card.colorIdentity,
+    complexity: rulesComplexity({ oracleText: card.oracleText, partner }),
     image: card.image,
     edhrecRank: card.edhrecRank,
     priceUsd: card.priceUsd,
@@ -466,7 +468,7 @@ function toCommander(
     themes,
     tribes,
     creatureTypes: creatureTypes(card.typeLine),
-    partner: partnerKind(raw),
+    partner,
     edhrecDecks,
     edhrecThemes,
     archetypes: combineArchetypes({

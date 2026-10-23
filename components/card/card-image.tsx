@@ -4,13 +4,13 @@ import { useState } from "react";
 
 import { ArrowsClockwiseIcon } from "@/components/icons";
 import { cardImageUrl, type ImageSize } from "@/lib/cards/image";
-import type { Card } from "@/lib/cards/types";
+import type { CardDisplay } from "@/lib/cards/types";
 import { cn } from "@/lib/utils";
 
 import { ManaCost } from "./mana";
 
 interface CardImageProps {
-  card: Pick<Card, "name" | "image" | "manaCost" | "typeLine" | "oracleText">;
+  card: CardDisplay;
   size?: ImageSize;
   className?: string;
   /** Show a flip button for double-faced cards. */

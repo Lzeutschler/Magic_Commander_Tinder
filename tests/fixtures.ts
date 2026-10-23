@@ -62,13 +62,12 @@ export function commander(overrides: Partial<CommanderSummary> & { name: string 
   nextId += 1;
   return {
     id: `commander-${nextId}`,
-    slug: overrides.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
     set: "cmm",
     manaCost: "{2}{B}",
     cmc: 3,
     typeLine: "Legendary Creature — Human",
-    oracleText: "Flying",
     colorIdentity: ["B"],
+    complexity: 60,
     image: null,
     edhrecRank: 1000,
     priceUsd: 1,

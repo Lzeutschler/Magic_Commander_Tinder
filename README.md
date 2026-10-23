@@ -18,7 +18,8 @@ A web app for Magic: The Gathering Commander players:
    universe such as Lord of the Rings or Marvel, creatures, art mood); experienced players answer seven
    questions about win condition, engine, table politics, tempo, complexity, colors and creature types.
    Then they swipe through the best-matching commanders with a "why this fits" for each, toggle popular
-   picks vs. hidden gems, and start the deckbuilding swipe from their shortlist.
+   picks vs. hidden gems, and start the deckbuilding swipe from their shortlist or share it as a link
+   (`/q/<code>`, with a preview image).
 
 Decks are stored in the browser (localStorage); there are no accounts.
 

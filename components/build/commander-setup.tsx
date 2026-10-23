@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 
 import { CardImage } from "@/components/card/card-image";
 import { ColorIdentity } from "@/components/card/mana";
+import { EdhrecLink } from "@/components/edhrec-link";
 import { ArrowRightIcon, CaretDownIcon, CircleNotchIcon, SlidersHorizontalIcon, XIcon } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import { fetchCandidatePool, useCommanderInsights } from "@/lib/data/client";
 import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
 import { describeSettings, type DeckSettings } from "@/lib/deckbuilder/settings";
 import { profilePool, recommendTemplate } from "@/lib/deckbuilder/template";
+import { edhrecCommanderUrl } from "@/lib/edhrec/links";
 import type { Bracket } from "@/lib/edhrec/types";
 import { THEMES } from "@/lib/tagging/themes";
 import { cn } from "@/lib/utils";
@@ -99,7 +101,11 @@ export function CommanderSetup({
               {identityName(commander.colorIdentity)} · {commander.typeLine}
             </p>
             {insights.data && insights.data.deckCount > 0 && (
-              <p className="text-xs text-muted-foreground">{insights.data.deckCount.toLocaleString()} decks on EDHREC</p>
+              <p className="text-xs text-muted-foreground">
+                <EdhrecLink href={edhrecCommanderUrl(commander.name, bracket, theme)}>
+                  {insights.data.deckCount.toLocaleString()} decks on EDHREC
+                </EdhrecLink>
+              </p>
             )}
             {commander.partner && (
               <p className="text-xs text-brand">Partner and background pairings are coming later — you can build it solo for now.</p>

@@ -1,6 +1,6 @@
 import { COLOR_NAMES, identityName } from "@/lib/cards/colors";
 import { frontFaceName } from "@/lib/cards/names";
-import type { Color, CommanderSummary } from "@/lib/cards/types";
+import type { Card, Color, CommanderSummary } from "@/lib/cards/types";
 import { ARCHETYPE_LABELS, ARCHETYPE_IDS, type ArchetypeId } from "@/lib/tagging/archetypes";
 import { stripReminderText } from "@/lib/tagging/themes";
 import { TRIBES } from "@/lib/tagging/tribes";
@@ -125,8 +125,11 @@ export function buildProfile(track: Track, questions: Question[], answers: Answe
   return profile;
 }
 
-/** Rough rules complexity: text length plus a premium per ability and for partner pairings. */
-export function rulesComplexity(commander: Pick<CommanderSummary, "oracleText" | "partner">): number {
+/**
+ * Rough rules complexity: text length plus a premium per ability and for partner pairings. Runs at
+ * build time; commanders carry the result as `complexity`.
+ */
+export function rulesComplexity(commander: Pick<Card, "oracleText"> & Pick<CommanderSummary, "partner">): number {
   const text = stripReminderText(commander.oracleText);
   const abilities = text.split("\n").filter((line) => line.trim() && line.trim() !== "//").length;
   return text.length + abilities * 40 + (commander.partner ? 60 : 0);
@@ -144,7 +147,7 @@ export function createScoringContext(commanders: CommanderSummary[]): ScoringCon
   const percentile = (sorted: CommanderSummary[]) =>
     new Map(sorted.map((c, i) => [c.id, sorted.length > 1 ? i / (sorted.length - 1) : 0.5]));
 
-  const byComplexity = [...commanders].sort((a, b) => rulesComplexity(a) - rulesComplexity(b));
+  const byComplexity = [...commanders].sort((a, b) => a.complexity - b.complexity);
   const ranked = commanders.filter((c) => c.edhrecRank !== null).sort((a, b) => b.edhrecRank! - a.edhrecRank!);
   const popularity = percentile(ranked);
   for (const c of commanders) if (!popularity.has(c.id)) popularity.set(c.id, 0);
