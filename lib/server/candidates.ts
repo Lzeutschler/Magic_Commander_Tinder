@@ -4,7 +4,7 @@ import { BASIC_FOR_COLOR, fitsIdentity } from "@/lib/cards/colors";
 import { edhrecSlug, isBasicLandName } from "@/lib/cards/names";
 import type { Card, Role } from "@/lib/cards/types";
 import type { Candidate, CandidatePool, CommanderInsights } from "@/lib/deckbuilder/types";
-import { fetchCommanderPage } from "@/lib/edhrec/fetch-commander";
+import { EdhrecError, fetchCommanderPage } from "@/lib/edhrec/fetch-commander";
 import type { Bracket, EdhrecCommanderPage } from "@/lib/edhrec/types";
 import { THEMES, detectThemes, stripReminderText } from "@/lib/tagging/themes";
 import { detectTribes } from "@/lib/tagging/tribes";
@@ -28,16 +28,30 @@ async function settle<T>(promise: Promise<T>): Promise<T | null> {
   }
 }
 
+/**
+ * An EDHREC page, or null with the reason: a page EDHREC does not have is a fine answer to cache,
+ * while an EDHREC that could not be asked (down, busy or blocking us) should be retried soon.
+ */
+async function loadPage(slug: string, bracket?: Bracket, theme?: string): Promise<{ page: EdhrecCommanderPage | null; failed: boolean }> {
+  try {
+    return { page: await fetchCommanderPage(slug, bracket, theme), failed: false };
+  } catch (err) {
+    const missing = err instanceof EdhrecError && (err.status === 404 || err.status === 400);
+    return { page: null, failed: !missing };
+  }
+}
+
 export async function getCommanderInsights(name: string): Promise<CommanderInsights | null> {
   const db = await getCardDb();
   const commander = findCard(db, name);
   if (!commander) return null;
-  const page = await settle(fetchCommanderPage(edhrecSlug(commander.name)));
+  const { page, failed } = await loadPage(edhrecSlug(commander.name));
   return {
     commander,
     deckCount: page?.deckCount ?? 0,
     themes: page?.themes ?? [],
     bracketCounts: page?.bracketCounts ?? {},
+    incomplete: failed,
   };
 }
 
@@ -51,10 +65,15 @@ export async function getCandidatePool(
   if (!commander) return null;
 
   const slug = edhrecSlug(commander.name);
-  const [basePage, filteredPage] = await Promise.all([
-    settle(fetchCommanderPage(slug, undefined, theme ?? undefined)),
-    settle(fetchCommanderPage(slug, bracket, theme ?? undefined)),
+  // Only themes EDHREC lists for this commander are looked up, so made-up ones cost EDHREC nothing.
+  const overview = theme ? await loadPage(slug) : null;
+  const knownTheme = theme && overview?.page?.themes.some((t) => t.slug === theme) ? theme : null;
+  const [base, filtered] = await Promise.all([
+    loadPage(slug, undefined, knownTheme ?? undefined),
+    loadPage(slug, bracket, knownTheme ?? undefined),
   ]);
+  const basePage = base.page;
+  const filteredPage = filtered.page;
   const bracketPage = filteredPage && filteredPage.deckCount >= MIN_BRACKET_SAMPLE ? filteredPage : null;
   const primary: EdhrecCommanderPage | null = bracketPage ?? basePage;
 
@@ -85,13 +104,14 @@ export async function getCandidatePool(
   return {
     commander,
     bracket,
-    theme,
+    theme: knownTheme,
     source,
     deckCount: primary?.deckCount ?? 0,
     averageLands: primary?.averageLands ?? null,
     candidates: pool,
     combos,
     basicLands: basicNames.map((name) => findCard(db, name)).filter((c): c is Card => Boolean(c)),
+    incomplete: Boolean(overview?.failed || base.failed || filtered.failed),
   };
 }
 

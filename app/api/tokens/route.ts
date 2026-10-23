@@ -2,13 +2,16 @@ import type { NextRequest } from "next/server";
 
 import { nameKey } from "@/lib/cards/names";
 import { getCardDb } from "@/lib/server/card-db";
-import { CDN_CACHE_HEADERS } from "@/lib/server/http";
+import { CDN_CACHE_HEADERS, rejectCrossSite } from "@/lib/server/http";
 
 const MAX_RESULTS = 24;
 const COMMON_TOKENS = ["Treasure", "Soldier", "Goblin", "Zombie", "Saproling", "Spirit", "Clue", "Food", "Elf Warrior", "Beast"];
 
 /** GET /api/tokens?q=goblin → token cards by name or type; without a query, the most common ones. */
 export async function GET(request: NextRequest) {
+  const blocked = rejectCrossSite(request);
+  if (blocked) return blocked;
+
   const query = nameKey(request.nextUrl.searchParams.get("q") ?? "");
   const { tokens } = await getCardDb();
 

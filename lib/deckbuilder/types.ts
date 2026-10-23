@@ -23,6 +23,8 @@ export interface CandidatePool {
   combos: Combo[] | null;
   /** Basic lands for the commander's colors (Wastes when colorless), used to finish the deck. */
   basicLands: Card[];
+  /** EDHREC could not be asked (down, busy or blocking us), so this pool is only cached briefly. */
+  incomplete?: boolean;
 }
 
 export interface CommanderInsights {
@@ -30,4 +32,6 @@ export interface CommanderInsights {
   deckCount: number;
   themes: EdhrecTheme[];
   bracketCounts: Partial<Record<Bracket, number>>;
+  /** EDHREC could not be asked, so the answer is only cached briefly. */
+  incomplete?: boolean;
 }

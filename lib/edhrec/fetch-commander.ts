@@ -3,9 +3,12 @@ import "server-only";
 import { cacheLife } from "next/cache";
 import { z } from "zod";
 
+import { upstreamFetch } from "@/lib/server/upstream";
 import { USER_AGENT } from "@/lib/site";
 
-import { BRACKET_SLUGS, type Bracket, type EdhrecCardStat, type EdhrecCommanderPage } from "./types";
+import { BRACKET_SLUGS, isEdhrecSlug, type Bracket, type EdhrecCardStat, type EdhrecCommanderPage } from "./types";
+
+const TIMEOUT_MS = 10_000;
 
 const cardViewSchema = z.object({
   name: z.string(),
@@ -48,8 +51,12 @@ export async function fetchCommanderPage(
   cacheLife("days");
 
   const segments = [slug, bracket ? BRACKET_SLUGS[bracket] : null, theme].filter(Boolean).join("/");
-  const res = await fetch(`https://json.edhrec.com/pages/commanders/${segments}.json`, {
+  if (!isEdhrecSlug(slug) || (theme !== undefined && !isEdhrecSlug(theme))) {
+    throw new EdhrecError(`EDHREC ${segments}: not a page`, 400);
+  }
+  const res = await upstreamFetch("edhrec", `https://json.edhrec.com/pages/commanders/${segments}.json`, {
     headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+    signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   if (!res.ok) throw new EdhrecError(`EDHREC ${segments}: HTTP ${res.status}`, res.status);
 

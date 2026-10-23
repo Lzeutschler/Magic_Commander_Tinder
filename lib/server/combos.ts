@@ -7,6 +7,7 @@ import type { Combo } from "@/lib/deckbuilder/combos";
 import { USER_AGENT } from "@/lib/site";
 
 import { findCard, getCardDb } from "./card-db";
+import { upstreamFetch } from "./upstream";
 
 const SPELLBOOK_URL = "https://backend.commanderspellbook.com/find-my-combos";
 const TIMEOUT_MS = 10_000;
@@ -31,7 +32,7 @@ export async function findCombos(commander: string, cards: string[]): Promise<Co
   "use cache";
   cacheLife("days");
 
-  const res = await fetch(SPELLBOOK_URL, {
+  const res = await upstreamFetch("spellbook", SPELLBOOK_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json", "User-Agent": USER_AGENT },
     body: JSON.stringify({ commanders: [{ card: commander }], main: cards.map((card) => ({ card })) }),

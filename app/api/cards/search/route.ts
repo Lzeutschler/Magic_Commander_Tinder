@@ -4,12 +4,15 @@ import { fitsIdentity, sortColors } from "@/lib/cards/colors";
 import { nameKey } from "@/lib/cards/names";
 import type { Card } from "@/lib/cards/types";
 import { getCardDb } from "@/lib/server/card-db";
-import { CDN_CACHE_HEADERS } from "@/lib/server/http";
+import { CDN_CACHE_HEADERS, rejectCrossSite } from "@/lib/server/http";
 
 const MAX_RESULTS = 20;
 
 /** GET /api/cards/search?q=sol&identity=WUB → name matches, prefix matches first, then by popularity. */
 export async function GET(request: NextRequest) {
+  const blocked = rejectCrossSite(request);
+  if (blocked) return blocked;
+
   const params = request.nextUrl.searchParams;
   const query = nameKey(params.get("q") ?? "");
   if (query.length < 2) return Response.json({ cards: [] });
