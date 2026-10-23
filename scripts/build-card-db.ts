@@ -333,13 +333,23 @@ function noEdhrecArchetypes(): EdhrecArchetypeData {
   return { totals: new Map(), themes: new Map() };
 }
 
+/** EDHREC's data policy: at most one request per second, and back off when it rate limits or blocks us. */
+const EDHREC_GAP_MS = 1_000;
+let edhrecNextAt = 0;
+let edhrecStopped = false;
+
 async function edhrecCommanderViews(page: string): Promise<EdhrecCommanderView[] | null> {
   const file = path.join(EDHREC_CACHE_DIR, `${page.replace(/\//g, "__")}.json`);
   const cached = existsSync(file) ? (JSON.parse(readFileSync(file, "utf8")) as { at: number; views: EdhrecCommanderView[] }) : null;
   if (cached && Date.now() - cached.at < MAX_AGE_MS) return cached.views;
 
   try {
+    const at = Math.max(Date.now(), edhrecNextAt);
+    edhrecNextAt = at + EDHREC_GAP_MS;
+    await new Promise((resolve) => setTimeout(resolve, at - Date.now()));
+    if (edhrecStopped) throw new Error("skipped after a rate limit");
     const res = await fetch(`https://json.edhrec.com/pages/${page}.json`, { headers: SCRYFALL_HEADERS });
+    if (res.status === 429 || res.status === 403) edhrecStopped = true;
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = (await res.json()) as EdhrecListPage;
     const views = json.container.json_dict.cardlists
