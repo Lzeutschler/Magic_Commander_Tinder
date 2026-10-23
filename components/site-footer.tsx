@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { SITE } from "@/lib/site";
 
+import { FeedbackDialog } from "./feedback-dialog";
+
 const FOOTER_LINKS = [
   { href: "/about", label: "About" },
   { href: "/impressum", label: "Impressum" },
@@ -21,6 +23,13 @@ export function SiteFooter() {
                 </Link>
               </li>
             ))}
+            <li>
+              <FeedbackDialog>
+                <button type="button" className="inline-flex min-h-10 cursor-pointer items-center underline hover:text-foreground">
+                  Feedback
+                </button>
+              </FeedbackDialog>
+            </li>
           </ul>
         </nav>
         <p>

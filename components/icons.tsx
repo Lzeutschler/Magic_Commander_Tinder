@@ -11,11 +11,14 @@ import {
   CaretRightIcon as CaretRightBase,
   CardsIcon as CardsBase,
   ChartBarIcon as ChartBarBase,
+  ChatCircleTextIcon as ChatCircleTextBase,
   CheckCircleIcon as CheckCircleBase,
   CheckIcon as CheckBase,
   CircleNotchIcon as CircleNotchBase,
   CopyIcon as CopyBase,
   DownloadSimpleIcon as DownloadSimpleBase,
+  EnvelopeSimpleIcon as EnvelopeSimpleBase,
+  GithubLogoIcon as GithubLogoBase,
   HandIcon as HandBase,
   HeartIcon as HeartBase,
   InfoIcon as InfoBase,
@@ -27,6 +30,7 @@ import {
   NotePencilIcon as NotePencilBase,
   PlayIcon as PlayBase,
   PlusIcon as PlusBase,
+  RedditLogoIcon as RedditLogoBase,
   ShareNetworkIcon as ShareNetworkBase,
   ShuffleIcon as ShuffleBase,
   SidebarSimpleIcon as SidebarSimpleBase,
@@ -65,11 +69,14 @@ export const CaretLeftIcon = bold(CaretLeftBase, "CaretLeftIcon");
 export const CaretRightIcon = bold(CaretRightBase, "CaretRightIcon");
 export const CardsIcon = bold(CardsBase, "CardsIcon");
 export const ChartBarIcon = bold(ChartBarBase, "ChartBarIcon");
+export const ChatCircleTextIcon = bold(ChatCircleTextBase, "ChatCircleTextIcon");
 export const CheckCircleIcon = bold(CheckCircleBase, "CheckCircleIcon");
 export const CheckIcon = bold(CheckBase, "CheckIcon");
 export const CircleNotchIcon = bold(CircleNotchBase, "CircleNotchIcon");
 export const CopyIcon = bold(CopyBase, "CopyIcon");
 export const DownloadSimpleIcon = bold(DownloadSimpleBase, "DownloadSimpleIcon");
+export const EnvelopeSimpleIcon = bold(EnvelopeSimpleBase, "EnvelopeSimpleIcon");
+export const GithubLogoIcon = bold(GithubLogoBase, "GithubLogoIcon");
 export const HandIcon = bold(HandBase, "HandIcon");
 export const HeartIcon = bold(HeartBase, "HeartIcon");
 export const InfoIcon = bold(InfoBase, "InfoIcon");
@@ -81,6 +88,7 @@ export const MinusIcon = bold(MinusBase, "MinusIcon");
 export const NotePencilIcon = bold(NotePencilBase, "NotePencilIcon");
 export const PlayIcon = bold(PlayBase, "PlayIcon");
 export const PlusIcon = bold(PlusBase, "PlusIcon");
+export const RedditLogoIcon = bold(RedditLogoBase, "RedditLogoIcon");
 export const ShareNetworkIcon = bold(ShareNetworkBase, "ShareNetworkIcon");
 export const ShuffleIcon = bold(ShuffleBase, "ShuffleIcon");
 export const SidebarSimpleIcon = bold(SidebarSimpleBase, "SidebarSimpleIcon");

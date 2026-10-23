@@ -15,10 +15,10 @@ export const SITE = {
   /** For the home screen icon label, where space is tight. */
   shortName: "Brewmance",
   /** The headline on the home page and in the Open Graph image. */
-  tagline: "Swipe right on your next Commander deck",
+  tagline: "Swipe your way to a balanced, bracket-legal Commander deck",
   url: resolveSiteUrl(),
   description:
-    "Find your commander, swipe right on the cards you love and goldfish the deck — a free deckbuilding companion for Magic: The Gathering Commander.",
+    "Find your commander, swipe through cards while the deck stays balanced and within its bracket, then goldfish it — a free deckbuilding companion for Magic: The Gathering Commander.",
   themeColor: "#0b0e13",
 } as const;
 
@@ -35,5 +35,13 @@ export const OPERATOR = {
   email: "info@45level.com",
   website: "https://www.leonard-zeutschler.de",
 } as const;
+
+/** Where the Feedback dialog sends people. Not everyone from Reddit has a GitHub account, hence the email too. */
+export const FEEDBACK = {
+  issues: "https://github.com/Lzeutschler/Magic_Commander_Tinder/issues/new",
+  email: OPERATOR.email,
+  /** The launch thread on Reddit; set it once the post is up and the dialog offers it first. */
+  reddit: null as string | null,
+};
 
 export const LEGAL_LAST_UPDATED = { de: "Oktober 2026", en: "October 2026" } as const;

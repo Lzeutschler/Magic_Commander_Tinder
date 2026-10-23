@@ -6,6 +6,7 @@ import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
 import { TEMPLATE_ROLE_LABELS, type TemplateRole } from "@/lib/deckbuilder/template";
 import { deckStats } from "@/lib/decks/stats";
 import { SITE } from "@/lib/site";
+import { scryfallImageDataUrl } from "@/lib/server/scryfall-image";
 import { loadSharedDeck } from "@/lib/server/shared-deck";
 
 export const alt = "A Commander deck shared from Brewmance";
@@ -30,7 +31,7 @@ export default async function SharedDeckImage({ params }: { params: Promise<{ co
   const deck = await loadSharedDeck((await params).code);
   const stats = deck ? deckStats(deck) : null;
   const maxCurve = Math.max(1, ...(stats?.curve ?? []));
-  const art = deck?.commander.image ? await imageDataUrl(cardImageUrl(deck.commander.image, "normal")) : null;
+  const art = deck?.commander.image ? await scryfallImageDataUrl(cardImageUrl(deck.commander.image, "normal")) : null;
 
   return new ImageResponse(
     (
@@ -132,21 +133,4 @@ export default async function SharedDeckImage({ params }: { params: Promise<{ co
     // The code fixes the deck, so the CDN can keep the image instead of rendering it for every crawler.
     { ...size, fonts, headers: { "Cache-Control": "public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000" } },
   );
-}
-
-/**
- * The card image as a data URL. ImageResponse would fetch it with a generic User-Agent, which
- * Scryfall rejects, so it is fetched here; without it the image simply leaves the card out.
- */
-async function imageDataUrl(url: string): Promise<string | null> {
-  try {
-    const res = await fetch(url, {
-      headers: { "User-Agent": "Brewmance/0.1", Accept: "image/*" },
-      signal: AbortSignal.timeout(5_000),
-    });
-    if (!res.ok) return null;
-    return `data:${res.headers.get("content-type") ?? "image/jpeg"};base64,${Buffer.from(await res.arrayBuffer()).toString("base64")}`;
-  } catch {
-    return null;
-  }
 }

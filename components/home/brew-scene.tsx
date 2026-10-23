@@ -1,15 +1,8 @@
 import { ManaSymbol } from "@/components/card/mana";
 import { Cauldron, HeartShape as Heart } from "@/components/cauldron";
 import { cardImageUrl } from "@/lib/cards/image";
-import type { CardImage } from "@/lib/cards/types";
+import { SHOWCASE_COMMANDERS as COMMANDERS } from "@/lib/cards/showcase";
 import { cn } from "@/lib/utils";
-
-/** Commanders that take turns rising from the brew; well known across the Commander crowd. */
-const COMMANDERS: { name: string; image: CardImage }[] = [
-  { name: "Atraxa, Praetors' Voice", image: { key: "d/0/d0d33d52-3d28-4635-b985-51e126289259", version: "1783930136", doubleFaced: false } },
-  { name: "The Ur-Dragon", image: { key: "1/0/10d42b35-844f-4a64-9981-c6118d45e826", version: "1783915607", doubleFaced: false } },
-  { name: "Edgar Markov", image: { key: "a/5/a577ba08-0aa8-45be-aa83-d5078770127c", version: "1783908078", doubleFaced: false } },
-];
 
 /** The five colors bubble up from the cauldron. `x`/`drift` in em; `rest` is where they sit without motion. */
 const PIPS = [
