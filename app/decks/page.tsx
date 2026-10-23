@@ -6,8 +6,9 @@ import { ImportDialog } from "@/components/deck/import-dialog";
 import { PlusIcon, UploadSimpleIcon } from "@/components/icons";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import { canonical } from "@/lib/metadata";
 
-export const metadata: Metadata = { title: "My decks" };
+export const metadata: Metadata = { title: "My decks", ...canonical("/decks") };
 
 export default function DecksPage() {
   return (

@@ -7,11 +7,14 @@ import { SharedDeckView } from "@/components/deck/shared-deck-view";
 import { frontFaceName } from "@/lib/cards/names";
 import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
 import { deckCount } from "@/lib/decks/stats";
+import { OPEN_GRAPH } from "@/lib/metadata";
 import { SITE } from "@/lib/site";
 import { loadSharedDeck } from "@/lib/server/shared-deck";
 
 export async function generateMetadata({ params }: PageProps<"/d/[code]">): Promise<Metadata> {
-  const deck = await loadSharedDeck((await params).code);
+  const { code } = await params;
+  const path = `/d/${code}`;
+  const deck = await loadSharedDeck(code);
   if (!deck) return { title: "Shared deck", robots: { index: false } };
 
   const title = `${deck.name} · Bracket ${deck.bracket} Commander deck`;
@@ -23,7 +26,9 @@ export async function generateMetadata({ params }: PageProps<"/d/[code]">): Prom
     description,
     // Every deck is its own URL; search engines should index the site, not each shared list.
     robots: { index: false },
-    openGraph: { type: "website", siteName: SITE.name, title, description },
+    alternates: { canonical: path },
+    // The deck image comes from opengraph-image.tsx next to this page.
+    openGraph: { ...OPEN_GRAPH, title, description, url: path },
     twitter: { card: "summary_large_image", title, description },
   };
 }

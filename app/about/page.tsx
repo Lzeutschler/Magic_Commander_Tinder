@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@/components/icons";
 import { ExternalLink, Prose } from "@/components/legal/prose";
 import { Button } from "@/components/ui/button";
+import { canonical } from "@/lib/metadata";
 import { OPERATOR, SITE } from "@/lib/site";
 import portrait from "@/public/about/leonard-zeutschler.jpg";
 
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
   title: "About",
   description:
     `${SITE.name} is built by Leonard Zeutschler, a full-stack developer and AI engineer from the Ruhr area, Germany.`,
-  alternates: { canonical: "/about" },
+  ...canonical("/about"),
 };
 
 const LINKS = [

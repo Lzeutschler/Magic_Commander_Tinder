@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 
 import { GoldfishDeckPicker } from "@/components/goldfish/deck-picker";
 import { PageHeader } from "@/components/page-header";
+import { canonical } from "@/lib/metadata";
 
-export const metadata: Metadata = { title: "Goldfish" };
+export const metadata: Metadata = { title: "Goldfish", ...canonical("/goldfish") };
 
 export default function GoldfishIndexPage() {
   return (

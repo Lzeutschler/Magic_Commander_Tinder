@@ -1,11 +1,12 @@
 import { ImageResponse } from "next/og";
 
 import { BRAND_COLORS, BrandMarkImage, brandFonts } from "@/lib/brand";
+import { SITE_IMAGE } from "@/lib/metadata";
 import { SITE } from "@/lib/site";
 
-export const alt = `${SITE.name} — ${SITE.tagline}`;
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+export const alt = SITE_IMAGE.alt;
+export const size = SITE_IMAGE.size;
+export const contentType = SITE_IMAGE.contentType;
 
 // Read at module level, as in the Next.js docs, so the image is rendered once at build time.
 const fonts = await brandFonts();

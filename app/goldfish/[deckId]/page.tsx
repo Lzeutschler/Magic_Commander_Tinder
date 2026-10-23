@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { GoldfishScreen } from "@/components/goldfish/goldfish-screen";
+import { canonical } from "@/lib/metadata";
 
-export const metadata: Metadata = { title: "Goldfish" };
+export async function generateMetadata({ params }: PageProps<"/goldfish/[deckId]">): Promise<Metadata> {
+  return { title: "Goldfish", ...canonical(`/goldfish/${(await params).deckId}`) };
+}
 
 export default function GoldfishPage({ params }: PageProps<"/goldfish/[deckId]">) {
   return (
