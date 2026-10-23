@@ -2,7 +2,7 @@
 
 ## Context
 
-Brewmance holt heute pro Commander die Karten mit `synergy`/`inclusion`, die Themes, die Deckzahlen pro Bracket und die durchschnittliche Landzahl live von `json.edhrec.com`. Zur Build-Zeit kommen dazu Archetyp-Affinitäten und Deckzahlen für das Quiz. EDHRECs AGB (seit 2024-08-06) verbieten automatisierte Abrufe, Weitergabe und den Bau „ähnlicher oder konkurrierender“ Seiten. Die Anfrage an contact@edhrec.com läuft noch. Dieser Plan beschreibt, wie wir vergleichbare Empfehlungen selbst und legal berechnen können, falls die Antwort Nein ist.
+Brewmance holt heute pro Commander die Karten mit `synergy`/`inclusion`, die Themes, die Deckzahlen pro Bracket und die durchschnittliche Landzahl live von `json.edhrec.com`. Zur Build-Zeit kommen dazu Archetyp-Affinitäten und Deckzahlen für das Quiz. EDHRECs AGB (seit 2024-08-06) verbieten automatisierte Abrufe, Weitergabe und den Bau „ähnlicher oder konkurrierender“ Seiten. EDHREC hat am 23.10.2026 die Nutzung erlaubt (1 Anfrage pro Sekunde, User-Agent mit Kontakt-Mail, siehe `docs/edhrec-data-policy.md`), behält sich aber Änderungen der Policy vor. Dieser Plan bleibt als Reserve: Er beschreibt, wie wir vergleichbare Empfehlungen selbst und legal berechnen können, falls EDHREC die Erlaubnis zurückzieht.
 
 **Wichtigster Befund:** EDHREC, Archidekt und Commander Spellbook gehören alle zu **Space Cow Media** (CEO Don Miner, EDHREC-Gründer). Sagt EDHREC Nein, ist Archidekt als Datenquelle sehr wahrscheinlich ebenfalls zu. Die einzige große Deckquelle außerhalb dieser Firma ist **Moxfield**. Ohne Moxfield haben wir anfangs nur **Tausende statt Millionen** Decks. Der Plan muss deshalb mit wenig Daten gut funktionieren und darf erst später auf viel Daten setzen.
 

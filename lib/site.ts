@@ -23,12 +23,6 @@ export const SITE = {
 } as const;
 
 /**
- * Sent to EDHREC, Commander Spellbook and Scryfall: names the app and links the site, so their
- * operators can see who sends the requests and how to reach us instead of just blocking them.
- */
-export const USER_AGENT = `${SITE.name}/0.1 (+${SITE.url})`;
-
-/**
  * Provider of the site for the Impressum and the privacy policy. The site is a private,
  * non-commercial hobby project, so Leonard runs it as a private person (not via 45level GmbH).
  */
@@ -41,6 +35,13 @@ export const OPERATOR = {
   email: "info@45level.com",
   website: "https://www.leonard-zeutschler.de",
 } as const;
+
+/**
+ * Sent to EDHREC, Commander Spellbook and Scryfall: names the app, a contact address and the site, so
+ * their operators can see who sends the requests and how to reach us instead of just blocking them.
+ * EDHREC's data policy asks for the project name and a contact email, e.g. "MyCoolProject <craig@gmail.com>".
+ */
+export const USER_AGENT = `${SITE.name}/0.1 <${OPERATOR.email}> (+${SITE.url})`;
 
 /** Where the Feedback dialog sends people. Not everyone from Reddit has a GitHub account, hence the email too. */
 export const FEEDBACK = {

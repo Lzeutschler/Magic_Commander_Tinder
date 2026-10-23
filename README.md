@@ -80,10 +80,13 @@ pile). Text and accents meet WCAG AA (text 15.6:1, brand 7.7:1 on the background
   filtered by bracket and theme. EDHREC has no official API; the app reads the JSON its own site uses
   (`json.edhrec.com/pages/commanders/{slug}[/{bracket}][/{theme}].json`) through a cached server
   route and falls back to its own popularity/theme scoring when EDHREC has no data.
+  EDHREC allows this under its data policy (at most one request per second, a User-Agent with a contact
+  email; see `docs/edhrec-data-policy.md`). Requests to EDHREC are spaced one second apart per server
+  instance and during the card database build.
 - **Commander archetypes** for the quiz (`lib/tagging/archetypes.ts`) combine Scryfall Tagger tags on
   each commander with EDHREC theme pages (`pages/tags/{theme}.json`, top commanders per theme) and color
   pages (`pages/commanders/{colors}.json`, deck totals). The card database build fetches these ~85
-  pages, caches them in `.cache/edhrec/` for a week and keeps going without them if EDHREC is down.
+  pages one per second, caches them in `.cache/edhrec/` for a week and keeps going without them if EDHREC is down.
 
 ## Project layout
 

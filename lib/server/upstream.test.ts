@@ -17,12 +17,45 @@ describe("upstreamFetch", () => {
 
   it("stops sending after the per-window limit and resumes in the next window", async () => {
     vi.stubGlobal("fetch", respond(200));
-    for (let i = 0; i < 30; i++) await upstreamFetch("edhrec", "https://example.com");
-    await expect(upstreamFetch("edhrec", "https://example.com")).rejects.toBeInstanceOf(UpstreamUnavailable);
+    for (let i = 0; i < 30; i++) await upstreamFetch("scryfall", "https://example.com");
+    await expect(upstreamFetch("scryfall", "https://example.com")).rejects.toBeInstanceOf(UpstreamUnavailable);
     // Other services count separately.
     await expect(upstreamFetch("spellbook", "https://example.com")).resolves.toBeInstanceOf(Response);
     vi.advanceTimersByTime(10_001);
-    await expect(upstreamFetch("edhrec", "https://example.com")).resolves.toBeInstanceOf(Response);
+    await expect(upstreamFetch("scryfall", "https://example.com")).resolves.toBeInstanceOf(Response);
+  });
+
+  it("sends at most one request per second to EDHREC and gives up on a long queue", async () => {
+    const fetch = respond(200);
+    vi.stubGlobal("fetch", fetch);
+    const queued = Array.from({ length: 5 }, () => upstreamFetch("edhrec", "https://example.com"));
+    const tooLate = upstreamFetch("edhrec", "https://example.com");
+    await expect(tooLate).rejects.toThrow("edhrec is busy");
+    await vi.advanceTimersByTimeAsync(0);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(999);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(fetch).toHaveBeenCalledTimes(2);
+    await vi.advanceTimersByTimeAsync(3_000);
+    await Promise.all(queued);
+    expect(fetch).toHaveBeenCalledTimes(5);
+    // Services without a gap are not queued.
+    await upstreamFetch("scryfall", "https://example.com");
+    await upstreamFetch("scryfall", "https://example.com");
+    expect(fetch).toHaveBeenCalledTimes(7);
+  });
+
+  it("drops queued EDHREC requests when an earlier one is rate limited", async () => {
+    const fetch = respond(429);
+    vi.stubGlobal("fetch", fetch);
+    const first = upstreamFetch("edhrec", "https://example.com");
+    const second = upstreamFetch("edhrec", "https://example.com");
+    const rejected = expect(second).rejects.toThrow("edhrec is paused");
+    expect((await first).status).toBe(429);
+    await vi.advanceTimersByTimeAsync(1_000);
+    await rejected;
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
 
   it("pauses a service that rate limits or blocks us", async () => {

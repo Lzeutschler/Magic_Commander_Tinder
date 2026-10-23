@@ -163,7 +163,7 @@ viele verschiedene Commander:
 - Optional EDHREC vorab kurz Bescheid geben, weil die App deren inoffizielles JSON nutzt.
 
 Umgesetzt: Alle Anfragen an EDHREC, Commander Spellbook und Scryfall (auch im Daten-Build) senden
-`Brewmance/0.1 (+<Seiten-URL>)` (`USER_AGENT` in `lib/site.ts`).
+`Brewmance/0.1 <info@45level.com> (+<Seiten-URL>)` (`USER_AGENT` in `lib/site.ts`).
 
 Nicht umgesetzt, mit neuem Befund: Laut Next.js-Doku lebt `"use cache"` auf Serverless nur im Speicher einer
 Instanz und hält dort kaum über einzelne Anfragen hinaus. Den eigentlichen Schutz liefert der CDN-Cache von
@@ -208,6 +208,10 @@ und 245 KB Brotli. Die Schema-Version des Daten-Builds steht auf 4, damit lokale
   Kartenseite. Editor, geteilte Decks und geteilte Quiz-Ergebnisse haben „Compare on EDHREC“. Alle Links nutzen
   `rel="noopener"` ohne `noreferrer`, damit EDHREC die Besuche sieht. Die Mail an contact@edhrec.com ist
   entworfen. Der Abschalt-Schalter ist gebaut: `RECS_SOURCE=off` in Vercel setzen und neu deployen (siehe README).
+
+  ✅ Geklärt (23.10.2026): EDHREC erlaubt die Nutzung mit höchstens 1 Anfrage pro Sekunde und einem User-Agent
+  mit Kontakt-Mail. Beides ist umgesetzt, Details in `docs/edhrec-data-policy.md`. Nach dem Launch EDHREC unter
+  edhrec@edhrec.com den Link schicken.
 
 ## Für den Post selbst
 
