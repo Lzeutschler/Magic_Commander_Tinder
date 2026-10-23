@@ -81,7 +81,7 @@ function SharedQuizView({ quiz }: { quiz: ResolvedSharedQuiz }) {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Seven questions about play style or just vibes, then swipe through the commanders that fit.
+            Swipe through play styles or just vibes, then meet the commanders that fit.
           </p>
         </div>
       </section>

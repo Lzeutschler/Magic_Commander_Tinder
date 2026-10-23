@@ -1,12 +1,14 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 import type { SwipeDecision } from "@/lib/deckbuilder/session";
+import { answersOf } from "@/lib/quiz/deck";
+import { QUESTIONS } from "@/lib/quiz/questions";
 import { defaultPopularity } from "@/lib/quiz/scoring";
-import type { Answers, PopularityMode, Track } from "@/lib/quiz/types";
+import type { Answers, PopularityMode, QuizSwipe, Track } from "@/lib/quiz/types";
 
 /** Commanders per swipe round; "keep swiping" adds another round. */
 export const SWIPE_ROUND = 30;
@@ -15,9 +17,8 @@ export type QuizPhase = "questions" | "swipe" | "shortlist";
 
 interface QuizStore {
   track: Track | null;
-  /** Index of the current question of the track. */
-  step: number;
-  answers: Answers;
+  /** Answered quiz cards in order, so the deck can adapt to them and they can be undone. */
+  swipes: QuizSwipe[];
   phase: QuizPhase;
   popularity: PopularityMode;
   /** Swipe decisions in order, so they can be undone. */
@@ -26,10 +27,11 @@ interface QuizStore {
   limit: number;
 
   chooseTrack(track: Track): void;
-  answer(questionId: string, optionIds: string[]): void;
-  goToStep(step: number): void;
-  /** Leaves the questions; going back from the first question returns to the track choice. */
-  back(): void;
+  swipe(swipe: QuizSwipe): void;
+  /** Takes back the last quiz card; before the first one, returns to the track choice. */
+  undoSwipe(): void;
+  /** Asks a question again, and every question after it. */
+  reviseQuestion(questionId: string): void;
   startSwiping(): void;
   decide(commanderId: string, decision: SwipeDecision): void;
   undo(): void;
@@ -43,8 +45,7 @@ interface QuizStore {
 
 const INITIAL = {
   track: null,
-  step: 0,
-  answers: {},
+  swipes: [],
   phase: "questions" as QuizPhase,
   popularity: "balanced" as PopularityMode,
   decisions: [],
@@ -60,16 +61,21 @@ export const useQuizStore = create<QuizStore>()(
         set({ ...INITIAL, track, popularity: defaultPopularity(track) });
       },
 
-      answer(questionId, optionIds) {
-        set((s) => ({ answers: { ...s.answers, [questionId]: optionIds } }));
+      swipe(swipe) {
+        set((s) => (s.swipes.some((w) => w.card === swipe.card) ? s : { swipes: [...s.swipes, swipe] }));
       },
 
-      goToStep(step) {
-        set({ step, phase: "questions" });
+      undoSwipe() {
+        set((s) => (s.swipes.length ? { swipes: s.swipes.slice(0, -1), phase: "questions" } : { track: null }));
       },
 
-      back() {
-        set((s) => (s.step === 0 ? { track: null } : { step: s.step - 1 }));
+      reviseQuestion(questionId) {
+        set((s) => {
+          if (!s.track) return s;
+          const order = QUESTIONS[s.track].map((q) => q.id);
+          const cut = order.indexOf(questionId);
+          return { swipes: s.swipes.filter((w) => order.indexOf(w.question) < cut), phase: "questions" };
+        });
       },
 
       startSwiping() {
@@ -112,8 +118,23 @@ export const useQuizStore = create<QuizStore>()(
     }),
     {
       name: "commander-tinder-quiz",
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => localStorage),
+      migrate(persisted, version) {
+        const state = persisted as Partial<QuizStore> & { answers?: Answers; step?: number };
+        if (version >= 2) return state;
+        // Version 1 kept answers per question. Mid-question quizzes start over, answered ones keep
+        // their answers as one finished card per question.
+        const { answers = {}, step: _, ...rest } = state;
+        const questions = rest.track && rest.phase !== "questions" ? QUESTIONS[rest.track] : [];
+        const swipes: QuizSwipe[] = questions.map((q) => ({
+          card: q.id,
+          question: q.id,
+          choice: "done",
+          answers: Object.fromEntries([q, ...(q.followUp ? [q.followUp] : [])].map((p) => [p.id, answers[p.id] ?? []])),
+        }));
+        return { ...rest, swipes };
+      },
     },
   ),
 );
@@ -125,4 +146,10 @@ export function useQuizHydrated(): boolean {
     () => useQuizStore.persist.hasHydrated(),
     () => false,
   );
+}
+
+/** The answers of every swipe so far. */
+export function useQuizAnswers(): Answers {
+  const swipes = useQuizStore((s) => s.swipes);
+  return useMemo(() => answersOf(swipes), [swipes]);
 }

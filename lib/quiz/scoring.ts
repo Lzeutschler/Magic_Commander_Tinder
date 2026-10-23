@@ -94,7 +94,7 @@ export function emptyProfile(track: Track): QuizProfile {
 /** Adds up the effects of every picked answer. */
 export function buildProfile(track: Track, questions: Question[], answers: Answers): QuizProfile {
   const profile = emptyProfile(track);
-  const add = (question: Omit<Question, "followUp">) => {
+  const add = (question: Pick<Question, "id" | "options">) => {
     for (const optionId of answers[question.id] ?? []) {
       const effect = question.options.find((o) => o.id === optionId)?.effect;
       if (!effect) continue;
@@ -239,7 +239,7 @@ export function scoreCommander(
   if (profile.sets.includes(commander.set)) add("world", WEIGHTS.world, "From a world with exactly that feel");
 
   // Tempo by mana value.
-  if (profile.tempo && profile.tempo !== "reactive") {
+  if (profile.tempo) {
     const cmc = commander.cmc;
     const points =
       profile.tempo === "fast"

@@ -26,7 +26,6 @@ const ART = {
   goblinGuide: "3/c/3c0f5411-1940-410f-96ce-6f92513f753a",
   phyrexianArena: "0/7/0784b6f0-9ebf-43d2-ba0f-a6bc93ba0c48",
   kodamasReach: "9/0/90c423cc-1264-4067-9c50-e7c88c68ef2d",
-  counterspell: "4/f/4f616706-ec97-4923-bb1e-11a69fbaa1f8",
   grizzlyBears: "4/0/409f9b88-f03e-40b6-9883-68c14c37c0de",
   ponder: "d/c/dc69f960-68ba-4315-8146-6a7a82047503",
   thassasOracle: "7/2/726e8b29-13e9-4138-b6a9-d2a0d8188d1c",
@@ -88,25 +87,26 @@ const ART = {
   swordOfFeastAndFamine: "c/7/c7710eb5-c56a-437b-8847-2a829c404d47",
   hullbreakerHorror: "1/3/137acb70-a1fd-4ea9-a5d9-f4b438eb5e82",
   nissa: "f/8/f857bbe4-5619-4733-a0c7-69700f2ef4f3",
+  vanquishersBanner: "e/f/efa6944e-b5e2-4584-ae37-f5b59a8ec75e",
 } as const;
 
 export const TRACK_QUESTION: Question = {
   id: "track",
   title: "How well do you know Magic?",
-  subtitle: "We'll ask different questions depending on your experience.",
   max: 1,
+  card: { kind: "versus", left: "beginner", right: "advanced" },
   options: [
     {
       id: "beginner",
       label: "I'm new to Commander",
-      description: "Pick by vibes: heroes or villains, cute critters or dragons, your favorite universe.",
+      description: "Swipe on vibes, heroes and worlds you love.",
       art: ART.valleyQuestcaller,
       effect: {},
     },
     {
       id: "advanced",
       label: "I know my way around",
-      description: "Win conditions, engines, table politics and colors — find your archetype.",
+      description: "Swipe on win cons, engines and table politics.",
       art: ART.rhysticStudy,
       effect: {},
     },
@@ -117,8 +117,8 @@ const ADVANCED: Question[] = [
   {
     id: "win",
     title: "How do you want to win?",
-    subtitle: "Pick up to two.",
     max: 2,
+    card: { kind: "yesno" },
     options: [
       {
         id: "army",
@@ -167,8 +167,9 @@ const ADVANCED: Question[] = [
   {
     id: "engine",
     title: "What do you love to play with?",
-    subtitle: "Your favorite resource. Pick up to two.",
+    subtitle: "Tap up to two favorites.",
     max: 2,
+    card: { kind: "pick" },
     options: [
       {
         id: "graveyard",
@@ -231,8 +232,8 @@ const ADVANCED: Question[] = [
   {
     id: "table",
     title: "How do you treat the table?",
-    subtitle: "Commander is a multiplayer game. What's your style?",
     max: 1,
+    card: { kind: "yesno", limit: 4 },
     options: [
       {
         id: "friend",
@@ -288,8 +289,8 @@ const ADVANCED: Question[] = [
   {
     id: "tempo",
     title: "How should a game feel?",
-    subtitle: "Your pace from turn one to the win.",
     max: 1,
+    card: { kind: "versus", left: "fast", right: "big", middle: "engine" },
     options: [
       {
         id: "fast",
@@ -312,20 +313,13 @@ const ADVANCED: Question[] = [
         art: ART.kodamasReach,
         effect: { tempo: "slow", archetypes: { ramp: 1 } },
       },
-      {
-        id: "reactive",
-        label: "Wait, then strike",
-        description: "Hold up answers and win once the dust settles.",
-        art: ART.counterspell,
-        effect: { tempo: "reactive", archetypes: { control: 2, spellslinger: 0.5 } },
-      },
     ],
   },
   {
     id: "complexity",
     title: "How much do you want to think?",
-    subtitle: "Some commanders play themselves, others are puzzles.",
     max: 1,
+    card: { kind: "versus", left: "simple", right: "complex", middle: "medium" },
     options: [
       {
         id: "simple",
@@ -353,9 +347,9 @@ const ADVANCED: Question[] = [
   {
     id: "colors",
     title: "Which colors call to you?",
-    subtitle: "Pick any number, or skip if you don't mind.",
+    subtitle: "Tap any you like, or skip if you don't mind.",
     max: 6,
-    optional: true,
+    card: { kind: "pick" },
     options: [
       { id: "W", label: "White", description: "Order, protection, community", symbol: "W", art: ART.plains, effect: { color: "W" } },
       { id: "U", label: "Blue", description: "Knowledge, trickery, control", symbol: "U", art: ART.island, effect: { color: "U" } },
@@ -367,22 +361,27 @@ const ADVANCED: Question[] = [
     followUp: {
       id: "colorCount",
       title: "How many colors?",
-      subtitle: "",
       max: 1,
-      optional: true,
       options: [
-        { id: "mono", label: "One", effect: { colorCount: "mono" } },
-        { id: "two", label: "Two", effect: { colorCount: "two" } },
-        { id: "three-plus", label: "Three or more", effect: { colorCount: "three-plus" } },
-        { id: "any", label: "Any", effect: {} },
+        { id: "mono", label: "1 color", effect: { colorCount: "mono" } },
+        { id: "two", label: "2 colors", effect: { colorCount: "two" } },
+        { id: "three-plus", label: "3+ colors", effect: { colorCount: "three-plus" } },
       ],
     },
   },
   {
     id: "tribe",
     title: "Pick creatures you love",
-    subtitle: "Typal decks are built around one creature type. Pick up to three.",
+    subtitle: "Tap up to three.",
     max: 3,
+    card: {
+      kind: "pick",
+      gate: {
+        title: "Lead one creature type?",
+        description: "Typal decks are all Elves, all Dragons, all Zombies…",
+        art: ART.vanquishersBanner,
+      },
+    },
     options: [
       { id: "dragon", label: "Dragons", art: ART.shivanDragon, effect: { tribes: ["Dragon"] } },
       { id: "elf", label: "Elves", art: ART.llanowarElves, effect: { tribes: ["Elf"] } },
@@ -414,9 +413,9 @@ const ADVANCED: Question[] = [
 const BEGINNER: Question[] = [
   {
     id: "side",
-    title: "Hero or villain?",
-    subtitle: "Who would you rather play?",
+    title: "Who would you rather play?",
     max: 1,
+    card: { kind: "yesno" },
     options: [
       {
         id: "hero",
@@ -462,53 +461,6 @@ const BEGINNER: Question[] = [
           archetypes: { stompy: 1.5, ramp: 0.5 },
         },
       },
-      { id: "any", label: "No preference", exclusive: true, effect: {} },
-    ],
-  },
-  {
-    id: "world",
-    title: "Pick a world you love",
-    subtitle: "Magic has its own worlds and crossovers with famous franchises. Pick up to three.",
-    max: 3,
-    options: [
-      { id: "magic", label: "Magic's own worlds", description: "Dragons, planeswalkers and the multiverse", art: ART.commandTower, effect: { franchise: "magic" } },
-      { id: "lotr", label: "The Lord of the Rings", art: ART.theOneRing, effect: { franchise: "lotr" } },
-      { id: "final-fantasy", label: "Final Fantasy", art: ART.cloud, effect: { franchise: "final-fantasy" } },
-      { id: "marvel", label: "Marvel & Spider-Man", art: ART.ironMan, effect: { franchise: "marvel" } },
-      { id: "doctor-who", label: "Doctor Who", art: ART.tenthDoctor, effect: { franchise: "doctor-who" } },
-      { id: "warhammer", label: "Warhammer 40,000", art: ART.abaddon, effect: { franchise: "warhammer" } },
-      { id: "fallout", label: "Fallout", art: ART.dogmeat, effect: { franchise: "fallout" } },
-      { id: "tmnt", label: "Ninja Turtles", art: ART.michelangelo, effect: { franchise: "tmnt" } },
-      { id: "avatar", label: "Avatar: The Last Airbender", art: ART.aang, effect: { franchise: "avatar" } },
-      { id: "assassins-creed", label: "Assassin's Creed", art: ART.ezio, effect: { franchise: "assassins-creed" } },
-      { id: "transformers", label: "Transformers", art: ART.optimusPrime, effect: { franchise: "transformers" } },
-      { id: "dnd", label: "Dungeons & Dragons", art: ART.tiamat, effect: { franchise: "dnd" } },
-      { id: "surprise", label: "Surprise me", description: "Any world is fine", exclusive: true, effect: {} },
-    ],
-  },
-  {
-    id: "critters",
-    title: "Which creatures would you lead?",
-    subtitle: "Some decks are all about one kind of creature. Pick up to three.",
-    max: 3,
-    options: [
-      { id: "squirrel", label: "Squirrels", art: ART.squirrelNest, effect: { tribes: ["Squirrel"] } },
-      { id: "cat", label: "Cats", art: ART.leoninWarleader, effect: { tribes: ["Cat"] } },
-      { id: "dog", label: "Dogs", art: ART.spiritedCompanion, effect: { tribes: ["Dog"] } },
-      { id: "rabbit", label: "Rabbits & Mice", art: ART.hareApparent, effect: { tribes: ["Rabbit", "Mouse"] } },
-      { id: "frog", label: "Frogs", art: ART.clement, effect: { tribes: ["Frog"] } },
-      { id: "bird", label: "Birds", art: ART.birdsOfParadise, effect: { tribes: ["Bird"] } },
-      { id: "rat", label: "Rats", art: ART.marrowGnawer, effect: { tribes: ["Rat"] } },
-      { id: "dinosaur", label: "Dinosaurs", art: ART.regisaurAlpha, effect: { tribes: ["Dinosaur"] } },
-      { id: "dragon", label: "Dragons", art: ART.shivanDragon, effect: { tribes: ["Dragon"] } },
-      { id: "angel", label: "Angels", art: ART.serraAngel, effect: { tribes: ["Angel"] } },
-      { id: "vampire", label: "Vampires", art: ART.bloodlineKeeper, effect: { tribes: ["Vampire"] } },
-      { id: "zombie", label: "Zombies", art: ART.gravecrawler, effect: { tribes: ["Zombie"] } },
-      { id: "elf", label: "Elves", art: ART.llanowarElves, effect: { tribes: ["Elf"] } },
-      { id: "goblin", label: "Goblins", art: ART.goblinMatron, effect: { tribes: ["Goblin"] } },
-      { id: "pirate", label: "Pirates", art: ART.direFleetCaptain, effect: { tribes: ["Pirate"] } },
-      { id: "robot", label: "Robots & Golems", art: ART.myrBattlesphere, effect: { tribes: ["Robot", "Construct", "Golem", "Myr"] } },
-      { id: "any", label: "Any creatures", description: "No favorites", exclusive: true, effect: {} },
     ],
   },
   {
@@ -516,6 +468,7 @@ const BEGINNER: Question[] = [
     title: "Which picture speaks to you?",
     subtitle: "Go with your gut.",
     max: 1,
+    card: { kind: "pick" },
     options: [
       {
         id: "cozy",
@@ -582,26 +535,71 @@ const BEGINNER: Question[] = [
     ],
   },
   {
+    id: "critters",
+    title: "Which creatures would you lead?",
+    max: 2,
+    card: { kind: "yesno", limit: 4 },
+    options: [
+      { id: "squirrel", label: "Squirrels", description: "Hoard nuts, then bury the table in tokens.", art: ART.squirrelNest, effect: { tribes: ["Squirrel"] } },
+      { id: "cat", label: "Cats", description: "Proud, nimble and always land on their feet.", art: ART.leoninWarleader, effect: { tribes: ["Cat"] } },
+      { id: "dog", label: "Dogs", description: "Loyal good boys who fetch you value.", art: ART.spiritedCompanion, effect: { tribes: ["Dog"] } },
+      { id: "rabbit", label: "Rabbits & Mice", description: "Small, fast, and there are always more of them.", art: ART.hareApparent, effect: { tribes: ["Rabbit", "Mouse"] } },
+      { id: "frog", label: "Frogs", description: "Hop in, hop out and bounce cards around.", art: ART.clement, effect: { tribes: ["Frog"] } },
+      { id: "bird", label: "Birds", description: "Take to the skies and fly over every blocker.", art: ART.birdsOfParadise, effect: { tribes: ["Bird"] } },
+      { id: "rat", label: "Rats", description: "Sneaky, hungry and never alone.", art: ART.marrowGnawer, effect: { tribes: ["Rat"] } },
+      { id: "dinosaur", label: "Dinosaurs", description: "Huge, loud and stomping everything flat.", art: ART.regisaurAlpha, effect: { tribes: ["Dinosaur"] } },
+      { id: "dragon", label: "Dragons", description: "Hoard gold and breathe fire on everyone.", art: ART.shivanDragon, effect: { tribes: ["Dragon"] } },
+      { id: "angel", label: "Angels", description: "Wings, light and a lot of life.", art: ART.serraAngel, effect: { tribes: ["Angel"] } },
+      { id: "vampire", label: "Vampires", description: "Drink their life and grow stronger every night.", art: ART.bloodlineKeeper, effect: { tribes: ["Vampire"] } },
+      { id: "zombie", label: "Zombies", description: "Death is only the beginning.", art: ART.gravecrawler, effect: { tribes: ["Zombie"] } },
+      { id: "elf", label: "Elves", description: "Grow mana like a forest, then swarm the board.", art: ART.llanowarElves, effect: { tribes: ["Elf"] } },
+      { id: "goblin", label: "Goblins", description: "Chaos, explosions and far too many goblins.", art: ART.goblinMatron, effect: { tribes: ["Goblin"] } },
+      { id: "pirate", label: "Pirates", description: "Plunder treasure and sail off with their stuff.", art: ART.direFleetCaptain, effect: { tribes: ["Pirate"] } },
+      { id: "robot", label: "Robots & Golems", description: "Clanking machines, built bigger every turn.", art: ART.myrBattlesphere, effect: { tribes: ["Robot", "Construct", "Golem", "Myr"] } },
+    ],
+  },
+  {
+    id: "world",
+    title: "Pick a world you love",
+    subtitle: "Magic has its own worlds and crossovers. Tap up to three.",
+    max: 3,
+    card: { kind: "pick" },
+    options: [
+      { id: "magic", label: "Magic's own worlds", description: "Dragons, planeswalkers and the multiverse", art: ART.commandTower, effect: { franchise: "magic" } },
+      { id: "lotr", label: "The Lord of the Rings", art: ART.theOneRing, effect: { franchise: "lotr" } },
+      { id: "final-fantasy", label: "Final Fantasy", art: ART.cloud, effect: { franchise: "final-fantasy" } },
+      { id: "marvel", label: "Marvel & Spider-Man", art: ART.ironMan, effect: { franchise: "marvel" } },
+      { id: "doctor-who", label: "Doctor Who", art: ART.tenthDoctor, effect: { franchise: "doctor-who" } },
+      { id: "warhammer", label: "Warhammer 40,000", art: ART.abaddon, effect: { franchise: "warhammer" } },
+      { id: "fallout", label: "Fallout", art: ART.dogmeat, effect: { franchise: "fallout" } },
+      { id: "tmnt", label: "Ninja Turtles", art: ART.michelangelo, effect: { franchise: "tmnt" } },
+      { id: "avatar", label: "Avatar: The Last Airbender", art: ART.aang, effect: { franchise: "avatar" } },
+      { id: "assassins-creed", label: "Assassin's Creed", art: ART.ezio, effect: { franchise: "assassins-creed" } },
+      { id: "transformers", label: "Transformers", art: ART.optimusPrime, effect: { franchise: "transformers" } },
+      { id: "dnd", label: "Dungeons & Dragons", art: ART.tiamat, effect: { franchise: "dnd" } },
+    ],
+  },
+  {
     id: "fun",
     title: "What sounds most fun?",
-    subtitle: "Pick up to two.",
     max: 2,
+    card: { kind: "yesno", limit: 4 },
     options: [
-      { id: "army", label: "Build a huge army", art: ART.secureTheWastes, effect: { archetypes: { tokens: 3, aggro: 1 } } },
-      { id: "monster", label: "Grow one giant monster", art: ART.swordOfFeastAndFamine, effect: { archetypes: { voltron: 2, counters: 2, stompy: 1 } } },
-      { id: "undead", label: "Bring things back from the dead", art: ART.bloodghast, effect: { archetypes: { reanimator: 3, aristocrats: 1 } } },
-      { id: "spells", label: "Cast big, flashy spells", art: ART.thousandYearStorm, effect: { archetypes: { spellslinger: 2, ramp: 1 } } },
-      { id: "life", label: "Gain tons of life", art: ART.ajanisPridemate, effect: { archetypes: { lifegain: 3 } } },
-      { id: "friends", label: "Make friends and share", art: ART.ritesOfFlourishing, effect: { archetypes: { grouphug: 3 } } },
-      { id: "steal", label: "Steal their stuff", art: ART.treachery, effect: { archetypes: { theft: 3 } } },
-      { id: "chaos", label: "Roll dice and embrace chaos", art: ART.scrambleverse, effect: { archetypes: { chaos: 3 } } },
+      { id: "army", label: "Build a huge army", description: "More creatures than they can count.", art: ART.secureTheWastes, effect: { archetypes: { tokens: 3, aggro: 1 } } },
+      { id: "monster", label: "Grow one giant monster", description: "One huge threat nobody can ignore.", art: ART.swordOfFeastAndFamine, effect: { archetypes: { voltron: 2, counters: 2, stompy: 1 } } },
+      { id: "undead", label: "Bring things back from the dead", description: "Your graveyard is a second hand.", art: ART.bloodghast, effect: { archetypes: { reanimator: 3, aristocrats: 1 } } },
+      { id: "spells", label: "Cast big, flashy spells", description: "Big, flashy magic that steals the show.", art: ART.thousandYearStorm, effect: { archetypes: { spellslinger: 2, ramp: 1 } } },
+      { id: "life", label: "Gain tons of life", description: "A life total that just keeps climbing.", art: ART.ajanisPridemate, effect: { archetypes: { lifegain: 3 } } },
+      { id: "friends", label: "Make friends and share", description: "Deals, gifts, and nobody attacks you.", art: ART.ritesOfFlourishing, effect: { archetypes: { grouphug: 3 } } },
+      { id: "steal", label: "Steal their stuff", description: "Their best cards are now your best cards.", art: ART.treachery, effect: { archetypes: { theft: 3 } } },
+      { id: "chaos", label: "Roll dice and embrace chaos", description: "Coin flips, dice and wild surprises.", art: ART.scrambleverse, effect: { archetypes: { chaos: 3 } } },
     ],
   },
   {
     id: "pace",
     title: "How do you like your games?",
-    subtitle: "",
     max: 1,
+    card: { kind: "versus", left: "fast", right: "big", middle: "steady" },
     options: [
       { id: "fast", label: "Attack early and often", art: ART.goblinGuide, effect: { tempo: "fast", archetypes: { aggro: 1 } } },
       { id: "steady", label: "Somewhere in between", art: ART.smotheringTithe, effect: { tempo: "midrange" } },
@@ -611,8 +609,8 @@ const BEGINNER: Question[] = [
   {
     id: "reading",
     title: "How much rules text do you enjoy?",
-    subtitle: "Every card explains what it does. Some explain a lot.",
     max: 1,
+    card: { kind: "versus", left: "simple", right: "complex", middle: "medium" },
     options: [
       { id: "simple", label: "Keep it simple", description: "Easy to learn, easy to play.", art: ART.grizzlyBears, effect: { complexity: "simple" } },
       { id: "medium", label: "A bit of strategy", description: "Some choices keep it interesting.", art: ART.ponder, effect: { complexity: "medium" } },

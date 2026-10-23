@@ -14,7 +14,7 @@ export const metadata: Metadata = canonical("/");
 const FEATURES: { title: string; text: string; href: string; glyph: ManaGlyphName; action: string }[] = [
   {
     title: "Find your commander",
-    text: "Answer seven questions about play style, colors and creatures — or just vibes — then swipe through commanders that fit you.",
+    text: "Swipe yes or no on play styles, colors and creatures — or just vibes — then meet the commanders that fit you.",
     href: "/quiz",
     glyph: "planeswalker",
     action: "Take the quiz",
