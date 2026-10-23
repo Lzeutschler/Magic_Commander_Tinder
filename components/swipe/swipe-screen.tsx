@@ -198,7 +198,7 @@ function SwipeBoard({ deck, session }: { deck: Deck; session: SwipeSession }) {
               .
             </>
           ) : (
-            "EDHREC has little data on this commander, so suggestions use card popularity and themes."
+            "There is little deck data on this commander, so suggestions use card popularity and themes."
           )}
         </p>
       </aside>

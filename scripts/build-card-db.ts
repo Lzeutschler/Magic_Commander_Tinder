@@ -7,8 +7,9 @@
  *   public/data/commanders.json every legal commander with themes, tribes and archetypes (client)
  *   data/meta.json             build timestamp and source files
  *
- * Commander archetypes combine Scryfall Tagger tags with EDHREC theme pages (cached in .cache/edhrec).
- * Skips work when the data is younger than a week; pass --force to rebuild.
+ * Commander archetypes combine Scryfall Tagger tags with EDHREC theme pages (cached in .cache/edhrec),
+ * unless RECS_SOURCE turns EDHREC off. Skips work when the data is younger than a week and was built
+ * from the same RECS_SOURCE; pass --force to rebuild.
  */
 import {
   createReadStream,
@@ -31,6 +32,7 @@ import { parseScryfallImageUrl } from "@/lib/cards/image";
 import { edhrecSlug } from "@/lib/cards/names";
 import type { Card, CardImage, CommanderSummary, PartnerKind, Role, TokenCard } from "@/lib/cards/types";
 import { rulesComplexity } from "@/lib/quiz/scoring";
+import { recsSource, type RecsSource } from "@/lib/recs/source";
 import { USER_AGENT } from "@/lib/site";
 import {
   ARCHETYPES,
@@ -145,10 +147,11 @@ async function main() {
   const cardsSource = source("oracle_cards");
   const tagsSource = source("oracle_tags");
 
+  const recs = recsSource();
   const [cardsFile, tagsFile, edhrec] = await Promise.all([
     download(cardsSource.jsonl_download_uri),
     download(tagsSource.jsonl_download_uri),
-    fetchEdhrecArchetypes(),
+    recs === "edhrec" ? fetchEdhrecArchetypes() : noEdhrecArchetypes(),
   ]);
 
   console.log("[card-db] reading oracle tags");
@@ -184,6 +187,7 @@ async function main() {
     schema: SCHEMA_VERSION,
     generatedAt: new Date().toISOString(),
     scryfallUpdatedAt: cardsSource.updated_at,
+    recsSource: recs,
     cards: cards.length,
     commanders: commanders.length,
     tokens: tokens.length,
@@ -194,8 +198,10 @@ async function main() {
 
 function isFresh(): boolean {
   if (!existsSync(META_FILE) || OUTPUTS.some((f) => !existsSync(f))) return false;
-  const meta = JSON.parse(readFileSync(META_FILE, "utf8")) as { generatedAt: string; schema?: number };
-  return meta.schema === SCHEMA_VERSION && Date.now() - new Date(meta.generatedAt).getTime() < MAX_AGE_MS;
+  const meta = JSON.parse(readFileSync(META_FILE, "utf8")) as { generatedAt: string; schema?: number; recsSource?: RecsSource };
+  // Data built before RECS_SOURCE existed came from EDHREC.
+  const sameSource = (meta.recsSource ?? "edhrec") === recsSource();
+  return meta.schema === SCHEMA_VERSION && sameSource && Date.now() - new Date(meta.generatedAt).getTime() < MAX_AGE_MS;
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -317,6 +323,12 @@ async function fetchEdhrecArchetypes(): Promise<EdhrecArchetypeData> {
 
   console.log(`[card-db] EDHREC: ${themes.size} commanders with themes, ${totals.size} deck totals, ${failed} pages missing`);
   return { totals, themes };
+}
+
+/** With EDHREC switched off, archetypes rest on Tagger tags and card text alone, and no cached page is read. */
+function noEdhrecArchetypes(): EdhrecArchetypeData {
+  console.log("[card-db] EDHREC is off (RECS_SOURCE), skipping theme pages");
+  return { totals: new Map(), themes: new Map() };
 }
 
 async function edhrecCommanderViews(page: string): Promise<EdhrecCommanderView[] | null> {

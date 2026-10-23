@@ -207,7 +207,7 @@ und 245 KB Brotli. Die Schema-Version des Daten-Builds steht auf 4, damit lokale
   auf die Commander-Seite, passend gefiltert nach Bracket und Theme. Jede vorgeschlagene Karte verlinkt auf ihre
   Kartenseite. Editor, geteilte Decks und geteilte Quiz-Ergebnisse haben „Compare on EDHREC“. Alle Links nutzen
   `rel="noopener"` ohne `noreferrer`, damit EDHREC die Besuche sieht. Die Mail an contact@edhrec.com ist
-  entworfen. Den Abschalt-Schalter bauen wir erst, wenn er nötig wird.
+  entworfen. Der Abschalt-Schalter ist gebaut: `RECS_SOURCE=off` in Vercel setzen und neu deployen (siehe README).
 
 ## Für den Post selbst
 

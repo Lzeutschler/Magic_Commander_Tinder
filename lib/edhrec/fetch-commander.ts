@@ -3,10 +3,11 @@ import "server-only";
 import { cacheLife } from "next/cache";
 import { z } from "zod";
 
+import type { CardStat, CommanderStats } from "@/lib/recs/types";
 import { upstreamFetch } from "@/lib/server/upstream";
 import { USER_AGENT } from "@/lib/site";
 
-import { BRACKET_SLUGS, isEdhrecSlug, type Bracket, type EdhrecCardStat, type EdhrecCommanderPage } from "./types";
+import { BRACKET_SLUGS, isEdhrecSlug, type Bracket } from "./types";
 
 const TIMEOUT_MS = 10_000;
 
@@ -46,7 +47,7 @@ export async function fetchCommanderPage(
   slug: string,
   bracket?: Bracket,
   theme?: string,
-): Promise<EdhrecCommanderPage> {
+): Promise<CommanderStats> {
   "use cache";
   cacheLife("days");
 
@@ -65,9 +66,9 @@ export async function fetchCommanderPage(
   return normalize(parsed.data);
 }
 
-function normalize(page: z.infer<typeof pageSchema>): EdhrecCommanderPage {
+function normalize(page: z.infer<typeof pageSchema>): CommanderStats {
   const { cardlists, card } = page.container.json_dict;
-  const stats = new Map<string, EdhrecCardStat>();
+  const stats = new Map<string, CardStat>();
   // On bracket/theme pages `card.num_decks` is the unfiltered total; potential_decks is filtered.
   let filteredDecks = 0;
 
@@ -81,12 +82,11 @@ function normalize(page: z.infer<typeof pageSchema>): EdhrecCommanderPage {
         synergy: view.synergy ?? 0,
         inclusion: potential > 0 ? (view.num_decks ?? 0) / potential : 0,
         decks: view.num_decks ?? 0,
-        list: list.tag,
       });
     }
   }
 
-  const bracketCounts: EdhrecCommanderPage["bracketCounts"] = {};
+  const bracketCounts: CommanderStats["bracketCounts"] = {};
   for (const [key, count] of Object.entries(page.bracket_counts ?? {})) {
     const bracket = Number(key);
     if (bracket >= 1 && bracket <= 5) bracketCounts[bracket as Bracket] = count;

@@ -1,20 +1,21 @@
 import "server-only";
 
 import { BASIC_FOR_COLOR, fitsIdentity } from "@/lib/cards/colors";
-import { edhrecSlug, isBasicLandName } from "@/lib/cards/names";
+import { isBasicLandName } from "@/lib/cards/names";
 import type { Card, Role } from "@/lib/cards/types";
 import type { Candidate, CandidatePool, CommanderInsights } from "@/lib/deckbuilder/types";
-import { EdhrecError, fetchCommanderPage } from "@/lib/edhrec/fetch-commander";
-import type { Bracket, EdhrecCommanderPage } from "@/lib/edhrec/types";
+import type { Bracket } from "@/lib/edhrec/types";
+import { loadCommanderStats } from "@/lib/recs/provider";
+import type { CommanderStats } from "@/lib/recs/types";
 import { THEMES, detectThemes, stripReminderText } from "@/lib/tagging/themes";
 import { detectTribes } from "@/lib/tagging/tribes";
 
 import { findCard, getCardDb, type CardDb } from "./card-db";
 import { findCombos } from "./combos";
 
-/** Below this many decks a bracket page is too noisy; use the all-brackets page instead. */
+/** Below this many decks bracket stats are too noisy; use the all-brackets stats instead. */
 const MIN_BRACKET_SAMPLE = 40;
-/** Top up EDHREC suggestions with heuristic picks when fewer than this many remain. */
+/** Top up deck-statistics suggestions with heuristic picks when fewer than this many remain. */
 const MIN_POOL = 180;
 const FALLBACK_POOL = 400;
 const STAPLES_PER_ROLE = 25;
@@ -28,29 +29,16 @@ async function settle<T>(promise: Promise<T>): Promise<T | null> {
   }
 }
 
-/**
- * An EDHREC page, or null with the reason: a page EDHREC does not have is a fine answer to cache,
- * while an EDHREC that could not be asked (down, busy or blocking us) should be retried soon.
- */
-async function loadPage(slug: string, bracket?: Bracket, theme?: string): Promise<{ page: EdhrecCommanderPage | null; failed: boolean }> {
-  try {
-    return { page: await fetchCommanderPage(slug, bracket, theme), failed: false };
-  } catch (err) {
-    const missing = err instanceof EdhrecError && (err.status === 404 || err.status === 400);
-    return { page: null, failed: !missing };
-  }
-}
-
 export async function getCommanderInsights(name: string): Promise<CommanderInsights | null> {
   const db = await getCardDb();
   const commander = findCard(db, name);
   if (!commander) return null;
-  const { page, failed } = await loadPage(edhrecSlug(commander.name));
+  const { stats, failed } = await loadCommanderStats(commander.name);
   return {
     commander,
-    deckCount: page?.deckCount ?? 0,
-    themes: page?.themes ?? [],
-    bracketCounts: page?.bracketCounts ?? {},
+    deckCount: stats?.deckCount ?? 0,
+    themes: stats?.themes ?? [],
+    bracketCounts: stats?.bracketCounts ?? {},
     incomplete: failed,
   };
 }
@@ -64,23 +52,22 @@ export async function getCandidatePool(
   const commander = findCard(db, commanderName);
   if (!commander) return null;
 
-  const slug = edhrecSlug(commander.name);
-  // Only themes EDHREC lists for this commander are looked up, so made-up ones cost EDHREC nothing.
-  const overview = theme ? await loadPage(slug) : null;
-  const knownTheme = theme && overview?.page?.themes.some((t) => t.slug === theme) ? theme : null;
+  // Only themes the source lists for this commander are looked up, so made-up ones cost it nothing.
+  const overview = theme ? await loadCommanderStats(commander.name) : null;
+  const knownTheme = theme && overview?.stats?.themes.some((t) => t.slug === theme) ? theme : null;
   const [base, filtered] = await Promise.all([
-    loadPage(slug, undefined, knownTheme ?? undefined),
-    loadPage(slug, bracket, knownTheme ?? undefined),
+    loadCommanderStats(commander.name, undefined, knownTheme ?? undefined),
+    loadCommanderStats(commander.name, bracket, knownTheme ?? undefined),
   ]);
-  const basePage = base.page;
-  const filteredPage = filtered.page;
-  const bracketPage = filteredPage && filteredPage.deckCount >= MIN_BRACKET_SAMPLE ? filteredPage : null;
-  const primary: EdhrecCommanderPage | null = bracketPage ?? basePage;
+  const baseStats = base.stats;
+  const filteredStats = filtered.stats;
+  const bracketStats = filteredStats && filteredStats.deckCount >= MIN_BRACKET_SAMPLE ? filteredStats : null;
+  const primary: CommanderStats | null = bracketStats ?? baseStats;
 
   const candidates = new Map<string, Candidate>();
-  // Bracket-specific stats win; the all-brackets page fills in cards the bracket page lacks.
-  for (const page of [bracketPage, basePage]) {
-    for (const stat of page?.cards ?? []) {
+  // Bracket-specific stats win; the all-brackets stats fill in cards the bracket stats lack.
+  for (const stats of [bracketStats, baseStats]) {
+    for (const stat of stats?.cards ?? []) {
       const card = findCard(db, stat.name);
       if (!card || candidates.has(card.id) || !isEligible(card, commander)) continue;
       candidates.set(card.id, { ...card, synergy: stat.synergy, inclusion: stat.inclusion });
@@ -120,7 +107,7 @@ function isEligible(card: Card, commander: Card): boolean {
 }
 
 /**
- * Heuristic pool for commanders EDHREC has little data on: popular cards in the color identity,
+ * Heuristic pool for commanders without deck statistics: popular cards in the color identity,
  * boosted when they share the commander's themes or tribes, plus the best staples per role.
  */
 function fallbackCandidates(db: CardDb, commander: Card): Candidate[] {
