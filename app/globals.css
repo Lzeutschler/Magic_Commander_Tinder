@@ -280,6 +280,44 @@
   0% { transform: scale(1.25); }
   100% { transform: scale(1); }
 }
+/* Phone hero (components/home/swipe-showcase.tsx): each commander's 12s loop starts 4s after the
+   one before. It rises from the second card of the stack, waits, leans over and is swiped off. */
+@keyframes brew-swipe-right {
+  0% { transform: translate(0.4em, 0.35em) rotate(2.5deg); opacity: 0; }
+  3% { transform: translate(0.4em, 0.35em) rotate(2.5deg); opacity: 1; }
+  8%, 15% { transform: none; opacity: 1; }
+  24% { transform: translate(2em, -0.3em) rotate(7deg); opacity: 1; }
+  31% { transform: translate(17em, -2em) rotate(26deg); opacity: 1; }
+  32%, 100% { transform: translate(17em, -2em) rotate(26deg); opacity: 0; }
+}
+@keyframes brew-swipe-left {
+  0% { transform: translate(0.4em, 0.35em) rotate(2.5deg); opacity: 0; }
+  3% { transform: translate(0.4em, 0.35em) rotate(2.5deg); opacity: 1; }
+  8%, 15% { transform: none; opacity: 1; }
+  24% { transform: translate(-2em, -0.3em) rotate(-7deg); opacity: 1; }
+  31% { transform: translate(-17em, -2em) rotate(-26deg); opacity: 1; }
+  32%, 100% { transform: translate(-17em, -2em) rotate(-26deg); opacity: 0; }
+}
+@keyframes brew-swipe-stamp {
+  0%, 16% { transform: scale(1.4); opacity: 0; }
+  22%, 30% { transform: scale(1); opacity: 1; }
+  32%, 100% { transform: scale(1); opacity: 0; }
+}
+/* Hearts out of a pick; each heart sets --bx/--by. */
+@keyframes brew-swipe-heart {
+  0%, 23% { transform: translate(0, 0) scale(0.3); opacity: 0; }
+  26% { transform: translate(calc(var(--bx) * 0.3), calc(var(--by) * 0.3)) scale(1); opacity: 1; }
+  40%, 100% { transform: translate(var(--bx), var(--by)) scale(0.7); opacity: 0; }
+}
+/* The buttons under the stack press along: pick for the first and third commander, pass for the second. */
+@keyframes brew-press-pick {
+  0%, 21%, 33%, 88%, 100% { transform: scale(1); background-color: var(--card); }
+  27%, 94% { transform: scale(1.15); background-color: color-mix(in oklab, var(--pick) 22%, var(--card)); }
+}
+@keyframes brew-press-pass {
+  0%, 55%, 66%, 100% { transform: scale(1); background-color: var(--card); }
+  60% { transform: scale(1.15); background-color: color-mix(in oklab, var(--pass) 22%, var(--card)); }
+}
 @media (prefers-reduced-motion: reduce) {
   .brew-scene,
   .brew-scene *,
