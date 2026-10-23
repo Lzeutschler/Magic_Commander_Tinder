@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
+import { CardImage } from "@/components/card/card-image";
+
 import {
   addCounter,
   copyAsToken,
@@ -103,36 +105,51 @@ export function CardMenu({
   const groups = menuItems(game, menu.card);
   const left = Math.min(menu.x, window.innerWidth - 230);
   const top = Math.min(menu.y, window.innerHeight - 40 - groups.flat().length * 36);
+  // Touch screens open the menu by holding a card: a panel along the bottom, with the card big enough to read.
+  const touch = window.matchMedia("(pointer: coarse)").matches;
 
   return (
     <div
       ref={ref}
       role="menu"
-      className="fixed z-50 w-60 rounded-xl border border-border bg-popover p-1 text-sm shadow-xl"
-      style={{ left, top: Math.max(8, top) }}
+      className={cn(
+        "fixed z-50 rounded-xl border border-border bg-popover p-1 text-sm shadow-xl",
+        touch ? "inset-x-3 bottom-3 flex max-h-[85dvh] items-start gap-3 overflow-y-auto p-2" : "w-60",
+      )}
+      style={touch ? undefined : { left, top: Math.max(8, top) }}
     >
-      <div className="ui-label truncate px-2.5 py-1.5 text-muted-foreground">
-        {menu.card.faceDown ? "Face-down card" : menu.card.card.name}
-      </div>
-      {groups.map((group, i) => (
-        <div key={i} className={cn(i > 0 && "mt-1 border-t border-border pt-1")}>
-          {group.map((item) => (
-            <button
-              key={item.label}
-              type="button"
-              role="menuitem"
-              className="flex min-h-9 w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left hover:bg-accent hover:shadow-[inset_2px_0_0_0_var(--brand)] focus-visible:bg-accent"
-              onClick={() => {
-                onAction(item.action);
-                onClose();
-              }}
-            >
-              {item.label}
-              {item.hint && <span className="text-[11px] text-muted-foreground">{item.hint}</span>}
-            </button>
-          ))}
+      {touch && !menu.card.faceDown && (
+        <div className="sticky top-0 w-32 shrink-0 sm:w-44">
+          <CardImage card={menu.card.card} size="normal" flippable />
         </div>
-      ))}
+      )}
+      <div className="min-w-0 flex-1">
+        <div className="ui-label truncate px-2.5 py-1.5 text-muted-foreground">
+          {menu.card.faceDown ? "Face-down card" : menu.card.card.name}
+        </div>
+        {groups.map((group, i) => (
+          <div key={i} className={cn(i > 0 && "mt-1 border-t border-border pt-1")}>
+            {group.map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                role="menuitem"
+                className={cn(
+                  "flex min-h-9 w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left hover:bg-accent hover:shadow-[inset_2px_0_0_0_var(--brand)] focus-visible:bg-accent",
+                  touch && "min-h-11",
+                )}
+                onClick={() => {
+                  onAction(item.action);
+                  onClose();
+                }}
+              >
+                {item.label}
+                {item.hint && !touch && <span className="text-[11px] text-muted-foreground">{item.hint}</span>}
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

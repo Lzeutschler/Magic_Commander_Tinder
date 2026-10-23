@@ -125,7 +125,10 @@ export function Battlefield({ game, handlers }: { game: GameState; handlers: Car
       <div ref={probeRef} aria-hidden="true" className="pointer-events-none invisible absolute h-0 w-[var(--bf-base)]" />
       {cards.length === 0 && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center text-sm text-foreground/60">
-          Drag cards here or click a card in your hand to play it
+          <span className="pointer-coarse:hidden">Drag cards here or click a card in your hand to play it</span>
+          <span className="hidden px-6 text-center pointer-coarse:inline">
+            Tap a card in your hand to play it, or hold it for more options
+          </span>
         </div>
       )}
       <Lane label="Creatures" glyph="creature" stacks={frontStacks} handlers={handlers} className="flex-auto shrink-0" />
@@ -212,8 +215,9 @@ export function Hand({ game, handlers }: { game: GameState; handlers: CardHandle
     <div
       ref={setNodeRef}
       data-zone="hand"
+      // With a mouse the hand peeks up and a hovered card rises; touch screens cannot hover, so they show whole cards.
       className={cn(
-        "relative z-20 flex h-[calc(var(--hand-w)*0.86)] shrink-0 items-start justify-center px-4 pt-2 transition-colors",
+        "relative z-20 flex h-[calc(var(--hand-w)*0.86)] shrink-0 items-start justify-center px-4 pt-2 transition-colors pointer-coarse:h-[calc(var(--hand-w)*1.393+1.75rem)]",
         isOver && "bg-brand/8",
       )}
     >
@@ -223,7 +227,9 @@ export function Hand({ game, handlers }: { game: GameState; handlers: CardHandle
           key={card.instanceId}
           className="group/hand relative z-(--z) transition-transform duration-150 ease-out [--card-w:var(--hand-w)] hover:z-50"
           style={{
-            marginLeft: i === 0 ? 0 : `calc(var(--hand-w) * -${overlap})`,
+            // Overlap more when the cards would not fit the width otherwise, e.g. seven cards on a phone.
+            marginLeft:
+              i === 0 ? 0 : `min(calc(var(--hand-w) * -${overlap}), calc((100% - var(--hand-w)) / ${cards.length - 1} - var(--hand-w)))`,
             transform: `rotate(${(i - mid) * 1.6}deg) translateY(${Math.abs(i - mid) ** 1.5 * 1.5}px)`,
             "--z": i,
           } as React.CSSProperties}

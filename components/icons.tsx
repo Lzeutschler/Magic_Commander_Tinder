@@ -16,6 +16,7 @@ import {
   CheckIcon as CheckBase,
   CircleNotchIcon as CircleNotchBase,
   CopyIcon as CopyBase,
+  DotsThreeIcon as DotsThreeBase,
   DownloadSimpleIcon as DownloadSimpleBase,
   EnvelopeSimpleIcon as EnvelopeSimpleBase,
   GithubLogoIcon as GithubLogoBase,
@@ -74,6 +75,7 @@ export const CheckCircleIcon = bold(CheckCircleBase, "CheckCircleIcon");
 export const CheckIcon = bold(CheckBase, "CheckIcon");
 export const CircleNotchIcon = bold(CircleNotchBase, "CircleNotchIcon");
 export const CopyIcon = bold(CopyBase, "CopyIcon");
+export const DotsThreeIcon = bold(DotsThreeBase, "DotsThreeIcon");
 export const DownloadSimpleIcon = bold(DownloadSimpleBase, "DownloadSimpleIcon");
 export const EnvelopeSimpleIcon = bold(EnvelopeSimpleBase, "EnvelopeSimpleIcon");
 export const GithubLogoIcon = bold(GithubLogoBase, "GithubLogoIcon");
