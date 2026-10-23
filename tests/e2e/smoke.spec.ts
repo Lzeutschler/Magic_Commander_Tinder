@@ -170,3 +170,40 @@ test("share a quiz shortlist and build its best match", async ({ page, browser }
   await expect(other.getByRole("heading", { level: 2, name: top })).toBeVisible({ timeout: 30_000 });
   await expect(other.getByRole("button", { name: "Start swiping" })).toBeEnabled({ timeout: 30_000 });
 });
+
+// Goldfish on a phone: the toolbar and the whole hand fit the screen, and tapping a card plays it.
+test.describe("on a phone", () => {
+  test.use({ viewport: { width: 390, height: 664 }, hasTouch: true, isMobile: true });
+
+  test("goldfish fits the screen and plays cards by tap", async ({ page }) => {
+    await page.goto("/build");
+    await page.getByPlaceholder("Search commanders or creature types…").fill("krenko mob");
+    await page.getByRole("button", { name: "Krenko, Mob Boss" }).click();
+    await page.getByRole("button", { name: "Start swiping" }).click();
+    await expect(page.getByText("cards picked")).toBeVisible({ timeout: 30_000 });
+    for (let i = 0; i < 20; i++) {
+      await page.keyboard.press("ArrowRight");
+      await page.waitForTimeout(80);
+    }
+    await page.getByRole("button", { name: "Finish with basics & edit" }).click();
+    await page.getByRole("button", { name: "Goldfish" }).click();
+    await page.getByRole("button", { name: "Keep 7" }).click();
+
+    const hand = page.locator("[data-zone=hand] [data-card-name]");
+    await expect(hand).toHaveCount(7);
+    for (const name of ["Next turn", "Undo", "More"]) {
+      const box = (await page.getByRole("button", { name, exact: true }).boundingBox())!;
+      expect(box.x + box.width).toBeLessThanOrEqual(390);
+    }
+    for (const box of await hand.evaluateAll((cards) => cards.map((c) => c.getBoundingClientRect().toJSON()))) {
+      expect(box.left).toBeGreaterThanOrEqual(0);
+      expect(box.right).toBeLessThanOrEqual(390);
+      expect(box.bottom).toBeLessThanOrEqual(664);
+    }
+
+    // The last card lies on top of the fan; the others are partly covered by their right neighbour.
+    await hand.last().tap();
+    await expect(hand).toHaveCount(6);
+    await expect(page.locator("[data-zone=battlefield] [data-card-name]")).toHaveCount(1);
+  });
+});

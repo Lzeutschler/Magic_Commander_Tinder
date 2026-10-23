@@ -19,6 +19,7 @@ import {
   ArrowUUpLeftIcon,
   CaretDownIcon,
   ChartBarIcon,
+  DotsThreeIcon,
   HandIcon,
   HeartIcon,
   KeyboardIcon,
@@ -192,13 +193,16 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
   const art = deck.commander.image ? cardImageUrl(deck.commander.image, "art_crop") : null;
 
   const playing = game.phase === "playing";
+  const newGame = () => {
+    if (window.confirm("Start a new game with this deck?")) start(deck);
+  };
 
   return (
     <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setDragging(null)}>
       {/* Fixed below the site header so the table fills the screen and the page never scrolls. Card sizes
           follow the viewport height as much as its width, so they stay readable on laptop screens. */}
       <div
-        className="fixed inset-x-0 top-14 bottom-0 z-30 flex flex-col overflow-clip bg-background [--bf-base:clamp(84px,min(11vw,18vh),210px)] [--card-w:var(--bf-base)] [--hand-w:clamp(112px,min(11vw,22vh),220px)] [--pile-w:clamp(64px,min(6.4vw,10.4vh),116px)]"
+        className="fixed inset-x-0 top-14 bottom-0 z-30 flex flex-col overflow-clip bg-background [--bf-base:clamp(84px,min(11vw,18vh),210px)] [--card-w:var(--bf-base)] [--hand-w:clamp(112px,min(11vw,22vh),220px)] [--pile-w:clamp(64px,min(6.4vw,10.4vh),116px)] max-sm:[--hand-w:100px]"
       >
         {art && (
           <div
@@ -207,12 +211,18 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
           />
         )}
 
-        {/* Top bar: one row that scrolls sideways on phones, so the table keeps its height. */}
+        {/* Top bar: phones get icons only and a "More" menu, so one row fits and the table keeps its height. */}
         <div className="relative z-10 flex flex-wrap items-center gap-1.5 border-b border-border bg-ink px-3 py-1.5 shadow-[0_1px_0_0_oklch(0_0_0/50%)] max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:[scrollbar-width:none]">
-          <Button variant="ghost" size="sm" nativeButton={false} render={<Link href={`/decks/${deck.id}`} />}>
-            <ArrowLeftIcon /> <span className="max-w-40 truncate">{deck.name}</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            nativeButton={false}
+            render={<Link href={`/decks/${deck.id}`} aria-label={`Back to ${deck.name}`} />}
+            className="max-sm:px-2"
+          >
+            <ArrowLeftIcon /> <span className="max-w-40 truncate max-sm:hidden">{deck.name}</span>
           </Button>
-          <div className="mx-1 h-6 w-px bg-border" />
+          <div className="mx-1 h-6 w-px bg-border max-sm:hidden" />
           <BarButton label="Draw" shortcut="D" onClick={() => act((g) => draw(g))} icon={<HandIcon />} disabled={!playing} />
           <BarButton
             label="Untap"
@@ -223,8 +233,8 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
           />
           <BarButton label="Next turn" shortcut="N" onClick={() => act(nextTurn)} icon={<SkipForwardIcon />} disabled={!playing} primary />
           <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="outline" size="sm" disabled={!playing} />}>
-              <StackIcon /> Library <CaretDownIcon />
+            <DropdownMenuTrigger render={<Button variant="outline" size="sm" disabled={!playing} aria-label="Library" className="max-sm:px-2" />}>
+              <StackIcon /> <span className="max-sm:hidden">Library</span> <CaretDownIcon />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-52">
               {(
@@ -252,7 +262,7 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
               <DropdownMenuItem onClick={() => act(shuffleLibrary)}>Shuffle (S)</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" size="sm" onClick={() => setDialog({ kind: "tokens" })} disabled={!playing}>
+          <Button variant="outline" size="sm" onClick={() => setDialog({ kind: "tokens" })} disabled={!playing} className="max-sm:hidden">
             <ManaGlyph name="token" className="text-base" /> Tokens
           </Button>
           <div className="ml-auto flex items-center gap-1.5">
@@ -266,20 +276,27 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
                 </span>
               </div>
             )}
-            <Button variant="ghost" size="sm" onClick={() => setDialog({ kind: "stats" })}>
+            <Button variant="ghost" size="sm" onClick={() => setDialog({ kind: "stats" })} className="max-sm:hidden">
               <ChartBarIcon /> Hand stats
             </Button>
             <ShortcutHelp />
             <BarButton label="Undo" shortcut="⌘Z" onClick={undo} icon={<ArrowUUpLeftIcon />} disabled={!canUndo} />
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                if (window.confirm("Start a new game with this deck?")) start(deck);
-              }}
-            >
+            <Button variant="ghost" size="sm" onClick={newGame} className="max-sm:hidden">
               <ShuffleIcon /> New game
             </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label="More" className="sm:hidden" />}>
+                <DotsThreeIcon />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => setDialog({ kind: "tokens" })} disabled={!playing}>
+                  Create tokens…
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setDialog({ kind: "stats" })}>Hand stats</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={newGame}>New game</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Tooltip>
               <TooltipTrigger
                 render={
@@ -439,8 +456,12 @@ function BarButton({
 }) {
   return (
     <Tooltip>
-      <TooltipTrigger render={<Button variant={primary ? "default" : "outline"} size="sm" onClick={onClick} disabled={disabled} />}>
-        {icon} {label}
+      <TooltipTrigger
+        render={
+          <Button variant={primary ? "default" : "outline"} size="sm" onClick={onClick} disabled={disabled} aria-label={label} className="max-sm:px-2.5" />
+        }
+      >
+        {icon} <span className="max-sm:hidden">{label}</span>
       </TooltipTrigger>
       <TooltipContent>
         {label} <kbd className="ml-1 rounded-xs border border-border bg-ink px-1 font-mono text-[11px]">{shortcut}</kbd>
@@ -452,7 +473,7 @@ function BarButton({
 function ShortcutHelp() {
   return (
     <Tooltip>
-      <TooltipTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Keyboard shortcuts" />}>
+      <TooltipTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Keyboard shortcuts" className="max-sm:hidden" />}>
         <KeyboardIcon />
       </TooltipTrigger>
       <TooltipContent className="space-y-1 p-3">
