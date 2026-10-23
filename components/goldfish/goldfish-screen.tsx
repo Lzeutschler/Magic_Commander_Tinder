@@ -207,8 +207,8 @@ function Table({ deck, game }: { deck: Deck; game: GameState }) {
           />
         )}
 
-        {/* Top bar */}
-        <div className="relative z-10 flex flex-wrap items-center gap-1.5 border-b border-border bg-ink px-3 py-1.5 shadow-[0_1px_0_0_oklch(0_0_0/50%)]">
+        {/* Top bar: one row that scrolls sideways on phones, so the table keeps its height. */}
+        <div className="relative z-10 flex flex-wrap items-center gap-1.5 border-b border-border bg-ink px-3 py-1.5 shadow-[0_1px_0_0_oklch(0_0_0/50%)] max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:[scrollbar-width:none]">
           <Button variant="ghost" size="sm" nativeButton={false} render={<Link href={`/decks/${deck.id}`} />}>
             <ArrowLeftIcon /> <span className="max-w-40 truncate">{deck.name}</span>
           </Button>

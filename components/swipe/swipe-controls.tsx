@@ -19,14 +19,17 @@ export function SwipeStack({
   cardKey,
   lastDecision,
   onDecision,
+  className,
 }: {
   card: Pick<Card, "name" | "image" | "manaCost" | "typeLine" | "oracleText">;
   cardKey: string;
   lastDecision: SwipeDecision | null;
   onDecision: (decision: SwipeDecision) => void;
+  /** E.g. a smaller width where more controls share the screen with the card. */
+  className?: string;
 }) {
   return (
-    <div className="relative aspect-[488/680] w-[min(400px,84vw,calc((100dvh-18rem)*0.7176))] min-w-48">
+    <div className={cn("relative aspect-[488/680] w-[min(400px,84vw,calc((100dvh-18rem)*0.7176))] min-w-48", className)}>
       <CardBack className="absolute inset-0 translate-x-3 translate-y-3 rotate-3 opacity-50" />
       <CardBack className="absolute inset-0 translate-x-1.5 translate-y-1.5 rotate-1 opacity-80" />
       <AnimatePresence custom={lastDecision} initial={false}>

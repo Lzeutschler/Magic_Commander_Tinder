@@ -35,6 +35,7 @@ import { useDeckStore, useDecksHydrated } from "@/stores/decks";
 import { AddCardSearch } from "./add-card-search";
 import { DeckStatsPanel } from "./deck-stats-panel";
 import { ExportDialog } from "./export-dialog";
+import { ShareButton } from "./share-button";
 
 const GROUP_ORDER: CardType[] = [...CARD_TYPES, "Other"];
 
@@ -159,6 +160,7 @@ function Editor({ deck, hasSession }: { deck: Deck; hasSession: boolean }) {
                 <DownloadSimpleIcon /> Export
               </Button>
             </ExportDialog>
+            <ShareButton deck={deck} />
             <Button variant="outline" nativeButton={false} render={<Link href={`/goldfish/${deck.id}`} />}>
               <PlayIcon /> Goldfish
             </Button>

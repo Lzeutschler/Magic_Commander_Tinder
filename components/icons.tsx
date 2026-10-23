@@ -27,6 +27,7 @@ import {
   NotePencilIcon as NotePencilBase,
   PlayIcon as PlayBase,
   PlusIcon as PlusBase,
+  ShareNetworkIcon as ShareNetworkBase,
   ShuffleIcon as ShuffleBase,
   SidebarSimpleIcon as SidebarSimpleBase,
   SkipForwardIcon as SkipForwardBase,
@@ -80,6 +81,7 @@ export const MinusIcon = bold(MinusBase, "MinusIcon");
 export const NotePencilIcon = bold(NotePencilBase, "NotePencilIcon");
 export const PlayIcon = bold(PlayBase, "PlayIcon");
 export const PlusIcon = bold(PlusBase, "PlusIcon");
+export const ShareNetworkIcon = bold(ShareNetworkBase, "ShareNetworkIcon");
 export const ShuffleIcon = bold(ShuffleBase, "ShuffleIcon");
 export const SidebarSimpleIcon = bold(SidebarSimpleBase, "SidebarSimpleIcon");
 export const SkipForwardIcon = bold(SkipForwardBase, "SkipForwardIcon");

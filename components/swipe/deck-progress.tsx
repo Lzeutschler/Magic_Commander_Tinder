@@ -34,6 +34,34 @@ export function RoleMeters({ stats, template }: { stats: DeckStats; template: De
   );
 }
 
+/** Two rows of small role meters for phones, where the full deck panel sits below the card. */
+export function CompactRoleMeters({ stats, template }: { stats: DeckStats; template: DeckTemplate }) {
+  return (
+    <div className="grid w-full grid-cols-3 gap-x-3 gap-y-1.5">
+      {TEMPLATE_ROLES.map((role) => {
+        const have = stats.roles[role];
+        const target = template.roles[role];
+        return (
+          <div key={role} className="min-w-0 space-y-0.5">
+            <div className="flex justify-between gap-1 text-[11px] leading-tight">
+              <span className="truncate text-muted-foreground">{TEMPLATE_ROLE_LABELS[role]}</span>
+              <span className={cn("tabular-nums", have >= target && "text-pick")}>
+                {have}/{target}
+              </span>
+            </div>
+            <div className="h-1 overflow-hidden rounded-xs bg-ink">
+              <div
+                className={cn("h-full transition-all duration-500", have >= target ? "bg-pick" : "bg-brand")}
+                style={{ width: `${Math.min(100, (have / target) * 100)}%` }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function MiniCurve({ stats, template }: { stats: DeckStats; template: DeckTemplate }) {
   const max = Math.max(...template.curve, ...stats.curve, 1);
   return (

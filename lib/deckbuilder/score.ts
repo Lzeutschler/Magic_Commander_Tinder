@@ -104,28 +104,36 @@ export function roleUrgency(stats: DeckStats, template: DeckTemplate): number {
   return Math.min(1, Math.max(0, (missing / slotsLeft - 0.7) / 0.3));
 }
 
-/** Short, human-readable reasons why the deck wants `card` right now. */
-export function explainCandidate(card: Candidate, ctx: ScoreContext, commanderName: string): string[] {
+export interface CandidateReason {
+  /** "fit" repeats the EDHREC numbers; "deck" comes from what this deck still needs. */
+  kind: "fit" | "deck";
+  text: string;
+}
+
+/** Short, human-readable reasons why the deck wants `card` right now, most telling first. */
+export function explainCandidate(card: Candidate, ctx: ScoreContext, commanderName: string): CandidateReason[] {
   const { stats, template } = ctx;
-  const reasons: string[] = [];
+  const reasons: CandidateReason[] = [];
+  const deck = (text: string) => reasons.push({ kind: "deck", text });
+  const fit = (text: string) => reasons.push({ kind: "fit", text });
   const combos = isLand(card) ? [] : ctx.combosCompleted(card);
-  if (combos.length) reasons.push(`Completes a combo with ${comboPartners(combos[0], card.name)}`);
-  if (card.synergy >= 0.3) reasons.push(`High synergy with ${commanderName}`);
-  if (card.inclusion >= 0.5) reasons.push(`A staple: in ${Math.round(card.inclusion * 100)}% of decks`);
+  if (combos.length) deck(`Completes a combo with ${comboPartners(combos[0], card.name)}`);
+  if (card.synergy >= 0.3) fit(`High synergy with ${commanderName}`);
+  if (card.inclusion >= 0.5) fit(`A staple: in ${Math.round(card.inclusion * 100)}% of decks`);
 
   if (isLand(card)) {
-    if (ctx.identity.length >= 2 && landColors(card, ctx.identity).length >= 2) reasons.push("Fixes your colors");
-    return reasons.slice(0, 3);
+    if (ctx.identity.length >= 2 && landColors(card, ctx.identity).length >= 2) deck("Fixes your colors");
+    return reasons;
   }
 
   for (const role of templateRoles(card)) {
     if (stats.roles[role] < template.roles[role]) {
-      reasons.push(`Your deck needs ${TEMPLATE_ROLE_LABELS[role].toLowerCase()} (${stats.roles[role]}/${template.roles[role]})`);
+      deck(`Your deck needs ${TEMPLATE_ROLE_LABELS[role].toLowerCase()} (${stats.roles[role]}/${template.roles[role]})`);
     }
   }
   const bucket = curveBucket(card.cmc);
   if (stats.curve[bucket] < template.curve[bucket]) {
-    reasons.push(`Fills a ${CURVE_LABELS[bucket]} mana slot (${stats.curve[bucket]}/${template.curve[bucket]})`);
+    deck(`Fills a ${CURVE_LABELS[bucket]} mana slot (${stats.curve[bucket]}/${template.curve[bucket]})`);
   }
-  return reasons.slice(0, 3);
+  return reasons;
 }
