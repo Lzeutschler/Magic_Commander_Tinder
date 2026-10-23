@@ -55,9 +55,12 @@ export function DeckSettingsForm({
   recommended,
   bracket,
   onChange,
+  showBudget = true,
 }: {
   settings: DeckSettings;
   recommended: DeckTemplate | null;
+  /** False where the budget has its own, more prominent control. */
+  showBudget?: boolean;
   bracket: Bracket;
   onChange: (settings: DeckSettings) => void;
 }) {
@@ -166,14 +169,16 @@ export function DeckSettingsForm({
         />
       </Section>
 
-      <Section title="Budget per card" description="Hides cards above this price (USD, Scryfall). Cards without a known price stay in.">
-        <Choice
-          label="Budget per card"
-          value={String(settings.preferences.maxPriceUsd)}
-          options={BUDGET_STEPS.map((b) => ({ value: String(b), label: b === null ? "No limit" : `$${b}` }))}
-          onChange={(v) => setPreference("maxPriceUsd", v === "null" ? null : Number(v))}
-        />
-      </Section>
+      {showBudget && (
+        <Section title="Budget per card" description="Hides cards above this price (USD, Scryfall). Cards without a known price stay in.">
+          <Choice
+            label="Budget per card"
+            value={String(settings.preferences.maxPriceUsd)}
+            options={BUDGET_STEPS.map((b) => ({ value: String(b), label: b === null ? "No limit" : `$${b}` }))}
+            onChange={(v) => setPreference("maxPriceUsd", v === "null" ? null : Number(v))}
+          />
+        </Section>
+      )}
 
       <Section
         title="Game Changers"

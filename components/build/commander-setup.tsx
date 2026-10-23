@@ -15,7 +15,7 @@ import { identityName } from "@/lib/cards/colors";
 import type { CommanderSummary } from "@/lib/cards/types";
 import { fetchCandidatePool, useCommanderInsights } from "@/lib/data/client";
 import { BRACKET_INFO } from "@/lib/deckbuilder/brackets";
-import { describeSettings, type DeckSettings } from "@/lib/deckbuilder/settings";
+import { BUDGET_STEPS, describeSettings, type DeckSettings } from "@/lib/deckbuilder/settings";
 import { profilePool, recommendTemplate } from "@/lib/deckbuilder/template";
 import { edhrecCommanderUrl } from "@/lib/edhrec/links";
 import type { Bracket } from "@/lib/edhrec/types";
@@ -27,6 +27,8 @@ import { BracketPicker } from "./bracket-picker";
 import { DeckSettingsForm } from "./deck-settings-form";
 
 const MAX_THEMES = 12;
+/** The lowest budget step: a deck of cards that cost a dollar or less. */
+const CHEAP_OUT = 1;
 const THEME_LABELS = new Map(THEMES.map((t) => [t.id, t.label]));
 
 /**
@@ -77,7 +79,10 @@ export function CommanderSetup({
     () => (pool.data ? recommendTemplate(bracket, commander.colorIdentity, profilePool(pool.data)) : null),
     [pool.data, bracket, commander.colorIdentity],
   );
-  const settingsNotes = describeSettings(settings);
+  // The budget has its own control above, so the summary of the advanced settings leaves it out.
+  const settingsNotes = describeSettings(settings, { budget: false });
+  const budget = settings.preferences.maxPriceUsd;
+  const setBudget = (maxPriceUsd: number | null) => setSettings({ ...settings, preferences: { ...settings.preferences, maxPriceUsd } });
 
   const start = () => {
     if (!insights.data) return;
@@ -156,6 +161,23 @@ export function CommanderSetup({
         </div>
 
         <div className="space-y-3">
+          <h3 className="ui-label text-muted-foreground">Budget per card</h3>
+          <div role="group" aria-label="Budget per card" className="flex flex-wrap gap-2">
+            {BUDGET_STEPS.map((step) => (
+              <ThemeChip key={String(step)} active={budget === step} onClick={() => setBudget(step)}>
+                {step === null ? "No limit" : `$${step}`}
+                {step === CHEAP_OUT && <span className="text-[11px] text-muted-foreground">Cheap-out</span>}
+              </ThemeChip>
+            ))}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {budget === null
+              ? "Any card can show up, whatever it costs."
+              : `Only cards up to $${budget} show up, so the 99 cost at most about $${(budget * 99).toLocaleString("en-US")}. Cards without a price stay in.`}
+          </p>
+        </div>
+
+        <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <Button variant="ghost" size="sm" className="-ml-3" aria-expanded={advancedOpen} onClick={() => setAdvancedOpen((open) => !open)}>
               <SlidersHorizontalIcon /> Advanced settings
@@ -163,7 +185,7 @@ export function CommanderSetup({
             </Button>
             {!advancedOpen && (
               <span className="text-xs text-muted-foreground">
-                {settingsNotes.length ? settingsNotes.join(" · ") : "Land count, role targets, curve, budget"}
+                {settingsNotes.length ? settingsNotes.join(" · ") : "Land count, role targets, curve, synergy"}
               </span>
             )}
           </div>
@@ -172,7 +194,7 @@ export function CommanderSetup({
               {pool.error && (
                 <p className="mb-4 text-sm text-destructive">Could not load the recommendation: {pool.error.message}</p>
               )}
-              <DeckSettingsForm settings={settings} recommended={recommended} bracket={bracket} onChange={setSettings} />
+              <DeckSettingsForm settings={settings} recommended={recommended} bracket={bracket} onChange={setSettings} showBudget={false} />
             </div>
           )}
         </div>
